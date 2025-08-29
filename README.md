@@ -49,3 +49,18 @@ III. YÊU CẦU VỀ DỮ LIỆU
 * Dữ liệu lưu trữ vĩnh viễn:
 * Được ghi xuống các file nhị phân có đuôi .dat
 * Mỗi loại dữ liệu có thể lưu riêng ra một file
+
+
+## SƠ ĐÔ KHỐI YÊU CẦU
+### 1.1 Sơ đồ lớp UML
+
+![af9006db-f208-4a1d-8eb0-3a2ef9275470](https://github.com/user-attachments/assets/bd670b60-03b7-498a-bfb5-a0cd1f5fb10f)
+
+### 1.2 1.2 Sơ đồ trình tự UML
+
+![291e4296-14f3-4501-a959-2889b4b7acf5](https://github.com/user-attachments/assets/7bf4ee60-e3ae-49ce-a9f1-a60cbe727ecd)
+
+
+
+
+
