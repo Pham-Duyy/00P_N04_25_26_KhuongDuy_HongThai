@@ -1,7 +1,7 @@
 # 00P_N04_25_26_KhuongDuy_HongThai
 Repo Working Group
-##NỘI DUNG 1
-                                               ## XÂY DỰNG ỨNG DỤNG QUẢN LÝ QUỸ NHÓM CỘNG ĐỒNG
+## NỘI DUNG 1
+## XÂY DỰNG ỨNG DỤNG QUẢN LÝ QUỸ NHÓM CỘNG ĐỒNG
 I. MỤC TIÊU ỨNG DỤNG
 * Ứng dụng hỗ trợ các nhóm cộng đồng như lớp học, nhóm bạn bè, nhóm thiện nguyện, câu lạc bộ... trong việc quản lý quỹ hoạt động, bao gồm:
 * Quản lý thành viên
