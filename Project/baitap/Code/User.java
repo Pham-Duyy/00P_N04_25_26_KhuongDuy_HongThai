@@ -27,8 +27,12 @@ public class User {
         return email;
     }
 
-    public void setemail(String email) {
-        this.email = email;
+   public void setEmail(String email) {
+        if (email.contains("@") && email.contains(".")) {
+            this.email = email;
+        } else {
+            System.out.println("Email không hợp lệ!");
+        }
     }
 
     public String getPassword() {
@@ -39,16 +43,17 @@ public class User {
         this.password = password;
     }
 
-   
+   // Phương thức để đặt lại mật khẩu
     public void forgotPassword(String newPassword) {
         this.password = newPassword;
         System.out.println("Password has been reset successfully.");
     }
-
+@Override
     public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+        return "User:" +
+                "username :'" + username + '\'' +
+                ", email :'" + email + '\'' +
+                ", password :'" + password + '\'' +
+                ":";
     }
 }

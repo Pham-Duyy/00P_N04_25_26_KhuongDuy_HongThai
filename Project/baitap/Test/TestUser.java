@@ -2,12 +2,12 @@ package Test;
 
 import Code.User;
 import java.util.Scanner;
-
+// Test class for User
 public class TestUser {
     public static void main(String[] args) {
         runTest();
     }
-
+// Method to run the test
     public static void runTest() {
         Scanner scanner = new Scanner(System.in);
 
@@ -29,7 +29,7 @@ public class TestUser {
         System.out.println("\nMật khẩu mới: " + user.getPassword());
 
         // Thay đổi email
-        user.setemail("vana.new@email.com");
+        user.setEmail("vana.new@email.com");
         System.out.println("Email mới: " + user.getEmail());
 
         // Nhập tên người dùng mới
@@ -40,7 +40,7 @@ public class TestUser {
         // Nhập email mới
         System.out.print("Nhập email mới: ");
         String newEmail = scanner.nextLine();
-        user.setemail(newEmail);
+        user.setEmail(newEmail);
 
         // Nhập mật khẩu mới
         System.out.print("Nhập mật khẩu mới: ");
