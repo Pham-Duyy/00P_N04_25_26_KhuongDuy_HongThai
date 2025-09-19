@@ -60,6 +60,37 @@ III. YÊU CẦU VỀ DỮ LIỆU
 
 ![291e4296-14f3-4501-a959-2889b4b7acf5](https://github.com/user-attachments/assets/7bf4ee60-e3ae-49ce-a9f1-a60cbe727ecd)
 
+### CÁC ĐỐI TƯỢNG CHÍNH ĐỂ MÔ TẢ ỨNG DỤNG 
+ 
+ 1. Admin (Quản trị viên)
+# Vai trò:
+- Là người quản lý hệ thống, chịu trách nhiệm quản lý người dùng và phân quyền cho các vai trò khác như Treasurer (Thủ quỹ) hoặc Member (Thành viên).
+## Chức năng chính:
+- addUser(user: User) – Thêm người dùng mới vào hệ thống.
+- removeUser(userId: int) – Xóa người dùng khỏi hệ thống.
+- assignRole(userId: int, role: String) – Gán hoặc thay đổi vai trò của người dùng (ví dụ: từ Member thành Treasurer).
+
+ 2. Treasurer (Thủ quỹ)
+# Vai trò:
+- Là người phụ trách tài chính của tổ chức. Có quyền kiểm soát các khoản chi tiêu và lập báo cáo tài chính.
+## Chức năng chính:
+- approveExpense(expenseId: int) – Phê duyệt các khoản chi tiêu trước khi được xử lý.
+- generateReport() – Tạo báo cáo tài chính dựa trên các giao dịch thu – chi.
+
+ 3. Member (Thành viên)
+# Vai trò:
+- Là thành viên của tổ chức, người có thể đóng góp tiền vào quỹ và theo dõi tình hình tài chính.
+## Chức năng chính:
+- makeContribution(amount: double) – Góp tiền vào quỹ chung.
+- viewBalance() – Xem số dư hiện tại của quỹ.
+
+ 4. Fund (Quỹ tài chính)
+# Vai trò:
+- Là đối tượng trung tâm của hệ thống, nơi lưu trữ và quản lý số dư tiền mặt. Mọi giao dịch đều ảnh hưởng đến quỹ này.
+## Chức năng chính:
+- addContribution(contribution: Contribution) – Thêm đóng góp vào quỹ (do Member thực hiện).
+- processExpense(expense: Expense) – Trừ tiền quỹ khi có chi tiêu được phê duyệt.
+- getBalance() – Trả về số dư hiện tại của quỹ.
 
 
 
