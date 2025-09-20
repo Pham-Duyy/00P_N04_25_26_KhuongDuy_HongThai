@@ -1,6 +1,7 @@
+package test;
 import model.User;
 
-public class App {
+public class testUser {
     public static void main(String[] args) {
         // Tạo user
         User user1 = new User(1, "Nguyen Van A", "a@example.com", "123456");
@@ -24,4 +25,5 @@ public class App {
         System.out.println("\n===== Đăng xuất =====");
         user1.logout();
     }
+    
 }
