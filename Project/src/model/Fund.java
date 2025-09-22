@@ -1,5 +1,6 @@
 package model;
-public class Fund{
+
+public class Fund {
     private String fundName;
     private double totalAmount;
 
@@ -35,23 +36,26 @@ public class Fund{
         }
     }
 
-    // Getter cho fundName
+    // Getter & Setter
     public String getFundName() {
         return fundName;
     }
 
-    // Setter cho fundName
     public void setFundName(String fundName) {
         this.fundName = fundName;
     }
 
-    // Getter cho totalAmount
     public double getTotalAmount() {
         return totalAmount;
     }
 
-    // Setter cho totalAmount
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    // ✅ Hàm cập nhật trực tiếp
+    public void updateFund(String newName, double newTotalAmount) {
+        this.fundName = newName;
+        this.totalAmount = newTotalAmount;
     }
 }

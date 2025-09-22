@@ -15,6 +15,12 @@ public class Income {
         System.out.println("Income Name: " + incomeName);
         System.out.println("Amount: " + amount);
     }
+        // Cập nhật thông tin thu nhập
+    public void updateIncome(String newIncomeName, double newAmount) {
+        this.incomeName = newIncomeName;
+        this.amount = newAmount;
+    }
+
 
     // Getter cho incomeName
     public String getIncomeName() {

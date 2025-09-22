@@ -35,4 +35,10 @@ public class Expense {
     public void setAmount(double amount) {
         this.amount = amount;
     }
+
+    // ✅ Hàm cập nhật trực tiếp
+    public void updateExpense(String newName, double newAmount) {
+        this.expenseName = newName;
+        this.amount = newAmount;
+    }
 }
