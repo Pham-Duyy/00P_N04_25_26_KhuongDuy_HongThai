@@ -43,6 +43,5 @@ public class IncomeController {
     @DeleteMapping("/{id}")
     public void deleteIncome(@PathVariable Long id) {
         incomeRepository.deleteById(id);
-    }
-    
+    } 
 }
