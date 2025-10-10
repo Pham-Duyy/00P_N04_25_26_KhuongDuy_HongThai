@@ -44,4 +44,5 @@ public class IncomeController {
     public void deleteIncome(@PathVariable Long id) {
         incomeRepository.deleteById(id);
     }
+    
 }
