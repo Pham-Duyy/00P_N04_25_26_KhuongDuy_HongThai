@@ -1,4 +1,6 @@
-public class ThreadExample extends Thread {
+package com.example.servingwebcontent;
+
+public class threadexample extends Thread {
     public static int count = 0;
 
     public static void main(String[] args) throws InterruptedException {
@@ -9,6 +11,7 @@ public class ThreadExample extends Thread {
         System.out.println("Count: " + count);
     }
 
+    @Override
     public void run() {
         count++;
     }

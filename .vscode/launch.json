@@ -2,6 +2,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "threadexample",
+            "request": "launch",
+            "mainClass": "com.example.servingwebcontent.threadexample",
+            "projectName": "serving-web-content-complete"
+        },
+        {
+            "type": "java",
+            "name": "ThreadExample",
+            "request": "launch",
+            "mainClass": "com.example.servingwebcontent.ThreadExample",
+            "projectName": "serving-web-content-complete"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-ServingWebContentApplication<serving-web-content-complete>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
