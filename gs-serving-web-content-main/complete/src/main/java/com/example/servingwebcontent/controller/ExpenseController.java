@@ -30,6 +30,7 @@ public class ExpenseController {
     public Expense createExpense(@RequestBody Expense expense) {
         return expenseRepository.save(expense);
     }
+    
 
     @PutMapping("/{id}")
     public Expense updateExpense(@PathVariable Long id, @RequestBody Expense expenseDetails) {
