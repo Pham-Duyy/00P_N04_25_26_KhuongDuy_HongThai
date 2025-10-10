@@ -39,7 +39,7 @@ public class MemberController {
         member.setPhone(memberDetails.getPhone());
         return memberRepository.save(member);
     }
-
+    
     @DeleteMapping("/{id}")
     public void deleteMember(@PathVariable Long id) {
         memberRepository.deleteById(id);
