@@ -31,7 +31,6 @@ public class ExpenseController {
         return expenseRepository.save(expense);
     }
     
-
     @PutMapping("/{id}")
     public Expense updateExpense(@PathVariable Long id, @RequestBody Expense expenseDetails) {
         Expense expense = expenseRepository.findById(id).orElseThrow();
