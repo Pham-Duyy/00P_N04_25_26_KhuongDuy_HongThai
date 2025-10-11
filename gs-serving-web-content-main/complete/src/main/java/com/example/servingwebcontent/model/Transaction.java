@@ -2,15 +2,20 @@ package com.example.servingwebcontent.model;
 
 import java.time.LocalDateTime;
 
-public class Expense {
+public class Transaction {
     private Long id;
     private double amount;
     private String description;
     private LocalDateTime date;
-    private Member member;
     private Category category;
+    private Member member;
+    private TransactionType type; // INCOME or EXPENSE
 
-    //Getters and setters
+    public enum TransactionType {
+        INCOME, EXPENSE
+    }
+
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -26,26 +31,32 @@ public class Expense {
     public String getDescription() {
         return description;
     }
-    public void setDescription(String description) {
+    public void setDescription(String description) {            
         this.description = description;
-    }
+    }   
     public LocalDateTime getDate() {
         return date;
-    }
+    }           
     public void setDate(LocalDateTime date) {
         this.date = date;
-    }
-    public Member getMember() {
-        return member;
-    }
-    public void setMember(Member member) {
-        this.member = member;
     }
     public Category getCategory() {
         return category;
     }
     public void setCategory(Category category) {
         this.category = category;
+    }   
+    public Member getMember() {
+        return member;
     }
+    public void setMember(Member member) {
+        this.member = member;   
+    }
+    public TransactionType getType() {
+        return type;                
+    }       
+    public void setType(TransactionType type) {
+        this.type = type;
+    }   
+
 }
-    
