@@ -1,37 +1,33 @@
 package com.fund.group09.Model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "funds")
 public class Fund {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private double balance;
+    private Double balance;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", unique = true)
+    private String description;
+
+    @OneToOne
+    @JoinColumn(name = "group_id")
     private Group group;
 
     public Fund() {
     }
 
-    public Fund(double balance, Group group) {
+    public Fund(Double balance, String description, Group group) {
         this.balance = balance;
+        this.description = description;
         this.group = group;
     }
 
+    // Getters & Setters
     public Long getId() {
         return id;
     }
@@ -40,12 +36,20 @@ public class Fund {
         this.id = id;
     }
 
-    public double getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Group getGroup() {

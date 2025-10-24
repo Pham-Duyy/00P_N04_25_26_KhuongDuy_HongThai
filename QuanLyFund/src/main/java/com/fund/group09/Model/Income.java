@@ -1,55 +1,47 @@
 package com.fund.group09.Model;
 
-import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "incomes")
 public class Income {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private double amount;
+    //  Số tiền thu
+    private Double amount;
 
-    @Column(nullable = false)
-    private String source;
+    // Ngày thu
+    private LocalDate date;
 
-    @Column(nullable = false)
-    private LocalDateTime date;
+    //  Mô tả khoản thu
+    private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //  Thành viên nào thu
+    @ManyToOne
     @JoinColumn(name = "member_id")
-    @JsonIgnore
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    //  Mỗi khoản thu có thể ảnh hưởng đến quỹ (nếu có)
+    @ManyToOne
+    @JoinColumn(name = "fund_id")
+    private Fund fund;
 
-    public Income() {
-    }
+    //  Constructor
+    public Income() {}
 
-    public Income(double amount, String source, LocalDateTime date, Member member, Category category) {
+    public Income(Double amount, LocalDate date, String description, Member member, Fund fund) {
         this.amount = amount;
-        this.source = source;
         this.date = date;
+        this.description = description;
         this.member = member;
-        this.category = category;
+        this.fund = fund;
     }
 
+    //  Getter & Setter
     public Long getId() {
         return id;
     }
@@ -58,28 +50,28 @@ public class Income {
         this.id = id;
     }
 
-    public double getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Member getMember() {
@@ -90,11 +82,11 @@ public class Income {
         this.member = member;
     }
 
-    public Category getCategory() {
-        return category;
+    public Fund getFund() {
+        return fund;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setFund(Fund fund) {
+        this.fund = fund;
     }
 }

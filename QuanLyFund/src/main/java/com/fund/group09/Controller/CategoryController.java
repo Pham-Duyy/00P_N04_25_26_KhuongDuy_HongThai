@@ -1,71 +1,65 @@
 package com.fund.group09.Controller;
 
+import com.fund.group09.Model.Category;
+import com.fund.group09.Service.CategoryService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fund.group09.Model.Category;
-import com.fund.group09.Repository.CategoryRepository;
-
 @RestController
-@RequestMapping("/categories")
-@CrossOrigin(origins = "*") // Cho phép frontend gọi API
+@RequestMapping("/api/categories")
+@CrossOrigin(origins = "*")
 public class CategoryController {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    // ✅ Lấy tất cả category
-    @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
-    // ✅ Lấy category theo id
+    // Lấy tất cả category
+    @GetMapping
+    public List<Category> getAllCategories() {
+        return categoryService.findAll();
+    }
+
+    // Lấy category theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-        return categoryRepository.findById(id)
+        return categoryService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Thêm mới category
+    // Thêm mới category
     @PostMapping
-    public ResponseEntity<Category> addCategory(@RequestBody Category category) {
-        Category saved = categoryRepository.save(category);
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+        Category saved = categoryService.save(category);
         return ResponseEntity.status(201).body(saved);
     }
 
-    // ✅ Cập nhật category
+    // Cập nhật category
     @PutMapping("/{id}")
     public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category newCategory) {
-        return categoryRepository.findById(id)
+        return categoryService.findById(id)
                 .map(category -> {
                     category.setName(newCategory.getName());
                     category.setDescription(newCategory.getDescription());
-                    Category updated = categoryRepository.save(category);
+                    category.setType(newCategory.getType());
+                    Category updated = categoryService.save(category);
                     return ResponseEntity.ok(updated);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Xóa category
+    // Xóa category
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        if (!categoryRepository.existsById(id)) {
+        if (!categoryService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        categoryRepository.deleteById(id);
+        categoryService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,71 +1,67 @@
 package com.fund.group09.Controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.fund.group09.Model.Fund;
-import com.fund.group09.Repository.FundRepository;
+import com.fund.group09.Service.FundService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/funds")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Cho phép frontend gọi API từ bất kỳ domain nào
 public class FundController {
 
-    @Autowired
-    private FundRepository fundRepository;
+    private final FundService fundService;
 
-    // ✅ Lấy tất cả fund
-    @GetMapping
-    public List<Fund> getAllFunds() {
-        return fundRepository.findAll();
+    public FundController(FundService fundService) {
+        this.fundService = fundService;
     }
 
-    // ✅ Lấy fund theo id
+    //  Lấy danh sách tất cả Fund
+    @GetMapping
+    public ResponseEntity<List<Fund>> getAllFunds() {
+        List<Fund> funds = fundService.getAll();
+        return ResponseEntity.ok(funds);
+    }
+
+    //  Lấy Fund theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Fund> getFundById(@PathVariable Long id) {
-        return fundRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Fund fund = fundService.getById(id);
+        if (fund == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(fund);
     }
 
-    // ✅ Thêm fund mới
+    //  Thêm mới Fund
     @PostMapping
-    public ResponseEntity<Fund> addFund(@RequestBody Fund fund) {
-        Fund saved = fundRepository.save(fund);
+    public ResponseEntity<Fund> createFund(@RequestBody Fund fund) {
+        if (fund.getBalance() == null || fund.getBalance() < 0) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        Fund saved = fundService.save(fund);
         return ResponseEntity.status(201).body(saved);
     }
 
-    // ✅ Cập nhật fund
+    //  Cập nhật Fund
     @PutMapping("/{id}")
     public ResponseEntity<Fund> updateFund(@PathVariable Long id, @RequestBody Fund newFund) {
-        return fundRepository.findById(id)
-                .map(fund -> {
-                    fund.setBalance(newFund.getBalance());
-                    fund.setGroup(newFund.getGroup());
-                    Fund updated = fundRepository.save(fund);
-                    return ResponseEntity.ok(updated);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // ✅ Xóa fund
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFund(@PathVariable Long id) {
-        if (!fundRepository.existsById(id)) {
+        Fund updated = fundService.update(id, newFund);
+        if (updated == null) {
             return ResponseEntity.notFound().build();
         }
-        fundRepository.deleteById(id);
+        return ResponseEntity.ok(updated);
+    }
+
+    //  Xóa Fund
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFund(@PathVariable Long id) {
+        boolean deleted = fundService.delete(id);
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.noContent().build();
     }
 }

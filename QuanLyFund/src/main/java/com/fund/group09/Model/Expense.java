@@ -1,47 +1,34 @@
 package com.fund.group09.Model;
 
-import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "expenses")
 public class Expense {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private double amount;
+    private Double amount;
 
     private String description;
 
-    @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDate date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "member_id")
-    @JsonIgnore
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
     public Expense() {
     }
 
-    public Expense(double amount, String description, LocalDateTime date, Member member, Category category) {
+    public Expense(Double amount, String description, LocalDate date, Member member, Category category) {
         this.amount = amount;
         this.description = description;
         this.date = date;
@@ -49,6 +36,7 @@ public class Expense {
         this.category = category;
     }
 
+    // Getters & Setters
     public Long getId() {
         return id;
     }
@@ -57,11 +45,11 @@ public class Expense {
         this.id = id;
     }
 
-    public double getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 
@@ -73,11 +61,11 @@ public class Expense {
         this.description = description;
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

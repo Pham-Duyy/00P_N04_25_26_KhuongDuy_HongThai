@@ -1,72 +1,73 @@
 package com.fund.group09.Controller;
 
-import java.util.List;
-
+import com.fund.group09.Model.Member;
+import com.fund.group09.Service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fund.group09.Model.Member;
-import com.fund.group09.Repository.MemberRepository;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
 
 @RestController
 @RequestMapping("/members")
-@CrossOrigin(origins = "*") // Cho phép gọi từ frontend (React, Angular,...)
+@CrossOrigin(origins = "*")
 public class MemberController {
 
     @Autowired
-    private MemberRepository memberRepository;
+    private MemberService memberService;
 
-    // ✅ Lấy tất cả member
+    //  Lấy tất cả
     @GetMapping
-    public List<Member> getAllMembers() {
-        return memberRepository.findAll();
+    public ResponseEntity<List<Member>> getAllMembers() {
+        return ResponseEntity.ok(memberService.getAllMembers());
     }
 
-    // ✅ Lấy member theo ID
+    //  Lấy theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Member> getMemberById(@PathVariable Long id) {
-        return memberRepository.findById(id)
+        return memberService.getMemberById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Thêm mới member
+    //  Thêm mới
     @PostMapping
     public ResponseEntity<Member> addMember(@RequestBody Member member) {
-        Member saved = memberRepository.save(member);
+        Member saved = memberService.addMember(member);
         return ResponseEntity.status(201).body(saved);
     }
 
-    // ✅ Cập nhật member
+    //  Cập nhật
     @PutMapping("/{id}")
     public ResponseEntity<Member> updateMember(@PathVariable Long id, @RequestBody Member newMember) {
-        return memberRepository.findById(id)
-                .map(member -> {
-                    member.setName(newMember.getName());
-                    member.setEmail(newMember.getEmail());
-                    member.setRole(newMember.getRole());
-                    Member updated = memberRepository.save(member);
-                    return ResponseEntity.ok(updated);
-                })
+        return memberService.updateMember(id, newMember)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Xóa member
+    //  Xóa
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
-        if (!memberRepository.existsById(id)) {
+        boolean deleted = memberService.deleteMember(id);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    //  Lấy theo nhóm
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<Member>> getMembersByGroup(@PathVariable Long groupId) {
+        List<Member> members = memberService.getMembersByGroup(groupId);
+        if (members.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(members);
+    }
+
+    //  Tổng kết tài chính cá nhân
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<Map<String, Object>> getMemberSummary(@PathVariable Long id) {
+        Map<String, Object> summary = memberService.getMemberSummary(id);
+        if (summary == null) {
             return ResponseEntity.notFound().build();
         }
-        memberRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(summary);
     }
 }

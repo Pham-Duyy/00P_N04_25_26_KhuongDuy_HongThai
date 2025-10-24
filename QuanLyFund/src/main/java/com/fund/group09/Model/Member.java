@@ -1,24 +1,13 @@
 package com.fund.group09.Model;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "members")
 public class Member {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -45,8 +34,8 @@ public class Member {
     @JsonIgnore
     private List<Income> incomes;
 
-    public Member() {
-    }
+    //  Constructors
+    public Member() {}
 
     public Member(String name, String email, Role role) {
         this.name = name;
@@ -54,6 +43,7 @@ public class Member {
         this.role = role;
     }
 
+    //  Getters & Setters
     public Long getId() {
         return id;
     }

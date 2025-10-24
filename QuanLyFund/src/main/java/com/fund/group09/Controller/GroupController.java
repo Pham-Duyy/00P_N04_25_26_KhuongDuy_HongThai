@@ -1,21 +1,16 @@
 package com.fund.group09.Controller;
 
-import java.util.List;
-
+import com.fund.group09.Model.Group;
+import com.fund.group09.Model.Expense;
+import com.fund.group09.Model.Income;
+import com.fund.group09.Repository.GroupRepository;
+import com.fund.group09.Repository.ExpenseRepository;
+import com.fund.group09.Repository.IncomeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.fund.group09.Model.Group;
-import com.fund.group09.Repository.GroupRepository;
+import java.util.*;
 
 @RestController
 @RequestMapping("/groups")
@@ -25,13 +20,19 @@ public class GroupController {
     @Autowired
     private GroupRepository groupRepository;
 
-    // ✅ Lấy tất cả group
+    @Autowired
+    private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private IncomeRepository incomeRepository;
+
+    // Lấy tất cả nhóm
     @GetMapping
     public List<Group> getAllGroups() {
         return groupRepository.findAll();
     }
 
-    // ✅ Lấy group theo id
+    // Lấy nhóm theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Group> getGroupById(@PathVariable Long id) {
         return groupRepository.findById(id)
@@ -39,14 +40,14 @@ public class GroupController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Thêm group mới
+    // Tạo nhóm mới
     @PostMapping
-    public ResponseEntity<Group> addGroup(@RequestBody Group group) {
+    public ResponseEntity<Group> createGroup(@RequestBody Group group) {
         Group saved = groupRepository.save(group);
         return ResponseEntity.status(201).body(saved);
     }
 
-    // ✅ Cập nhật group theo id
+    // Cập nhật nhóm
     @PutMapping("/{id}")
     public ResponseEntity<Group> updateGroup(@PathVariable Long id, @RequestBody Group newGroup) {
         return groupRepository.findById(id)
@@ -61,7 +62,7 @@ public class GroupController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Xóa group theo id
+    // Xóa nhóm
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {
         if (!groupRepository.existsById(id)) {
@@ -69,5 +70,43 @@ public class GroupController {
         }
         groupRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // API thống kê tổng thu - chi - quỹ của nhóm
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<Map<String, Object>> getGroupSummary(@PathVariable Long id) {
+        Optional<Group> groupOpt = groupRepository.findById(id);
+        if (groupOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Group group = groupOpt.get();
+
+        // Lấy toàn bộ expense & income của nhóm (thông qua các member)
+        List<Expense> expenses = expenseRepository.findAll();
+        List<Income> incomes = incomeRepository.findAll();
+
+        double totalExpense = expenses.stream()
+                .filter(e -> e.getMember() != null && e.getMember().getGroup() != null
+                        && e.getMember().getGroup().getId().equals(id))
+                .mapToDouble(Expense::getAmount)
+                .sum();
+
+        double totalIncome = incomes.stream()
+                .filter(i -> i.getMember() != null && i.getMember().getGroup() != null
+                        && i.getMember().getGroup().getId().equals(id))
+                .mapToDouble(Income::getAmount)
+                .sum();
+
+        double currentBalance = totalIncome - totalExpense;
+
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("groupName", group.getName());
+        summary.put("totalIncome", totalIncome);
+        summary.put("totalExpense", totalExpense);
+        summary.put("currentBalance", currentBalance);
+        summary.put("membersCount", group.getMembers() != null ? group.getMembers().size() : 0);
+
+        return ResponseEntity.ok(summary);
     }
 }
