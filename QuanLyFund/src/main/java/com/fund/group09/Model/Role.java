@@ -1,19 +1,13 @@
 package com.fund.group09.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import java.util.List;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "roles")
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,17 +17,19 @@ public class Role {
 
     private String description;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore //  Ngăn vòng lặp khi trả về JSON
     private List<Member> members;
 
-    public Role() {
-    }
+    //  Constructors
+    public Role() {}
 
     public Role(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
+    //  Getters & Setters
     public Long getId() {
         return id;
     }

@@ -1,43 +1,37 @@
 package com.fund.group09.Model;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" }) // Tránh lỗi Lazy khi convert JSON
 public class Transaction {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private double amount;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount; // Dùng BigDecimal để tính tiền chính xác
 
+    @Column(length = 255)
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDateTime date = LocalDateTime.now(); // Gán mặc định thời gian hiện tại
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @JsonIgnoreProperties("transactions") // Ngăn vòng lặp JSON
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    @JsonIgnore
+    @JsonIgnore // Không trả member trong transaction JSON để tránh vòng lặp
     private Member member;
 
     @Enumerated(EnumType.STRING)
@@ -48,19 +42,21 @@ public class Transaction {
         INCOME, EXPENSE
     }
 
+    // ✅ Constructors
     public Transaction() {
     }
 
-    public Transaction(double amount, String description, LocalDateTime date,
+    public Transaction(BigDecimal amount, String description, LocalDateTime date,
             Category category, Member member, TransactionType type) {
         this.amount = amount;
         this.description = description;
-        this.date = date;
+        this.date = date != null ? date : LocalDateTime.now();
         this.category = category;
         this.member = member;
         this.type = type;
     }
 
+    // ✅ Getters & Setters
     public Long getId() {
         return id;
     }
@@ -69,11 +65,11 @@ public class Transaction {
         this.id = id;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
