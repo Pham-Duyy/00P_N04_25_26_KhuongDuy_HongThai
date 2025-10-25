@@ -1,0 +1,137 @@
+/* --- Base Styles --- */
+body {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+    color: #e0e0e0;
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+}
+
+.glass-effect {
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.container, .login-container {
+    background: rgba(40, 40, 40, 0.85);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    color: #e0e0e0;
+}
+
+input, select, button {
+    background: #232526;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #3b82f655;
+}
+
+button {
+    background: #444;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+button:hover {
+    background: #222;
+    color: #fff;
+}
+
+/* --- Password Strength --- */
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    margin-top: 4px;
+}
+
+.strength-weak {
+    background-color: #ef4444;
+    width: 25%;
+}
+
+.strength-fair {
+    background-color: #f59e0b;
+    width: 50%;
+}
+
+.strength-good {
+    background-color: #3b82f6;
+    width: 75%;
+}
+
+.strength-strong {
+    background-color: #10b981;
+    width: 100%;
+}
+
+/* --- Luxury Theme Styles --- */
+.luxury-nav {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.luxury-sidebar {
+    background: linear-gradient(180deg, #4d3c3c 0%, #111827 100%);
+    box-shadow: 20px 0 40px rgba(0,0,0,0.3);
+}
+
+.luxury-card {
+    background: linear-gradient(135deg, #000000 0%, #111827 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.luxury-card:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+.luxury-icon {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.luxury-text {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.luxury-button {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+    color: #fff;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.luxury-button:hover {
+    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+/* --- Dark Card for Dashboard --- */
+.dark-card {
+    background: linear-gradient(135deg, #18181b 0%, #232526 100%);
+    border: 1px solid #232526;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+
+/* --- Utility --- */
+.card-hover {
+    transition: box-shadow 0.2s, border 0.2s;
+}
