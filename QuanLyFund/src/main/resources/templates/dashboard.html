@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Fund Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-link.active, .sidebar-link:hover {
+            background: rgba(59,130,246,0.15);
+            color: #60a5fa;
+        }
+        .transition {
+            transition: all 0.2s;
+        }
+        .modal {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 p-6 flex flex-col glass shadow-lg">
+            <div class="flex items-center mb-10">
+                <i class="fas fa-wallet text-3xl text-blue-400 mr-3"></i>
+                <span class="text-2xl font-bold text-white">Fund Manager</span>
+            </div>
+            <nav class="flex-1">
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition active" onclick="showDashboard()">
+                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showMembers()">
+                    <i class="fas fa-users mr-3"></i> Thành viên
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showGroups()">
+                    <i class="fas fa-coins mr-3"></i> Quỹ nhóm
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showReports()">
+                    <i class="fas fa-chart-line mr-3"></i> Báo cáo
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showSettings()">
+                    <i class="fas fa-cog mr-3"></i> Cài đặt
+                </a>
+            </nav>
+            <button id="logoutBtn" class="mt-8 w-full py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:opacity-90 transition">
+                <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Chào mừng, <span id="userName">User</span>!</h1>
+                    <p class="text-white text-opacity-70">Quản lý ngân sách nhóm của bạn dễ dàng hơn bao giờ hết.</p>
+                </div>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <button onclick="openTransactionModal()" class="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition">
+                        <i class="fas fa-plus mr-2"></i> Thêm giao dịch
+                    </button>
+                    <button onclick="openInviteModal()" class="py-2 px-4 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition">
+                        <i class="fas fa-users mr-2"></i> Mời thành viên
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass p-6 flex items-center cursor-pointer hover:shadow-lg transition" onclick="showFundDetails()">
+                    <div class="bg-blue-500 bg-opacity-20 p-4 rounded-full mr-4">
+                        <i class="fas fa-wallet text-2xl text-blue-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-white">Tổng quỹ</div>
+                        <div class="text-2xl font-bold text-blue-300" id="totalFund">0₫</div>
+                    </div>
+                </div>
+                <div class="glass p-6 flex items-center cursor-pointer hover:shadow-lg transition" onclick="showIncomeDetails()">
+                    <div class="bg-green-500 bg-opacity-20 p-4 rounded-full mr-4">
+                        <i class="fas fa-arrow-down text-2xl text-green-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-white">Thu nhập</div>
+                        <div class="text-2xl font-bold text-green-300" id="income">0₫</div>
+                    </div>
+                </div>
+                <div class="glass p-6 flex items-center cursor-pointer hover:shadow-lg transition" onclick="showExpenseDetails()">
+                    <div class="bg-red-500 bg-opacity-20 p-4 rounded-full mr-4">
+                        <i class="fas fa-arrow-up text-2xl text-red-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-white">Chi tiêu</div>
+                        <div class="text-2xl font-bold text-red-300" id="expense">0₫</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="glass p-6 rounded-xl shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-white">Giao dịch gần đây</h2>
+                    <button onclick="showAllTransactions()" class="text-blue-400 hover:underline">Xem tất cả</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-blue-300">
+                                <th class="py-2">Ngày</th>
+                                <th class="py-2">Mô tả</th>
+                                <th class="py-2">Loại</th>
+                                <th class="py-2">Số tiền</th>
+                                <th class="py-2">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTable">
+                            <!-- Transactions will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal absolute inset-0 flex items-center justify-center">
+            <div class="modal-content w-full max-w-md p-6 rounded-lg">
+                <h3 class="text-xl font-bold text-white mb-4">Thêm giao dịch mới</h3>
+                <form id="transactionForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Loại giao dịch</label>
+                        <select id="transactionType" class="w-full p-2 rounded-lg bg-gray-700 text-white">
+                            <option value="income">Thu nhập</option>
+                            <option value="expense">Chi tiêu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Số tiền</label>
+                        <input type="number" id="amount" class="w-full p-2 rounded-lg bg-gray-700 text-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Mô tả</label>
+                        <input type="text" id="description" class="w-full p-2 rounded-lg bg-gray-700 text-white" required>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeTransactionModal()" class="px-4 py-2 text-gray-300 hover:text-white">
+                            Hủy
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Modal -->
+    <div id="inviteModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal absolute inset-0 flex items-center justify-center">
+            <div class="modal-content w-full max-w-md p-6 rounded-lg">
+                <h3 class="text-xl font-bold text-white mb-4">Mời thành viên mới</h3>
+                <form id="inviteForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                        <input type="email" id="inviteEmail" class="w-full p-2 rounded-lg bg-gray-700 text-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Vai trò</label>
+                        <select id="inviteRole" class="w-full p-2 rounded-lg bg-gray-700 text-white">
+                            <option value="member">Thành viên</option>
+                            <option value="admin">Quản trị viên</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeInviteModal()" class="px-4 py-2 text-gray-300 hover:text-white">
+                            Hủy
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
+                            Gửi lời mời
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="glass p-4 rounded-lg shadow-lg">
+            <div class="flex items-center">
+                <i id="notificationIcon" class="mr-3"></i>
+                <p id="notificationMessage" class="text-white"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                window.location.href = '/login';
+                return;
+            }
+
+            // Set user name
+            document.getElementById('userName').textContent = user.name || user.username || 'User';
+
+            // Load initial data
+            loadDashboardData();
+            loadRecentTransactions();
+
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Load dashboard data from API
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/groups/1/summary'); // Assuming group ID 1
+                const data = await response.json();
+
+                document.getElementById('totalFund').textContent = formatCurrency(data.currentBalance);
+                document.getElementById('income').textContent = formatCurrency(data.totalIncome);
+                document.getElementById('expense').textContent = formatCurrency(data.totalExpense);
+            } catch (error) {
+                showNotification('Không thể tải dữ liệu dashboard', 'error');
+            }
+        }
+
+        // Load recent transactions
+        async function loadRecentTransactions() {
+            try {
+                const transactions = [
+                    { date: '2025-10-25', desc: 'Đóng quỹ tháng 10', type: 'Thu', amount: '+2,000,000₫', color: 'text-green-400' },
+                    { date: '2025-10-20', desc: 'Mua văn phòng phẩm', type: 'Chi', amount: '-500,000₫', color: 'text-red-400' },
+                    { date: '2025-10-18', desc: 'Nhận tài trợ', type: 'Thu', amount: '+3,000,000₫', color: 'text-green-400' },
+                    { date: '2025-10-15', desc: 'Tiệc nhóm', type: 'Chi', amount: '-1,500,000₫', color: 'text-red-400' }
+                ];
+
+                const tbody = document.getElementById('transactionTable');
+                tbody.innerHTML = transactions.map(tr => `
+                    <tr>
+                        <td class="py-2">${tr.date}</td>
+                        <td class="py-2">${tr.desc}</td>
+                        <td class="py-2">${tr.type}</td>
+                        <td class="py-2 font-bold ${tr.color}">${tr.amount}</td>
+                        <td class="py-2">
+                            <button onclick="editTransaction('${tr.date}')" class="text-blue-400 hover:text-blue-300 mr-2">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteTransaction('${tr.date}')" class="text-red-400 hover:text-red-300">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showNotification('Không thể tải giao dịch gần đây', 'error');
+            }
+        }
+
+        // Modal functions
+        function openTransactionModal() {
+            document.getElementById('transactionModal').classList.remove('hidden');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').classList.add('hidden');
+        }
+
+        function openInviteModal() {
+            document.getElementById('inviteModal').classList.remove('hidden');
+        }
+
+        function closeInviteModal() {
+            document.getElementById('inviteModal').classList.add('hidden');
+        }
+
+        // Form submissions
+        document.getElementById('transactionForm').onsubmit = async function(e) {
+            e.preventDefault();
+            try {
+                // Add transaction logic here
+                showNotification('Thêm giao dịch thành công', 'success');
+                closeTransactionModal();
+                loadDashboardData();
+                loadRecentTransactions();
+            } catch (error) {
+                showNotification('Không thể thêm giao dịch', 'error');
+            }
+        };
+
+        document.getElementById('inviteForm').onsubmit = async function(e) {
+            e.preventDefault();
+            try {
+                // Add invite logic here
+                showNotification('Đã gửi lời mời thành công', 'success');
+                closeInviteModal();
+            } catch (error) {
+                showNotification('Không thể gửi lời mời', 'error');
+            }
+        };
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const messageEl = document.getElementById('notificationMessage');
+
+            const icons = {
+                success: '<i class="fas fa-check-circle text-green-400 text-xl"></i>',
+                error: '<i class="fas fa-exclamation-circle text-red-400 text-xl"></i>',
+                info: '<i class="fas fa-info-circle text-blue-400 text-xl"></i>'
+            };
+
+            icon.innerHTML = icons[type] || icons.info;
+            messageEl.textContent = message;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Navigation functions
+        function showDashboard() {
+            // Implement dashboard view
+        }
+
+        function showMembers() {
+            // Implement members view
+        }
+
+        function showGroups() {
+            // Implement groups view
+        }
+
+        function showReports() {
+            // Implement reports view
+        }
+
+        function showSettings() {
+            // Implement settings view
+        }
+
+        // Transaction management
+        function editTransaction(date) {
+            // Implement edit logic
+            showNotification('Chức năng đang được phát triển', 'info');
+        }
+
+        function deleteTransaction(date) {
+            // Implement delete logic
+            showNotification('Chức năng đang được phát triển', 'info');
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').onclick = function() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = '/login';
+        };
+    </script>
+</body>
+</html>
