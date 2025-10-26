@@ -52,18 +52,17 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Spring Security để dùng BCryptPasswordEncoder -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-
 		<!-- Jakarta Persistence API -->
 		<dependency>
 			<groupId>jakarta.persistence</groupId>
 			<artifactId>jakarta.persistence-api</artifactId>
 		</dependency>
+		<!-- Spring Security -->
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
 
 		<!-- Hibernate Core -->
 		<dependency>
