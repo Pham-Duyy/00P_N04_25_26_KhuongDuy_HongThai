@@ -10,7 +10,7 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    @GetMapping("/login") 
+    @GetMapping("/login")
     public String loginPage() {
         return "users/login"; // Thêm users/ vào trước
     }
