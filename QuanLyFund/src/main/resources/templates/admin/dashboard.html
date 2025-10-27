@@ -381,10 +381,13 @@
         }
 
         // Logout
-        document.getElementById('logoutBtn').onclick = function() {
+        document.getElementById('logoutBtn').onclick = async function() {
+            try {
+                await fetch('/users/logout', { method: 'GET', credentials: 'same-origin' });
+            } catch (e) {}
             localStorage.removeItem('user');
             localStorage.removeItem('isLoggedIn');
-            window.location.href = '/login';
+            window.location.href = '/login?logout';
         };
     </script>
 </body>

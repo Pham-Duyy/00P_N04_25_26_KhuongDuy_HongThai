@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Base styles */
         body {
             background: linear-gradient(135deg, #232526 0%, #414345 100%);
             color: #e0e0e0;
@@ -20,7 +19,6 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* Input styles */
         input {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -33,13 +31,11 @@
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
         }
 
-        /* Button hover effects */
         .btn-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        /* Animation keyframes */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -105,6 +101,26 @@
                     >
                         <i class="fas fa-eye"></i>
                     </button>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user-tag text-white text-opacity-60"></i>
+                    </div>
+                    <select 
+                        name="role" 
+                        id="role"
+                        class="w-full pl-10 pr-4 py-3 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300 appearance-none bg-[rgba(255,255,255,0.1)]"
+                        required
+                    >
+                        <option value="" class="text-gray-800">Chọn vai trò</option>
+                        <option value="USER" class="text-gray-800">Thành viên</option>
+                        <option value="ADMIN" class="text-gray-800">Quản trị viên</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <i class="fas fa-chevron-down text-white text-opacity-60"></i>
+                    </div>
                 </div>
 
                 <!-- Remember Me & Forgot Password -->
@@ -176,6 +192,12 @@
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
+                const selectedRole = document.getElementById('role').value;
+                if (!selectedRole) {
+                    showNotification('Vui lòng chọn vai trò đăng nhập', 'error');
+                    return;
+                }
+
                 // Update button state
                 loginForm.querySelector('button[type="submit"]').disabled = true;
                 loginBtnText.textContent = 'Đang đăng nhập...';
@@ -187,7 +209,8 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email: document.getElementById('email').value.trim(),
-                            password: passwordInput.value.trim()
+                            password: passwordInput.value.trim(),
+                            role: selectedRole
                         })
                     });
 
@@ -195,12 +218,21 @@
 
                     if (response.ok) {
                         // Save user data and redirect
-                        localStorage.setItem('user', JSON.stringify(result.user));
+                        if (result.user) {
+                            localStorage.setItem('user', JSON.stringify(result.user));
+                        } else {
+                            localStorage.setItem('role', selectedRole);
+                        }
                         localStorage.setItem('isLoggedIn', 'true');
                         showNotification('✅ Đăng nhập thành công!', 'success');
                         
                         setTimeout(() => {
-                            window.location.href = '/dashboard';
+                            const redirectRole = result.user?.role || selectedRole;
+                            if (redirectRole === 'ADMIN') {
+                                window.location.href = '/admin/dashboard';
+                            } else {
+                                window.location.href = '/dashboard';
+                            }
                         }, 1000);
                     } else {
                         showNotification('❌ ' + (result.message || 'Đăng nhập thất bại'), 'error');
