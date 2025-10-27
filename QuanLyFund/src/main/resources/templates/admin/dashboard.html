@@ -3,392 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Fund Manager</title>
+    <title>Admin Dashboard - Fund Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #232526 0%, #414345 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
             min-height: 100vh;
         }
         .glass {
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
-        .sidebar-link.active, .sidebar-link:hover {
-            background: rgba(59,130,246,0.15);
-            color: #60a5fa;
+        .sidebar-link:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateX(5px);
+        }
+        .sidebar-link.active {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .gradient-text {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .transition {
-            transition: all 0.2s;
-        }
-        .modal {
-            background: rgba(0, 0, 0, 0.5);
-        }
-        .modal-content {
-            background: rgba(30, 30, 30, 0.95);
-            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
     </style>
 </head>
 <body>
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 p-6 flex flex-col glass shadow-lg">
-            <div class="flex items-center mb-10">
-                <i class="fas fa-wallet text-3xl text-blue-400 mr-3"></i>
-                <span class="text-2xl font-bold text-white">Fund Manager</span>
+        <aside class="w-72 p-6 flex flex-col glass shadow-xl m-4 rounded-2xl">
+            <div class="flex items-center mb-12">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full mr-4">
+                    <i class="fas fa-wallet text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-100">Fund Manager</h1>
+                    <p class="text-sm text-slate-400">Admin Panel</p>
+                </div>
             </div>
-            <nav class="flex-1">
-                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition active" onclick="showDashboard()">
-                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+            
+            <nav class="flex-1 space-y-2">
+                <a href="/admin/dashboard" class="sidebar-link active flex items-center px-6 py-4 rounded-xl mb-2 transition">
+                    <i class="fas fa-tachometer-alt mr-4 text-xl"></i> 
+                    <span class="font-medium">Dashboard</span>
                 </a>
-                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showMembers()">
-                    <i class="fas fa-users mr-3"></i> Thành viên
+                <a href="/admin/groups" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-users-cog mr-4 text-xl"></i> 
+                    <span class="font-medium">Quản lý nhóm</span>
                 </a>
-                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showGroups()">
-                    <i class="fas fa-coins mr-3"></i> Quỹ nhóm
+                <a href="/admin/finance" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-money-check-alt mr-4 text-xl"></i> 
+                    <span class="font-medium">Quản lý thu chi</span>
                 </a>
-                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showReports()">
-                    <i class="fas fa-chart-line mr-3"></i> Báo cáo
+                <a href="/admin/reports" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-chart-bar mr-4 text-xl"></i> 
+                    <span class="font-medium">Báo cáo thống kê</span>
                 </a>
-                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg mb-2 transition" onclick="showSettings()">
-                    <i class="fas fa-cog mr-3"></i> Cài đặt
+                <a href="/admin/notifications" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-bell mr-4 text-xl"></i> 
+                    <span class="font-medium">Thông báo</span>
                 </a>
+                
             </nav>
-            <button id="logoutBtn" class="mt-8 w-full py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:opacity-90 transition">
-                <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
-            </button>
+            
+            <div class="mt-8 pt-6 border-t border-slate-600">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-slate-100" id="userName">Admin</p>
+                        <p class="text-sm text-slate-400">Administrator</p>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition shadow-lg">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 p-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                <div>
-                    <h1 class="text-3xl font-bold text-white mb-2">Chào mừng, <span id="userName">User</span>!</h1>
-                    <p class="text-white text-opacity-70">Quản lý ngân sách nhóm của bạn dễ dàng hơn bao giờ hết.</p>
+        <main class="flex-1 p-6">
+            <div class="glass p-8 rounded-2xl shadow-xl">
+                <!-- Header -->
+                <div class="mb-8">
+                    <h1 class="text-4xl font-bold mb-2 text-slate-100">
+                        Chào mừng, <span class="gradient-text" id="userNameMain">Admin</span>! 👋
+                    </h1>
+                    <p class="text-lg text-slate-300">Quản lý ngân sách nhóm hiệu quả và chuyên nghiệp</p>
                 </div>
-                <div class="flex space-x-4 mt-4 md:mt-0">
-                    <button onclick="openTransactionModal()" class="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition">
-                        <i class="fas fa-plus mr-2"></i> Thêm giao dịch
-                    </button>
-                    <button onclick="openInviteModal()" class="py-2 px-4 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition">
-                        <i class="fas fa-users mr-2"></i> Mời thành viên
-                    </button>
-                </div>
-            </div>
 
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="glass p-6 flex items-center cursor-pointer hover:shadow-lg transition" onclick="showFundDetails()">
-                    <div class="bg-blue-500 bg-opacity-20 p-4 rounded-full mr-4">
-                        <i class="fas fa-wallet text-2xl text-blue-400"></i>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Tổng nhóm</p>
+                                <p class="text-2xl font-bold text-slate-100">12</p>
+                            </div>
+                            <div class="bg-blue-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-users text-blue-400 text-xl"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="text-lg font-semibold text-white">Tổng quỹ</div>
-                        <div class="text-2xl font-bold text-blue-300" id="totalFund">0₫</div>
+                    
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Tổng quỹ</p>
+                                <p class="text-2xl font-bold text-slate-100">2.5M₫</p>
+                            </div>
+                            <div class="bg-green-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-wallet text-green-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Giao dịch hôm nay</p>
+                                <p class="text-2xl font-bold text-slate-100">8</p>
+                            </div>
+                            <div class="bg-purple-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-exchange-alt text-purple-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Thông báo mới</p>
+                                <p class="text-2xl font-bold text-slate-100">3</p>
+                            </div>
+                            <div class="bg-orange-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-bell text-orange-400 text-xl"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="glass p-6 flex items-center cursor-pointer hover:shadow-lg transition" onclick="showIncomeDetails()">
-                    <div class="bg-green-500 bg-opacity-20 p-4 rounded-full mr-4">
-                        <i class="fas fa-arrow-down text-2xl text-green-400"></i>
-                    </div>
-                    <div>
-                        <div class="text-lg font-semibold text-white">Thu nhập</div>
-                        <div class="text-2xl font-bold text-green-300" id="income">0₫</div>
-                    </div>
-                </div>
-                <div class="glass p-6 flex items-center cursor-pointer hover:shadow-lg transition" onclick="showExpenseDetails()">
-                    <div class="bg-red-500 bg-opacity-20 p-4 rounded-full mr-4">
-                        <i class="fas fa-arrow-up text-2xl text-red-400"></i>
-                    </div>
-                    <div>
-                        <div class="text-lg font-semibold text-white">Chi tiêu</div>
-                        <div class="text-2xl font-bold text-red-300" id="expense">0₫</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Recent Transactions -->
-            <div class="glass p-6 rounded-xl shadow-lg">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-white">Giao dịch gần đây</h2>
-                    <button onclick="showAllTransactions()" class="text-blue-400 hover:underline">Xem tất cả</button>
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <a href="/admin/groups" class="card glass p-6 rounded-2xl transition hover:scale-105 cursor-pointer">
+                        <div class="text-center">
+                            <div class="bg-blue-500 bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                                <i class="fas fa-users-cog text-blue-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-100">Quản lý nhóm</h3>
+                            <p class="text-slate-300">Tạo, chỉnh sửa và quản lý các nhóm quỹ</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/finance" class="card glass p-6 rounded-2xl transition hover:scale-105 cursor-pointer">
+                        <div class="text-center">
+                            <div class="bg-green-500 bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                                <i class="fas fa-money-check-alt text-green-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-100">Quản lý thu chi</h3>
+                            <p class="text-slate-300">Theo dõi và quản lý các giao dịch tài chính</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/reports" class="card glass p-6 rounded-2xl transition hover:scale-105 cursor-pointer">
+                        <div class="text-center">
+                            <div class="bg-purple-500 bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                                <i class="fas fa-chart-bar text-purple-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-100">Báo cáo thống kê</h3>
+                            <p class="text-slate-300">Xem báo cáo và phân tích dữ liệu</p>
+                        </div>
+                    </a>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="text-blue-300">
-                                <th class="py-2">Ngày</th>
-                                <th class="py-2">Mô tả</th>
-                                <th class="py-2">Loại</th>
-                                <th class="py-2">Số tiền</th>
-                                <th class="py-2">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionTable">
-                            <!-- Transactions will be injected here -->
-                        </tbody>
-                    </table>
+
+                <!-- Recent Activity -->
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4 text-slate-100">Hoạt động gần đây</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-4 bg-slate-700 bg-opacity-30 rounded-xl">
+                            <div class="bg-blue-500 bg-opacity-20 p-2 rounded-full mr-4">
+                                <i class="fas fa-plus text-blue-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-200">Nhóm "Lớp 12A1" được tạo</p>
+                                <p class="text-sm text-slate-400">2 giờ trước</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-slate-700 bg-opacity-30 rounded-xl">
+                            <div class="bg-green-500 bg-opacity-20 p-2 rounded-full mr-4">
+                                <i class="fas fa-money-bill text-green-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-200">Giao dịch thu 500,000₫ được thêm</p>
+                                <p class="text-sm text-slate-400">4 giờ trước</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-slate-700 bg-opacity-30 rounded-xl">
+                            <div class="bg-orange-500 bg-opacity-20 p-2 rounded-full mr-4">
+                                <i class="fas fa-bell text-orange-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-200">Thông báo mới được gửi đến 5 nhóm</p>
+                                <p class="text-sm text-slate-400">6 giờ trước</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Transaction Modal -->
-    <div id="transactionModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal absolute inset-0 flex items-center justify-center">
-            <div class="modal-content w-full max-w-md p-6 rounded-lg">
-                <h3 class="text-xl font-bold text-white mb-4">Thêm giao dịch mới</h3>
-                <form id="transactionForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Loại giao dịch</label>
-                        <select id="transactionType" class="w-full p-2 rounded-lg bg-gray-700 text-white">
-                            <option value="income">Thu nhập</option>
-                            <option value="expense">Chi tiêu</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Số tiền</label>
-                        <input type="number" id="amount" class="w-full p-2 rounded-lg bg-gray-700 text-white" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Mô tả</label>
-                        <input type="text" id="description" class="w-full p-2 rounded-lg bg-gray-700 text-white" required>
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeTransactionModal()" class="px-4 py-2 text-gray-300 hover:text-white">
-                            Hủy
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                            Lưu
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Invite Modal -->
-    <div id="inviteModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal absolute inset-0 flex items-center justify-center">
-            <div class="modal-content w-full max-w-md p-6 rounded-lg">
-                <h3 class="text-xl font-bold text-white mb-4">Mời thành viên mới</h3>
-                <form id="inviteForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                        <input type="email" id="inviteEmail" class="w-full p-2 rounded-lg bg-gray-700 text-white" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Vai trò</label>
-                        <select id="inviteRole" class="w-full p-2 rounded-lg bg-gray-700 text-white">
-                            <option value="member">Thành viên</option>
-                            <option value="admin">Quản trị viên</option>
-                        </select>
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeInviteModal()" class="px-4 py-2 text-gray-300 hover:text-white">
-                            Hủy
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
-                            Gửi lời mời
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notification -->
-    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
-        <div class="glass p-4 rounded-lg shadow-lg">
-            <div class="flex items-center">
-                <i id="notificationIcon" class="mr-3"></i>
-                <p id="notificationMessage" class="text-white"></p>
-            </div>
-        </div>
-    </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check authentication
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (!user) {
-                window.location.href = '/login';
-                return;
-            }
-
-            // Set user name
-            document.getElementById('userName').textContent = user.name || user.username || 'User';
-
-            // Load initial data
-            loadDashboardData();
-            loadRecentTransactions();
-
-            // Setup event listeners
-            setupEventListeners();
-        });
-
-        // Load dashboard data from API
-        async function loadDashboardData() {
-            try {
-                const response = await fetch('/groups/1/summary'); // Assuming group ID 1
-                const data = await response.json();
-
-                document.getElementById('totalFund').textContent = formatCurrency(data.currentBalance);
-                document.getElementById('income').textContent = formatCurrency(data.totalIncome);
-                document.getElementById('expense').textContent = formatCurrency(data.totalExpense);
-            } catch (error) {
-                showNotification('Không thể tải dữ liệu dashboard', 'error');
-            }
-        }
-
-        // Load recent transactions
-        async function loadRecentTransactions() {
-            try {
-                const transactions = [
-                    { date: '2025-10-25', desc: 'Đóng quỹ tháng 10', type: 'Thu', amount: '+2,000,000₫', color: 'text-green-400' },
-                    { date: '2025-10-20', desc: 'Mua văn phòng phẩm', type: 'Chi', amount: '-500,000₫', color: 'text-red-400' },
-                    { date: '2025-10-18', desc: 'Nhận tài trợ', type: 'Thu', amount: '+3,000,000₫', color: 'text-green-400' },
-                    { date: '2025-10-15', desc: 'Tiệc nhóm', type: 'Chi', amount: '-1,500,000₫', color: 'text-red-400' }
-                ];
-
-                const tbody = document.getElementById('transactionTable');
-                tbody.innerHTML = transactions.map(tr => `
-                    <tr>
-                        <td class="py-2">${tr.date}</td>
-                        <td class="py-2">${tr.desc}</td>
-                        <td class="py-2">${tr.type}</td>
-                        <td class="py-2 font-bold ${tr.color}">${tr.amount}</td>
-                        <td class="py-2">
-                            <button onclick="editTransaction('${tr.date}')" class="text-blue-400 hover:text-blue-300 mr-2">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteTransaction('${tr.date}')" class="text-red-400 hover:text-red-300">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                showNotification('Không thể tải giao dịch gần đây', 'error');
-            }
-        }
-
-        // Modal functions
-        function openTransactionModal() {
-            document.getElementById('transactionModal').classList.remove('hidden');
-        }
-
-        function closeTransactionModal() {
-            document.getElementById('transactionModal').classList.add('hidden');
-        }
-
-        function openInviteModal() {
-            document.getElementById('inviteModal').classList.remove('hidden');
-        }
-
-        function closeInviteModal() {
-            document.getElementById('inviteModal').classList.add('hidden');
-        }
-
-        // Form submissions
-        document.getElementById('transactionForm').onsubmit = async function(e) {
-            e.preventDefault();
-            try {
-                // Add transaction logic here
-                showNotification('Thêm giao dịch thành công', 'success');
-                closeTransactionModal();
-                loadDashboardData();
-                loadRecentTransactions();
-            } catch (error) {
-                showNotification('Không thể thêm giao dịch', 'error');
-            }
-        };
-
-        document.getElementById('inviteForm').onsubmit = async function(e) {
-            e.preventDefault();
-            try {
-                // Add invite logic here
-                showNotification('Đã gửi lời mời thành công', 'success');
-                closeInviteModal();
-            } catch (error) {
-                showNotification('Không thể gửi lời mời', 'error');
-            }
-        };
-
-        // Utility functions
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(amount);
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
-            const icon = document.getElementById('notificationIcon');
-            const messageEl = document.getElementById('notificationMessage');
-
-            const icons = {
-                success: '<i class="fas fa-check-circle text-green-400 text-xl"></i>',
-                error: '<i class="fas fa-exclamation-circle text-red-400 text-xl"></i>',
-                info: '<i class="fas fa-info-circle text-blue-400 text-xl"></i>'
-            };
-
-            icon.innerHTML = icons[type] || icons.info;
-            messageEl.textContent = message;
-            notification.classList.remove('hidden');
-
-            setTimeout(() => {
-                notification.classList.add('hidden');
-            }, 3000);
-        }
-
-        // Navigation functions
-        function showDashboard() {
-            // Implement dashboard view
-        }
-
-        function showMembers() {
-            // Implement members view
-        }
-
-        function showGroups() {
-            // Implement groups view
-        }
-
-        function showReports() {
-            // Implement reports view
-        }
-
-        function showSettings() {
-            // Implement settings view
-        }
-
-        // Transaction management
-        function editTransaction(date) {
-            // Implement edit logic
-            showNotification('Chức năng đang được phát triển', 'info');
-        }
-
-        function deleteTransaction(date) {
-            // Implement delete logic
-            showNotification('Chức năng đang được phát triển', 'info');
-        }
-
-        // Logout
+        // Đăng xuất
         document.getElementById('logoutBtn').onclick = async function() {
             try {
-                await fetch('/users/logout', { method: 'GET', credentials: 'same-origin' });
+                await fetch('/logout', { method: 'GET', credentials: 'same-origin' });
             } catch (e) {}
             localStorage.removeItem('user');
             localStorage.removeItem('isLoggedIn');
             window.location.href = '/login?logout';
         };
+
+        // Đặt tên admin
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const adminName = user?.name || 'Admin';
+            document.getElementById('userName').textContent = adminName;
+            document.getElementById('userNameMain').textContent = adminName;
+        });
     </script>
 </body>
 </html>
