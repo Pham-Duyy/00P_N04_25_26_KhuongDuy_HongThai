@@ -10,12 +10,13 @@ public class Fund {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double balance;
+    @Column(nullable = false)
+    private Double balance = 0.0;
 
     private String description;
 
     @OneToOne
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
     private Group group;
 
     public Fund() {
@@ -58,5 +59,10 @@ public class Fund {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    // Thêm phương thức tiện ích để lấy số dư (giúp code controller rõ ràng hơn)
+    public double getAmount() {
+        return balance != null ? balance : 0.0;
     }
 }

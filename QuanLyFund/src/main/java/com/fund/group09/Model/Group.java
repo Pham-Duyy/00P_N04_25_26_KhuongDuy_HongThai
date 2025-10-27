@@ -2,6 +2,7 @@ package com.fund.group09.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -11,9 +12,10 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
 
+    @Column(length = 500)
     private String description;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -23,6 +25,20 @@ public class Group {
     @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Fund fund;
 
+    // Thêm các trường mới cho quản lý nhóm
+    private Boolean isActive = true;
+
+    private Integer maxMembers = 50;
+
+    @Column(updatable = false)
+    private LocalDateTime createdDate = LocalDateTime.now();
+
+    @Column(unique = true, length = 12)
+    private String joinCode;
+
+    @Column(length = 20)
+    private String groupType = "PUBLIC"; // hoặc "PRIVATE"
+
     public Group() {
     }
 
@@ -31,6 +47,7 @@ public class Group {
         this.description = description;
     }
 
+    // Getters & Setters
     public Long getId() {
         return id;
     }
@@ -69,5 +86,45 @@ public class Group {
 
     public void setFund(Fund fund) {
         this.fund = fund;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Integer getMaxMembers() {
+        return maxMembers;
+    }
+
+    public void setMaxMembers(Integer maxMembers) {
+        this.maxMembers = maxMembers;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getJoinCode() {
+        return joinCode;
+    }
+
+    public void setJoinCode(String joinCode) {
+        this.joinCode = joinCode;
+    }
+
+    public String getGroupType() {
+        return groupType;
+    }
+
+    public void setGroupType(String groupType) {
+        this.groupType = groupType;
     }
 }

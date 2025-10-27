@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tham gia nhóm - Fund Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .glass-effect {
+            background: rgba(30, 30, 30, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .invitation-card {
+            transition: all 0.3s ease;
+        }
+
+        .invitation-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <nav class="glass-effect border-b border-white border-opacity-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/user/dashboard" class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-wallet text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">Fund Manager</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-white text-opacity-80" th:text="${userEmail}">user@email.com</span>
+                    <a href="/logout" class="text-white text-opacity-80 hover:text-opacity-100">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-8 animate-fadeIn">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">
+                        <i class="fas fa-user-plus mr-3 text-blue-400"></i>
+                        Tham gia nhóm
+                    </h1>
+                    <p class="text-white text-opacity-70">Quản lý lời mời tham gia nhóm của bạn</p>
+                </div>
+                <a href="/user/groups" class="glass-effect px-4 py-2 rounded-lg text-white hover:bg-white hover:bg-opacity-10 transition-all duration-300">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Quay lại
+                </a>
+            </div>
+        </div>
+
+        <!-- Invitation Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass-effect rounded-xl p-6 animate-fadeIn">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-500 bg-opacity-20 rounded-lg">
+                        <i class="fas fa-clock text-yellow-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-white text-opacity-70 text-sm">Chờ xác nhận</p>
+                        <p class="text-2xl font-bold text-white" th:text="${pendingInvitations?.size() ?: 0}">3</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-effect rounded-xl p-6 animate-fadeIn">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-500 bg-opacity-20 rounded-lg">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-white text-opacity-70 text-sm">Đã chấp nhận</p>
+                        <p class="text-2xl font-bold text-white" th:text="${acceptedInvitations?.size() ?: 0}">5</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-effect rounded-xl p-6 animate-fadeIn">
+                <div class="flex items-center">
+                    <div class="p-3 bg-red-500 bg-opacity-20 rounded-lg">
+                        <i class="fas fa-times-circle text-red-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-white text-opacity-70 text-sm">Đã từ chối</p>
+                        <p class="text-2xl font-bold text-white" th:text="${rejectedInvitations?.size() ?: 0}">2</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Invitations -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-envelope-open-text mr-2 text-yellow-400"></i>
+                Lời mời chờ xác nhận
+            </h2>
+
+            <div class="space-y-4" th:if="${pendingInvitations != null and not #lists.isEmpty(pendingInvitations)}">
+                <div th:each="invitation : ${pendingInvitations}" 
+                     class="glass-effect rounded-xl p-6 invitation-card border border-white border-opacity-10">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white" th:text="${invitation.groupName}">Nhóm Du lịch Hè 2024</h3>
+                                <div class="flex items-center space-x-4 text-sm text-white text-opacity-70 mt-1">
+                                    <span>
+                                        <i class="fas fa-user mr-1"></i>
+                                        Mời bởi: <span th:text="${invitation.invitedBy}">Nguyễn Văn A</span>
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span th:text="${invitation.invitedDate}">15/10/2024</span>
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-users mr-1"></i>
+                                        <span th:text="${invitation.memberCount}">8</span> thành viên
+                                    </span>
+                                </div>
+                                <p class="text-white text-opacity-60 text-sm mt-2" th:text="${invitation.description}">
+                                    Nhóm quản lý chi phí cho chuyến du lịch hè năm nay
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg btn-hover transition-all duration-300"
+                                    th:onclick="'acceptInvitation(' + ${invitation.id} + ')'">
+                                <i class="fas fa-check mr-2"></i>
+                                Chấp nhận
+                            </button>
+                            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg btn-hover transition-all duration-300"
+                                    th:onclick="'rejectInvitation(' + ${invitation.id} + ')'">
+                                <i class="fas fa-times mr-2"></i>
+                                Từ chối
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State for Pending -->
+            <div th:if="${pendingInvitations == null or #lists.isEmpty(pendingInvitations)}" 
+                 class="glass-effect rounded-xl p-12 text-center">
+                <i class="fas fa-inbox text-white text-opacity-40 text-6xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-white text-opacity-70 mb-2">Không có lời mời nào</h3>
+                <p class="text-white text-opacity-50">Bạn không có lời mời tham gia nhóm nào đang chờ xác nhận</p>
+            </div>
+        </div>
+
+        <!-- Recent Invitations History -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-history mr-2 text-blue-400"></i>
+                Lịch sử lời mời gần đây
+            </h2>
+
+            <div class="space-y-4" th:if="${recentInvitations != null and not #lists.isEmpty(recentInvitations)}">
+                <div th:each="invitation : ${recentInvitations}" 
+                     class="glass-effect rounded-xl p-6 border border-white border-opacity-10">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gray-500 bg-opacity-30 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white" th:text="${invitation.groupName}">Nhóm Học tập IT</h3>
+                                <div class="flex items-center space-x-4 text-sm text-white text-opacity-70 mt-1">
+                                    <span>
+                                        <i class="fas fa-user mr-1"></i>
+                                        Mời bởi: <span th:text="${invitation.invitedBy}">Trần Thị B</span>
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span th:text="${invitation.responseDate}">10/10/2024</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span th:if="${invitation.status == 'ACCEPTED'}" 
+                                  class="bg-green-500 bg-opacity-20 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Đã chấp nhận
+                            </span>
+                            <span th:if="${invitation.status == 'REJECTED'}" 
+                                  class="bg-red-500 bg-opacity-20 text-red-400 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-times-circle mr-1"></i>
+                                Đã từ chối
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State for History -->
+            <div th:if="${recentInvitations == null or #lists.isEmpty(recentInvitations)}" 
+                 class="glass-effect rounded-xl p-12 text-center">
+                <i class="fas fa-history text-white text-opacity-40 text-6xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-white text-opacity-70 mb-2">Chưa có lịch sử</h3>
+                <p class="text-white text-opacity-50">Bạn chưa có lời mời nào được xử lý gần đây</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-effect rounded-xl p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">
+                <i class="fas fa-bolt mr-2 text-yellow-400"></i>
+                Thao tác nhanh
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="/user/groups/search" class="flex items-center justify-center p-4 bg-blue-500 bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all duration-300 text-white">
+                    <i class="fas fa-search mr-3"></i>
+                    Tìm kiếm nhóm
+                </a>
+                <a href="/user/groups/create" class="flex items-center justify-center p-4 bg-green-500 bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all duration-300 text-white">
+                    <i class="fas fa-plus mr-3"></i>
+                    Tạo nhóm mới
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden animate-fadeIn">
+        <div class="glass-effect rounded-lg p-4 shadow-lg max-w-sm">
+            <div class="flex items-center">
+                <div id="notificationIcon"></div>
+                <p id="notificationMessage" class="ml-3 text-white"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Accept invitation
+        function acceptInvitation(invitationId) {
+            if (confirm('Bạn có chắc chắn muốn chấp nhận lời mời này?')) {
+                fetch(`/user/groups/invitations/${invitationId}/accept`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('✅ Đã chấp nhận lời mời thành công!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification('❌ ' + (data.message || 'Có lỗi xảy ra'), 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('❌ Lỗi kết nối máy chủ', 'error');
+                });
+            }
+        }
+
+        // Reject invitation
+        function rejectInvitation(invitationId) {
+            if (confirm('Bạn có chắc chắn muốn từ chối lời mời này?')) {
+                fetch(`/user/groups/invitations/${invitationId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('✅ Đã từ chối lời mời', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification('❌ ' + (data.message || 'Có lỗi xảy ra'), 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('❌ Lỗi kết nối máy chủ', 'error');
+                });
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const messageEl = document.getElementById('notificationMessage');
+
+            const icons = {
+                success: '<i class="fas fa-check-circle text-green-400 text-xl"></i>',
+                error: '<i class="fas fa-exclamation-circle text-red-400 text-xl"></i>',
+                info: '<i class="fas fa-info-circle text-blue-400 text-xl"></i>'
+            };
+
+            icon.innerHTML = icons[type] || icons.info;
+            messageEl.textContent = message;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 4000);
+        }
+
+        // Auto-refresh every 30 seconds for new invitations
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                // Only refresh if page is visible
+                window.location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

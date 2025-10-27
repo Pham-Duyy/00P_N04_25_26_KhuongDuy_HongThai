@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết nhóm - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+        }
+        .btn-success {
+            background: linear-gradient(45deg, #10b981, #059669);
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+        .btn-warning {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-4xl font-bold text-slate-100 mb-2">
+                    <i class="fas fa-users-cog mr-3 text-blue-400"></i>
+                    Chi tiết nhóm
+                </h1>
+                <p class="text-slate-400">
+                    <span class="font-semibold text-blue-400" th:text="${group.name}">Tên nhóm</span>
+                    <span class="ml-2 px-2 py-1 rounded-full text-xs font-semibold"
+                          th:classappend="${group.isActive} ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+                          th:text="${group.isActive} ? 'Hoạt động' : 'Tạm ngưng'">Trạng thái</span>
+                </p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-3">
+                <a href="/admin/groups" class="btn-primary px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+                </a>
+                <a th:href="@{'/admin/groups/edit/' + ${group.id}}"
+                   class="btn-warning px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center">
+                    <i class="fas fa-edit mr-2"></i> Chỉnh sửa
+                </a>
+            </div>
+        </div>
+
+        <!-- Thông tin nhóm -->
+        <div class="glass p-8 rounded-2xl shadow-xl mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h2 class="text-xl font-bold mb-4 text-blue-400"><i class="fas fa-info-circle mr-2"></i>Thông tin chung</h2>
+                    <ul class="space-y-3">
+                        <li><span class="font-semibold">ID:</span> <span th:text="${group.id}">1</span></li>
+                        <li><span class="font-semibold">Tên nhóm:</span> <span th:text="${group.name}">Tên nhóm</span></li>
+                        <li><span class="font-semibold">Mô tả:</span> <span th:text="${group.description ?: 'Không có mô tả'}">Không có mô tả</span></li>
+                        <li><span class="font-semibold">Loại nhóm:</span>
+                            <span th:text="${group.groupType == 'PUBLIC' ? 'Công khai' : 'Riêng tư'}">Công khai</span>
+                        </li>
+                        <li><span class="font-semibold">Ngày tạo:</span>
+                            <span th:text="${group.createdDate != null ? group.createdDate.toLocalDate() : ''}">01/01/2024</span>
+                        </li>
+                        <li><span class="font-semibold">Trạng thái:</span>
+                            <span th:text="${group.isActive} ? 'Hoạt động' : 'Tạm ngưng'">Hoạt động</span>
+                        </li>
+                        <li><span class="font-semibold">Mã tham gia:</span>
+                            <code class="bg-slate-800 px-2 py-1 rounded text-xs font-mono text-blue-300" th:text="${group.joinCode}">ABC123</code>
+                            <button onclick="copyJoinCode(this)" th:data-code="${group.joinCode}" class="ml-2 text-slate-400 hover:text-blue-400 transition">
+                                <i class="fas fa-copy text-xs"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold mb-4 text-green-400"><i class="fas fa-wallet mr-2"></i>Quỹ nhóm</h2>
+                    <ul class="space-y-3">
+                        <li>
+                            <span class="font-semibold">Số dư hiện tại:</span>
+                            <span class="font-mono text-green-400 font-bold text-lg"
+                                  th:text="${#numbers.formatDecimal(group.fund?.balance ?: 0, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                        </li>
+                        <li>
+                            <span class="font-semibold">Số thành viên tối đa:</span>
+                            <span th:text="${group.maxMembers}">50</span>
+                        </li>
+                        <li>
+                            <span class="font-semibold">Số thành viên hiện tại:</span>
+                            <span th:text="${group.members != null ? group.members.size() : 0}">0</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách thành viên -->
+        <div class="glass p-8 rounded-2xl shadow-xl">
+            <h2 class="text-xl font-bold mb-6 text-purple-400"><i class="fas fa-users mr-2"></i>Danh sách thành viên</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-slate-600">
+                            <th class="py-3 px-4 text-left font-semibold text-slate-300">#</th>
+                            <th class="py-3 px-4 text-left font-semibold text-slate-300">Tên thành viên</th>
+                            <th class="py-3 px-4 text-left font-semibold text-slate-300">Email</th>
+                            <th class="py-3 px-4 text-left font-semibold text-slate-300">Vai trò</th>
+                            <th class="py-3 px-4 text-left font-semibold text-slate-300">Ngày tham gia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(group.members)}">
+                            <td colspan="5" class="text-center py-6 text-slate-400">
+                                <i class="fas fa-user-slash text-2xl mb-2"></i>
+                                <div>Chưa có thành viên nào trong nhóm này.</div>
+                            </td>
+                        </tr>
+                        <tr th:each="member, iterStat : ${group.members}">
+                            <td class="py-3 px-4" th:text="${iterStat.count}">1</td>
+                            <td class="py-3 px-4" th:text="${member.fullName}">Tên thành viên</td>
+                            <td class="py-3 px-4" th:text="${member.email}">email@example.com</td>
+                            <td class="py-3 px-4">
+                                <span th:text="${member.role == 'LEADER' ? 'Trưởng nhóm' : 'Thành viên'}">Thành viên</span>
+                            </td>
+                            <td class="py-3 px-4" th:text="${member.joinedDate != null ? member.joinedDate.toLocalDate() : ''}">01/01/2024</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Copy mã tham gia
+        function copyJoinCode(button) {
+            const code = button.getAttribute('data-code');
+            navigator.clipboard.writeText(code).then(() => {
+                const icon = button.querySelector('i');
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -2,8 +2,7 @@ package com.fund.group09.Controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -19,17 +18,15 @@ public class AuthController {
                            @RequestParam(value = "logout", required = false) String logout,
                            HttpSession session,
                            Model model) {
-        
         // Nếu đã đăng nhập, redirect về dashboard tương ứng
         if (isLoggedIn(session)) {
             String userRole = (String) session.getAttribute("userRole");
             if ("ADMIN".equals(userRole)) {
                 return "redirect:/admin/dashboard";
             } else {
-                return "redirect:/dashboard";
+                return "redirect:/user/dashboard";
             }
         }
-        
         if (error != null) {
             model.addAttribute("error", "Thông tin đăng nhập không chính xác!");
         }
@@ -39,21 +36,44 @@ public class AuthController {
         return "auth/login";
     }
 
+    // Xử lý POST đăng nhập
+    @PostMapping("/login")
+    public String doLogin(@RequestParam("email") String email,
+                          @RequestParam("password") String password,
+                          @RequestParam("role") String role,
+                          HttpSession session,
+                          Model model) {
+        // TODO: Thay thế bằng xác thực thực tế
+        if ("USER".equals(role)) {
+            // Giả lập đăng nhập thành công cho USER
+            session.setAttribute("userRole", "USER");
+            session.setAttribute("userEmail", email);
+            session.setAttribute("userId", 1); // Thay bằng id thực tế
+            return "redirect:/user/dashboard";
+        } else if ("ADMIN".equals(role)) {
+            // Giả lập đăng nhập thành công cho ADMIN
+            session.setAttribute("userRole", "ADMIN");
+            session.setAttribute("userEmail", email);
+            session.setAttribute("userId", 1); // Thay bằng id thực tế
+            return "redirect:/admin/dashboard";
+        }
+        model.addAttribute("error", "Sai thông tin đăng nhập hoặc vai trò!");
+        return "auth/login";
+    }
+
     @GetMapping("/register")
     public String registerPage(@RequestParam(value = "success", required = false) String success,
                               HttpSession session,
                               Model model) {
-        
         // Nếu đã đăng nhập, redirect về dashboard
         if (isLoggedIn(session)) {
             String userRole = (String) session.getAttribute("userRole");
             if ("ADMIN".equals(userRole)) {
                 return "redirect:/admin/dashboard";
             } else {
-                return "redirect:/dashboard";
+                return "redirect:/user/dashboard";
             }
         }
-        
         if (success != null) {
             model.addAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
         }
@@ -61,31 +81,26 @@ public class AuthController {
     }
 
     // Dashboard cho USER
-    @GetMapping("/dashboard")
+    @GetMapping("/user/dashboard")
     public String userDashboard(HttpSession session, Model model) {
         // Kiểm tra đăng nhập
         if (!isLoggedIn(session)) {
             return "redirect:/login?error=notLoggedIn";
         }
-        
         String userRole = (String) session.getAttribute("userRole");
-        
         // Nếu là ADMIN thì redirect về admin dashboard
         if ("ADMIN".equals(userRole)) {
             return "redirect:/admin/dashboard";
         }
-        
         // Nếu không phải USER thì từ chối truy cập
         if (!"USER".equals(userRole)) {
             return "redirect:/access-denied";
         }
-        
         // Thêm thông tin user vào model
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
         model.addAttribute("userId", session.getAttribute("userId"));
         model.addAttribute("userRole", userRole);
-        
-        return "dashboard"; // Giao diện user
+        return "user/dashboard"; // Giao diện user
     }
 
     // Dashboard cho ADMIN  
@@ -95,24 +110,19 @@ public class AuthController {
         if (!isLoggedIn(session)) {
             return "redirect:/login?error=notLoggedIn";
         }
-        
         String userRole = (String) session.getAttribute("userRole");
-        
         // Nếu là USER thì redirect về user dashboard
         if ("USER".equals(userRole)) {
-            return "redirect:/dashboard";
+            return "redirect:/user/dashboard";
         }
-        
         // Nếu không phải ADMIN thì từ chối truy cập
         if (!"ADMIN".equals(userRole)) {
             return "redirect:/access-denied";
         }
-        
         // Thêm thông tin admin vào model
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
         model.addAttribute("userId", session.getAttribute("userId"));
         model.addAttribute("userRole", userRole);
-        
         return "admin/dashboard"; // Giao diện admin
     }
 
@@ -124,9 +134,6 @@ public class AuthController {
     }
     
     // Trang logout
-    // ...existing code...
-
-    // Trang logout
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate(); // Xóa toàn bộ session
@@ -134,14 +141,12 @@ public class AuthController {
         return "redirect:/login?logout";
     }
 
-// ...existing code...
-    
     // Utility method kiểm tra đăng nhập
     private boolean isLoggedIn(HttpSession session) {
-    Object userRole = session.getAttribute("userRole");
-    Object userId = session.getAttribute("userId");
-    return userRole != null && userId != null;
-}
+        Object userRole = session.getAttribute("userRole");
+        Object userId = session.getAttribute("userId");
+        return userRole != null && userId != null;
+    }
     
     // Utility method kiểm tra quyền admin
     private boolean isAdmin(HttpSession session) {
@@ -161,11 +166,9 @@ public class AuthController {
         if (!isLoggedIn(session)) {
             return "redirect:/login";
         }
-        
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
         model.addAttribute("userId", session.getAttribute("userId"));
         model.addAttribute("userRole", session.getAttribute("userRole"));
-        
         return "profile";
     }
     
@@ -175,10 +178,8 @@ public class AuthController {
         if (!isLoggedIn(session) || !isAdmin(session)) {
             return "redirect:/access-denied";
         }
-        
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
         model.addAttribute("userRole", session.getAttribute("userRole"));
-        
         return "admin/settings";
     }
 }

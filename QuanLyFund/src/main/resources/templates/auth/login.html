@@ -65,7 +65,7 @@
                 <p class="text-white text-opacity-70">Đăng nhập để tiếp tục quản lý ngân sách</p>
             </div>
 
-            <form id="loginForm" class="space-y-6">
+            <form id="loginForm" class="space-y-6" method="post" th:action="@{/login}">
                 <!-- Email Input -->
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -78,6 +78,7 @@
                         class="w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder-white placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300" 
                         placeholder="Email của bạn"
                         required
+                        th:value="${param.email}"
                     >
                 </div>
 
@@ -159,15 +160,14 @@
                     </p>
                 </div>
             </form>
-        </div>
-
-        <!-- Notification -->
-        <div id="notification" class="fixed top-4 right-4 z-50 hidden animate-fadeIn">
-            <div class="glass-effect rounded-lg p-4 shadow-lg">
-                <div class="flex items-center">
-                    <div id="notificationIcon"></div>
-                    <p id="notificationMessage" class="ml-3 text-white"></p>
-                </div>
+            <!-- Hiển thị lỗi nếu có -->
+            <div th:if="${error}" class="mt-4 text-center text-red-400 font-semibold">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <div th:if="${message}" class="mt-4 text-center text-green-400 font-semibold">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span th:text="${message}"></span>
             </div>
         </div>
     </div>
@@ -184,89 +184,27 @@
                 toggleBtn.innerHTML = `<i class="fas fa-${type === 'password' ? 'eye' : 'eye-slash'}"></i>`;
             });
 
-            // Login form submission
+            // Nếu muốn xử lý AJAX thì bỏ comment đoạn dưới và chỉnh lại backend cho phù hợp
+            /*
             const loginForm = document.getElementById('loginForm');
             const loginBtnText = document.getElementById('loginBtnText');
             const loginBtnIcon = document.getElementById('loginBtnIcon');
 
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
                 const selectedRole = document.getElementById('role').value;
                 if (!selectedRole) {
-                    showNotification('Vui lòng chọn vai trò đăng nhập', 'error');
+                    alert('Vui lòng chọn vai trò đăng nhập');
                     return;
                 }
-
-                // Update button state
                 loginForm.querySelector('button[type="submit"]').disabled = true;
                 loginBtnText.textContent = 'Đang đăng nhập...';
                 loginBtnIcon.className = 'fas fa-spinner fa-spin ml-2';
 
-                try {
-                    const response = await fetch('/users/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: document.getElementById('email').value.trim(),
-                            password: passwordInput.value.trim(),
-                            role: selectedRole
-                        })
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        // Save user data and redirect
-                        if (result.user) {
-                            localStorage.setItem('user', JSON.stringify(result.user));
-                        } else {
-                            localStorage.setItem('role', selectedRole);
-                        }
-                        localStorage.setItem('isLoggedIn', 'true');
-                        showNotification('✅ Đăng nhập thành công!', 'success');
-                        
-                        setTimeout(() => {
-                            const redirectRole = result.user?.role || selectedRole;
-                            if (redirectRole === 'ADMIN') {
-                                window.location.href = '/admin/dashboard';
-                            } else {
-                                window.location.href = '/dashboard';
-                            }
-                        }, 1000);
-                    } else {
-                        showNotification('❌ ' + (result.message || 'Đăng nhập thất bại'), 'error');
-                    }
-                } catch (error) {
-                    showNotification('❌ Lỗi kết nối máy chủ', 'error');
-                } finally {
-                    // Reset button state
-                    loginForm.querySelector('button[type="submit"]').disabled = false;
-                    loginBtnText.textContent = 'Đăng nhập';
-                    loginBtnIcon.className = 'fas fa-sign-in-alt ml-2';
-                }
+                // Gửi request về /login (Spring Security xử lý)
+                loginForm.submit();
             });
-
-            // Notification system
-            function showNotification(message, type = 'info') {
-                const notification = document.getElementById('notification');
-                const icon = document.getElementById('notificationIcon');
-                const messageEl = document.getElementById('notificationMessage');
-
-                const icons = {
-                    success: '<i class="fas fa-check-circle text-green-400 text-xl"></i>',
-                    error: '<i class="fas fa-exclamation-circle text-red-400 text-xl"></i>',
-                    info: '<i class="fas fa-info-circle text-blue-400 text-xl"></i>'
-                };
-
-                icon.innerHTML = icons[type] || icons.info;
-                messageEl.textContent = message;
-                notification.classList.remove('hidden');
-
-                setTimeout(() => {
-                    notification.classList.add('hidden');
-                }, 3000);
-            }
+            */
         });
     </script>
 </body>
