@@ -1,29 +1,40 @@
 package com.fund.group09.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "funds")
-public class Fund {
+public class Fund implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Balance cannot be null")
+    @PositiveOrZero(message = "Balance must be positive or zero")
     @Column(nullable = false)
-    private Double balance = 0.0;
+    private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column(length = 500)
     private String description;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", referencedColumnName = "id")
     private Group group;
 
+    // Default constructor
     public Fund() {
     }
 
-    public Fund(Double balance, String description, Group group) {
-        this.balance = balance;
+    // Constructor with parameters
+    public Fund(BigDecimal balance, String description, Group group) {
+        this.setBalance(balance);
         this.description = description;
         this.group = group;
     }
@@ -37,12 +48,12 @@ public class Fund {
         this.id = id;
     }
 
-    public Double getBalance() {
-        return balance;
+    public BigDecimal getBalance() {
+        return balance != null ? balance : BigDecimal.ZERO;
     }
 
-    public void setBalance(Double balance) {
-        this.balance = balance;
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance != null ? balance : BigDecimal.ZERO;
     }
 
     public String getDescription() {
@@ -59,10 +70,5 @@ public class Fund {
 
     public void setGroup(Group group) {
         this.group = group;
-    }
-
-    // Thêm phương thức tiện ích để lấy số dư (giúp code controller rõ ràng hơn)
-    public double getAmount() {
-        return balance != null ? balance : 0.0;
     }
 }

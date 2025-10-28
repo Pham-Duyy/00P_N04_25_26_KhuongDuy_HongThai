@@ -17,18 +17,10 @@
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
-        .btn-primary {
-            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
-        }
-        .btn-success {
-            background: linear-gradient(45deg, #10b981, #059669);
-        }
-        .btn-danger {
-            background: linear-gradient(45deg, #ef4444, #dc2626);
-        }
-        .btn-warning {
-            background: linear-gradient(45deg, #f59e0b, #d97706);
-        }
+        .btn-primary { background: linear-gradient(45deg, #3b82f6, #1d4ed8); }
+        .btn-success { background: linear-gradient(45deg, #10b981, #059669); }
+        .btn-danger { background: linear-gradient(45deg, #ef4444, #dc2626); }
+        .btn-warning { background: linear-gradient(45deg, #f59e0b, #d97706); }
         .search-input:focus {
             outline: none;
             border-color: #3b82f6;
@@ -71,8 +63,17 @@
                 <p class="text-red-300" th:text="${error}"></p>
             </div>
         </div>
-
-        <!-- Thông báo mời tham gia nhóm -->
+        <div th:if="${groupCreated}" class="glass p-4 rounded-xl mb-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-400 text-xl mr-3"></i>
+                    <div>
+                        <p class="text-green-300 font-semibold">Nhóm mới đã được tạo thành công!</p>
+                        <p class="text-green-200">Đã gửi lời mời đến tất cả user trong hệ thống.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div th:if="${inviteMessage}" class="glass p-4 rounded-xl mb-6 border-l-4 border-yellow-500">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -182,36 +183,28 @@
                             </td>
                             <td class="py-4 px-4">
                                 <div class="flex justify-center space-x-2">
-                                    <!-- Xem chi tiết -->
                                     <a th:href="@{'/admin/groups/detail/' + ${group.id}}" 
                                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Xem chi tiết">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    
-                                    <!-- Chỉnh sửa: mở modal và điền dữ liệu -->
                                     <a href="javascript:void(0);"
                                        th:attr="data-id=${group.id},data-name=${group.name},data-maxmembers=${group.maxMembers},data-description=${group.description},data-balance=${group.fund?.balance},data-grouptype=${group.groupType},data-isactive=${group.isActive}"
                                        onclick="openEditGroupModal(this)"
                                        class="btn-warning text-white px-3 py-2 rounded-lg transition text-sm" title="Chỉnh sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    
-                                    <!-- Xóa -->
-                                    <form th:action="@{'/admin/groups/delete/' + ${group.id}}" method="post" 
-                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhóm này không? Hành động này không thể hoàn tác!')" 
-                                          class="inline">
-                                        <button type="submit" class="btn-danger text-white px-3 py-2 rounded-lg transition text-sm" title="Xóa nhóm">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <!-- Nút xóa nhóm bằng AJAX -->
+                                    <button onclick="deleteGroup(this)" th:data-id="${group.id}"
+                                            class="btn-danger text-white px-3 py-2 rounded-lg transition text-sm" title="Xóa nhóm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <!-- Phân trang với số trang -->
+            <!-- Phân trang giữ nguyên -->
             <div th:if="${groupPage != null && groupPage.totalPages > 1}" class="flex flex-wrap justify-center items-center gap-1 mt-6">
                 <!-- Trang đầu -->
                 <a th:if="${groupPage.number > 0}"
@@ -239,21 +232,17 @@
                               th:text="${i + 1}"
                               class="bg-blue-600 px-3 py-2 rounded-lg text-sm font-semibold"></span>
                     </span>
-                    <!-- Dấu ... nếu cần -->
                     <span th:if="${currentPage < totalPages - 3}" class="px-2 text-slate-400">...</span>
-                    <!-- Trang cuối nếu không gần -->
                     <a th:if="${currentPage < totalPages - 3}"
                        th:href="@{/admin/groups(page=${totalPages - 1}, size=${groupPage.size}, keyword=${param.keyword})}"
                        th:text="${totalPages}"
                        class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm"></a>
                 </th:block>
-                <!-- Trang sau -->
                 <a th:if="${groupPage.hasNext()}"
                    th:href="@{/admin/groups(page=${groupPage.number + 1}, size=${groupPage.size}, keyword=${param.keyword})}"
                    class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm">
                     <i class="fas fa-chevron-right"></i>
                 </a>
-                <!-- Trang cuối -->
                 <a th:if="${groupPage.number < groupPage.totalPages - 1}"
                    th:href="@{/admin/groups(page=${groupPage.totalPages - 1}, size=${groupPage.size}, keyword=${param.keyword})}"
                    class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm">
@@ -262,7 +251,7 @@
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats Cards giữ nguyên -->
         <div th:if="${!#lists.isEmpty(groups)}" class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
             <div class="glass p-6 rounded-2xl">
                 <div class="flex items-center justify-between">
@@ -275,7 +264,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="glass p-6 rounded-2xl">
                 <div class="flex items-center justify-between">
                     <div>
@@ -287,7 +275,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="glass p-6 rounded-2xl">
                 <div class="flex items-center justify-between">
                     <div>
@@ -299,7 +286,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="glass p-6 rounded-2xl">
                 <div class="flex items-center justify-between">
                     <div>
@@ -314,7 +300,7 @@
         </div>
     </div>
 
-    <!-- Modal tạo/cập nhật nhóm -->
+    <!-- Modal tạo/cập nhật nhóm giữ nguyên -->
     <div id="createGroupModal" class="fixed inset-0 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen bg-black bg-opacity-50">
             <div class="glass p-8 rounded-2xl w-full max-w-2xl relative mx-4">
@@ -430,7 +416,6 @@
         function validateGroupForm() {
             const name = document.getElementById('groupNameInput').value.trim();
             const nameError = document.getElementById('nameError');
-            
             if (name.length < 3) {
                 nameError.textContent = "Tên nhóm phải có ít nhất 3 ký tự!";
                 nameError.classList.remove('hidden');
@@ -441,13 +426,11 @@
                 nameError.classList.remove('hidden');
                 return false;
             }
-            
             const maxMembers = parseInt(document.getElementById('maxMembersInput').value);
             if (maxMembers < 2 || maxMembers > 100) {
                 alert("Số thành viên tối đa phải từ 2 đến 100!");
                 return false;
             }
-
             nameError.classList.add('hidden');
             return true;
         }
@@ -483,7 +466,7 @@
 
         // Tự động ẩn thông báo sau 5 giây
         setTimeout(() => {
-            const alerts = document.querySelectorAll('[th\\:if="${success}"], [th\\:if="${error}"], [th\\:if="${inviteMessage}"]');
+            const alerts = document.querySelectorAll('[th\\:if="${success}"], [th\\:if="${error}"], [th\\:if="${inviteMessage}"], [th\\:if="${groupCreated}"]');
             alerts.forEach(alert => {
                 if (alert) {
                     alert.style.transition = 'opacity 0.5s';
@@ -493,12 +476,96 @@
             });
         }, 5000);
 
-        // Hiệu ứng loading khi submit form
-        document.getElementById('createGroupForm').addEventListener('submit', function() {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
-            submitBtn.disabled = true;
+        // Hiệu ứng loading khi submit form + gửi lời mời
+
+// Sửa lại sự kiện submit cho nút tạo nhóm: dùng AJAX, trả về JSON, không dùng CSRF
+document.getElementById('createGroupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+    submitBtn.disabled = true;
+
+    // Lấy dữ liệu từ form
+    const formData = new FormData(this);
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
+
+    fetch('/admin/groups/create-ajax', { // Đổi endpoint sang /create-ajax
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Đã tạo nhóm thành công!');
+            closeCreateGroupModal();
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            showNotification('error', data.message || 'Có lỗi xảy ra!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', 'Có lỗi xảy ra khi tạo nhóm!');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>Tạo nhóm';
+        submitBtn.disabled = false;
+    });
+});
+
+// ...existing code...
+        // Xóa nhóm bằng AJAX, xóa khỏi DB luôn
+        // ...existing code...
+function deleteGroup(button) {
+    const id = button.getAttribute('data-id');
+    if (confirm('Bạn có chắc chắn muốn xóa nhóm này không? Hành động này không thể hoàn tác!')) {
+        fetch(`/admin/groups/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+                // Không truyền CSRF nếu không dùng
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                button.closest('tr').remove();
+                showNotification('success', 'Đã xóa nhóm thành công!');
+            } else {
+                showNotification('error', 'Không thể xóa nhóm!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('error', 'Có lỗi xảy ra khi xóa nhóm!');
         });
+    }
+}
+// ...existing code...
+        // Hiển thị thông báo
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `glass p-4 rounded-xl fixed top-4 right-4 z-50 border-l-4 ${
+                type === 'success' ? 'border-green-500' : 'border-red-500'
+            }`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle 
+                       text-${type === 'success' ? 'green' : 'red'}-400 text-xl mr-3"></i>
+                    <p class="text-${type === 'success' ? 'green' : 'red'}-300">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>

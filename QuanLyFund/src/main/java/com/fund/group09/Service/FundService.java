@@ -3,42 +3,78 @@ package com.fund.group09.Service;
 import com.fund.group09.Model.Fund;
 import com.fund.group09.Repository.FundRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Transactional
 public class FundService {
 
-    private final FundRepository repo;
+    private final FundRepository fundRepository;
 
-    public FundService(FundRepository repo) {
-        this.repo = repo;
+    public FundService(FundRepository fundRepository) {
+        this.fundRepository = fundRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Fund> getAll() {
-        return repo.findAll();
+        return fundRepository.findAll();
     }
 
-    public Fund getById(Long id) {
-        return repo.findById(id).orElse(null);
+    @Transactional(readOnly = true)
+    public Optional<Fund> getById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID không được để trống");
+        }
+        return fundRepository.findById(id);
     }
 
     public Fund save(Fund fund) {
-        return repo.save(fund);
+        if (fund == null) {
+            throw new IllegalArgumentException("Fund không được để trống");
+        }
+        return fundRepository.save(fund);
     }
 
-    public Fund update(Long id, Fund newFund) {
-        return repo.findById(id).map(fund -> {
-            fund.setBalance(newFund.getBalance());
-            fund.setDescription(newFund.getDescription());
-            fund.setGroup(newFund.getGroup());
-            return repo.save(fund);
-        }).orElse(null);
+    public Optional<Fund> update(Long id, Fund newFund) {
+        if (id == null || newFund == null) {
+            throw new IllegalArgumentException("ID và Fund không được để trống");
+        }
+
+        return fundRepository.findById(id)
+            .map(existingFund -> {
+                existingFund.setBalance(newFund.getBalance());
+                existingFund.setDescription(newFund.getDescription());
+                existingFund.setGroup(newFund.getGroup());
+                return fundRepository.save(existingFund);
+            });
     }
 
     public boolean delete(Long id) {
-        if (!repo.existsById(id)) return false;
-        repo.deleteById(id);
-        return true;
+        if (id == null) {
+            throw new IllegalArgumentException("ID không được để trống");
+        }
+
+        if (!fundRepository.existsById(id)) {
+            return false;
+        }
+        
+        try {
+            fundRepository.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Tiện ích kiểm tra tồn tại
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        if (id == null) {
+            return false;
+        }
+        return fundRepository.existsById(id);
     }
 }

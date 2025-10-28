@@ -128,12 +128,15 @@
                         </tr>
                         <tr th:each="member, iterStat : ${group.members}">
                             <td class="py-3 px-4" th:text="${iterStat.count}">1</td>
-                            <td class="py-3 px-4" th:text="${member.fullName}">Tên thành viên</td>
-                            <td class="py-3 px-4" th:text="${member.email}">email@example.com</td>
+                            <td class="py-3 px-4" th:text="${member.user.name}">Tên thành viên</td>
+                            <td class="py-3 px-4" th:text="${member.user.email}">email@example.com</td>
                             <td class="py-3 px-4">
-                                <span th:text="${member.role == 'LEADER' ? 'Trưởng nhóm' : 'Thành viên'}">Thành viên</span>
+                                <span th:text="${member.role == 'ADMIN' ? 'Trưởng nhóm' : 'Thành viên'}">Thành viên</span>
                             </td>
-                            <td class="py-3 px-4" th:text="${member.joinedDate != null ? member.joinedDate.toLocalDate() : ''}">01/01/2024</td>
+                            <td class="py-3 px-4"
+                                th:text="${member.joinedAt != null ? #temporals.format(member.joinedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                                01/01/2024
+                            </td>
                         </tr>
                     </tbody>
                 </table>

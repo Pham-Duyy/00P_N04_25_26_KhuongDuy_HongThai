@@ -1,8 +1,8 @@
 package com.fund.group09.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,42 +12,65 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false)
     private String name;
 
-    @Column(length = 500)
     private String description;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Member> members;
+    @Column(nullable = false)
+    private LocalDateTime createdDate;
 
-    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Fund fund;
+    @Column(nullable = false)
+    private Boolean isActive;
 
-    // Thêm các trường mới cho quản lý nhóm
-    private Boolean isActive = true;
-
-    private Integer maxMembers = 50;
-
-    @Column(updatable = false)
-    private LocalDateTime createdDate = LocalDateTime.now();
-
-    @Column(unique = true, length = 12)
+    @Column(unique = true)
     private String joinCode;
 
-    @Column(length = 20)
-    private String groupType = "PUBLIC"; // hoặc "PRIVATE"
+    private Integer maxMembers;
 
+    private String groupType;
+
+    @Column(nullable = false)
+    private String createdBy;
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Member> members = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
+
+    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Fund fund;
+
+    // Constructor
     public Group() {
+        this.createdDate = LocalDateTime.now();
+        this.isActive = true;
     }
 
-    public Group(String name, String description) {
-        this.name = name;
-        this.description = description;
+    // Helper methods for managing members
+    public void addMember(Member member) {
+        members.add(member);
+        member.setGroup(this);
     }
 
-    // Getters & Setters
+    public void removeMember(Member member) {
+        members.remove(member);
+        member.setGroup(null);
+    }
+
+    // Helper methods for managing invitations
+    public void addInvitation(Invitation invitation) {
+        invitations.add(invitation);
+        invitation.setGroup(this);
+    }
+
+    public void removeInvitation(Invitation invitation) {
+        invitations.remove(invitation);
+        invitation.setGroup(null);
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -72,20 +95,12 @@ public class Group {
         this.description = description;
     }
 
-    public List<Member> getMembers() {
-        return members;
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
     }
 
-    public void setMembers(List<Member> members) {
-        this.members = members;
-    }
-
-    public Fund getFund() {
-        return fund;
-    }
-
-    public void setFund(Fund fund) {
-        this.fund = fund;
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
     public Boolean getIsActive() {
@@ -96,22 +111,6 @@ public class Group {
         this.isActive = isActive;
     }
 
-    public Integer getMaxMembers() {
-        return maxMembers;
-    }
-
-    public void setMaxMembers(Integer maxMembers) {
-        this.maxMembers = maxMembers;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
     public String getJoinCode() {
         return joinCode;
     }
@@ -120,11 +119,65 @@ public class Group {
         this.joinCode = joinCode;
     }
 
+    public Integer getMaxMembers() {
+        return maxMembers;
+    }
+
+    public void setMaxMembers(Integer maxMembers) {
+        this.maxMembers = maxMembers;
+    }
+
     public String getGroupType() {
         return groupType;
     }
 
     public void setGroupType(String groupType) {
         this.groupType = groupType;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public List<Member> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<Member> members) {
+        this.members = members;
+    }
+
+    public List<Invitation> getInvitations() {
+        return invitations;
+    }
+
+    public void setInvitations(List<Invitation> invitations) {
+        this.invitations = invitations;
+    }
+
+    public Fund getFund() {
+        return fund;
+    }
+
+    public void setFund(Fund fund) {
+        this.fund = fund;
+    }
+
+    // Object methods
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Group)) return false;
+        Group group = (Group) o;
+        return id != null && id.equals(group.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

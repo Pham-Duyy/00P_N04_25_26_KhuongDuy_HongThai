@@ -2,54 +2,104 @@ package com.fund.group09.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "members")
 public class Member {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
+
+    @Column(name = "joined_at", nullable = false)
+    private LocalDateTime joinedAt;
+
+    @Column(length = 20, nullable = false)
+    private String role;
+
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
-    private Role role;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Group group;
+    private List<Expense> expenses = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Expense> expenses;
+    private List<Income> incomes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Income> incomes;
-
-    //  Constructors
-    public Member() {}
-
-    public Member(String name, String email, Role role) {
-        this.name = name;
-        this.email = email;
-        this.role = role;
+    // Constructors
+    public Member() {
+        this.joinedAt = LocalDateTime.now();
     }
 
-    //  Getters & Setters
+    public Member(User user, Group group, String role) {
+        this.user = user;
+        this.group = group;
+        this.role = role;
+        this.joinedAt = LocalDateTime.now();
+        if (user != null) {
+            this.name = user.getName();
+            this.email = user.getEmail();
+        }
+    }
+
+    // Getters & Setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        if (user != null) {
+            this.name = user.getName();
+            this.email = user.getEmail();
+        }
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public LocalDateTime getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(LocalDateTime joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getName() {
@@ -68,22 +118,6 @@ public class Member {
         this.email = email;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
     public List<Expense> getExpenses() {
         return expenses;
     }
@@ -98,5 +132,50 @@ public class Member {
 
     public void setIncomes(List<Income> incomes) {
         this.incomes = incomes;
+    }
+
+    // Helper methods
+    public void addExpense(Expense expense) {
+        expenses.add(expense);
+        expense.setMember(this);
+    }
+
+    public void removeExpense(Expense expense) {
+        expenses.remove(expense);
+        expense.setMember(null);
+    }
+
+    public void addIncome(Income income) {
+        incomes.add(income);
+        income.setMember(this);
+    }
+
+    public void removeIncome(Income income) {
+        incomes.remove(income);
+        income.setMember(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Member)) return false;
+        Member member = (Member) o;
+        return id != null && id.equals(member.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", email='" + email + '\'' +
+               ", role='" + role + '\'' +
+               ", joinedAt=" + joinedAt +
+               '}';
     }
 }

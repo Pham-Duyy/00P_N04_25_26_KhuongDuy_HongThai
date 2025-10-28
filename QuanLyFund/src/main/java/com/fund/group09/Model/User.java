@@ -1,11 +1,8 @@
 package com.fund.group09.Model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -14,6 +11,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String name;
 
@@ -26,26 +24,56 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // USER, ADMIN,...
+    @Column(nullable = false)
+    private String role = "USER"; // Default role
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Member> memberGroups = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
+
+    // Constructors
     public User() {
     }
 
-    public User(String name, String email, String username, String password, String role) {
+    public User(String name, String email, String username, String password) {
         this.name = name;
         this.email = email;
         this.username = username;
         this.password = password;
-        this.role = role;
+    }
+
+    // Helper methods
+    public void addMembership(Member member) {
+        memberGroups.add(member);
+        member.setUser(this);
+    }
+
+    public void removeMembership(Member member) {
+        memberGroups.remove(member);
+        member.setUser(null);
+    }
+
+    public void addInvitation(Invitation invitation) {
+        invitations.add(invitation);
+        invitation.setUser(this);
+    }
+
+    public void removeInvitation(Invitation invitation) {
+        invitations.remove(invitation);
+        invitation.setUser(null);
     }
 
     // Getters & Setters
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
@@ -84,5 +112,46 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<Member> getMemberGroups() {
+        return memberGroups;
+    }
+
+    public void setMemberGroups(List<Member> memberGroups) {
+        this.memberGroups = memberGroups;
+    }
+
+    public List<Invitation> getInvitations() {
+        return invitations;
+    }
+
+    public void setInvitations(List<Invitation> invitations) {
+        this.invitations = invitations;
+    }
+
+    // Object methods
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", email='" + email + '\'' +
+               ", username='" + username + '\'' +
+               ", role='" + role + '\'' +
+               '}';
     }
 }

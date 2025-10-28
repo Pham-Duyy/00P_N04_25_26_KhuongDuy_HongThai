@@ -1,114 +1,183 @@
 package com.fund.group09.Controller;
 
+import com.fund.group09.Model.*;
+import com.fund.group09.Service.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 
-import java.util.*;
-
-// Giả lập model Invitation cho demo
-class Invitation {
-    public Long id;
-    public String groupName;
-    public String invitedBy;
-    public String invitedDate;
-    public int memberCount;
-    public String description;
-    public String status; // PENDING, ACCEPTED, REJECTED
-    public String responseDate;
-
-    public Invitation(Long id, String groupName, String invitedBy, String invitedDate, int memberCount, String description, String status, String responseDate) {
-        this.id = id;
-        this.groupName = groupName;
-        this.invitedBy = invitedBy;
-        this.invitedDate = invitedDate;
-        this.memberCount = memberCount;
-        this.description = description;
-        this.status = status;
-        this.responseDate = responseDate;
-    }
-}
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user/groups")
 public class UserGroupController {
 
-    // Trang danh sách lời mời tham gia nhóm
+    private final InvitationService invitationService;
+    private final GroupService groupService;
+    private final MemberService memberService;
+
+    public UserGroupController(
+            InvitationService invitationService, 
+            GroupService groupService,
+            MemberService memberService) {
+        this.invitationService = invitationService;
+        this.groupService = groupService;
+        this.memberService = memberService;
+    }
+
+    // Trang danh sách nhóm và lời mời
+    @GetMapping
+    public String groupsPage(HttpSession session, Model model) {
+        String userEmail = getUserEmailFromSession(session);
+        if (userEmail == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            List<Group> myGroups = groupService.getUserGroups(userEmail);
+            model.addAttribute("myGroups", myGroups);
+
+            // Không lấy lời mời ở đây, chỉ lấy ở trang /join
+            List<Group> newGroups = groupService.getNewGroupsForUser(userEmail);
+            model.addAttribute("newGroups", newGroups);
+
+            Map<Long, Map<String, Object>> groupSummaries = new HashMap<>();
+            for (Group group : myGroups) {
+                groupSummaries.put(group.getId(), groupService.getGroupSummary(group.getId()));
+            }
+            model.addAttribute("groupSummaries", groupSummaries);
+
+            return "user/groups/index";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    // Trang hiển thị lời mời tham gia nhóm
     @GetMapping("/join")
     public String joinGroupPage(HttpSession session, Model model) {
-        // Dữ liệu mẫu cho demo
-        List<Invitation> pendingInvitations = new ArrayList<>();
-        pendingInvitations.add(new Invitation(1L, "Nhóm Du lịch Hè 2024", "Nguyễn Văn A", "15/10/2024", 8, "Nhóm quản lý chi phí cho chuyến du lịch hè năm nay", "PENDING", null));
-        List<Invitation> acceptedInvitations = new ArrayList<>();
-        acceptedInvitations.add(new Invitation(2L, "Nhóm Học tập IT", "Trần Thị B", "10/10/2024", 5, "Nhóm học tập công nghệ thông tin", "ACCEPTED", "12/10/2024"));
-        List<Invitation> rejectedInvitations = new ArrayList<>();
-        rejectedInvitations.add(new Invitation(3L, "Nhóm Bóng đá", "Lê Văn C", "08/10/2024", 12, "Nhóm đá bóng cuối tuần", "REJECTED", "09/10/2024"));
-
-        // Lịch sử gần đây (gộp accepted + rejected)
-        List<Invitation> recentInvitations = new ArrayList<>();
-        recentInvitations.addAll(acceptedInvitations);
-        recentInvitations.addAll(rejectedInvitations);
-
+        String userEmail = getUserEmailFromSession(session);
+        if (userEmail == null) {
+            return "redirect:/login";
+        }
+        List<Invitation> pendingInvitations = invitationService.getPendingInvitationsForUser(userEmail);
         model.addAttribute("pendingInvitations", pendingInvitations);
-        model.addAttribute("acceptedInvitations", acceptedInvitations);
-        model.addAttribute("rejectedInvitations", rejectedInvitations);
-        model.addAttribute("recentInvitations", recentInvitations);
-        model.addAttribute("userEmail", session.getAttribute("userEmail"));
+        model.addAttribute("userEmail", userEmail);
         return "user/groups/join";
     }
 
-    // Chấp nhận lời mời tham gia nhóm (AJAX)
+    // Xem chi tiết nhóm
+    @GetMapping("/{groupId}")
+    public String viewGroup(@PathVariable Long groupId, HttpSession session, Model model) {
+        String userEmail = getUserEmailFromSession(session);
+        if (userEmail == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            if (!memberService.isMemberOfGroup(groupId, userEmail)) {
+                model.addAttribute("error", "Bạn không có quyền xem nhóm này");
+                return "error";
+            }
+
+            Group group = groupService.findById(groupId);
+            Map<String, Object> summary = groupService.getGroupSummary(groupId);
+            List<Member> members = memberService.getMembersByGroup(groupId);
+
+            model.addAttribute("group", group);
+            model.addAttribute("summary", summary);
+            model.addAttribute("members", members);
+
+            return "user/groups/detail";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    // Xử lý chấp nhận lời mời
     @PostMapping("/invitations/{invitationId}/accept")
     @ResponseBody
-    public Map<String, Object> acceptInvitation(@PathVariable("invitationId") Long invitationId, HttpSession session) {
-        // TODO: Xử lý chấp nhận lời mời thực tế
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "Đã chấp nhận lời mời nhóm!");
-        return result;
+    public ResponseEntity<Map<String, Object>> acceptInvitation(
+            @PathVariable Long invitationId,
+            HttpSession session) {
+        String userEmail = getUserEmailFromSession(session);
+        if (userEmail == null) {
+            return createErrorResponse("Phiên đăng nhập không hợp lệ");
+        }
+
+        try {
+            Member newMember = memberService.acceptInvitation(invitationId, userEmail);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Đã tham gia nhóm thành công!");
+            response.put("memberId", newMember.getId());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return createErrorResponse(e.getMessage());
+        }
     }
 
-    // Từ chối lời mời tham gia nhóm (AJAX)
+    // Xử lý từ chối lời mời
     @PostMapping("/invitations/{invitationId}/reject")
     @ResponseBody
-    public Map<String, Object> rejectInvitation(@PathVariable("invitationId") Long invitationId, HttpSession session) {
-        // TODO: Xử lý từ chối lời mời thực tế
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "Đã từ chối lời mời nhóm!");
-        return result;
+    public ResponseEntity<Map<String, Object>> rejectInvitation(
+            @PathVariable Long invitationId,
+            HttpSession session) {
+        String userEmail = getUserEmailFromSession(session);
+        if (userEmail == null) {
+            return createErrorResponse("Phiên đăng nhập không hợp lệ");
+        }
+
+        try {
+            memberService.rejectInvitation(invitationId, userEmail);
+            return createResponse(true, "Đã từ chối lời mời thành công");
+        } catch (Exception e) {
+            return createErrorResponse(e.getMessage());
+        }
     }
 
-    // Trang tìm kiếm nhóm
-    @GetMapping("/search")
-    public String searchGroupPage(HttpSession session, Model model) {
-        // TODO: Lấy danh sách nhóm có thể tìm kiếm
-        return "user/groups/search";
+    // Rời khỏi nhóm
+    @PostMapping("/{groupId}/leave")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> leaveGroup(
+            @PathVariable Long groupId,
+            HttpSession session) {
+        String userEmail = getUserEmailFromSession(session);
+        if (userEmail == null) {
+            return createErrorResponse("Phiên đăng nhập không hợp lệ");
+        }
+
+        try {
+            memberService.leaveGroup(groupId, userEmail);
+            return createResponse(true, "Đã rời khỏi nhóm thành công");
+        } catch (Exception e) {
+            return createErrorResponse(e.getMessage());
+        }
     }
 
-    // Trang tạo nhóm mới
-    @GetMapping("/create")
-    public String createGroupPage(HttpSession session, Model model) {
-        // TODO: Hiển thị form tạo nhóm
-        return "user/groups/create";
+    // Utility methods
+    private String getUserEmailFromSession(HttpSession session) {
+        return (String) session.getAttribute("userEmail");
     }
 
-    // Xử lý tạo nhóm mới
-    @PostMapping("/create")
-    public String doCreateGroup(@RequestParam("groupName") String groupName,
-                                @RequestParam("description") String description,
-                                HttpSession session,
-                                Model model) {
-        // TODO: Xử lý tạo nhóm mới thực tế
-        // Sau khi tạo thành công, chuyển hướng về trang nhóm
-        return "redirect:/user/groups";
+    private ResponseEntity<Map<String, Object>> createResponse(boolean success, String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", success);
+        response.put("message", message);
+        return ResponseEntity.ok(response);
     }
 
-    // Trang danh sách nhóm của user
-    @GetMapping
-    public String listGroups(HttpSession session, Model model) {
-        // TODO: Lấy danh sách nhóm của user
-        return "user/groups/list";
+    private ResponseEntity<Map<String, Object>> createErrorResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("message", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }

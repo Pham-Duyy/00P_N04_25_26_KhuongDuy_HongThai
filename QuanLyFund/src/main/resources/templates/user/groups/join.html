@@ -12,31 +12,25 @@
             color: #e0e0e0;
             min-height: 100vh;
         }
-
         .glass-effect {
             background: rgba(30, 30, 30, 0.5);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
         .btn-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .animate-fadeIn {
             animation: fadeIn 0.5s ease-out;
         }
-
         .invitation-card {
             transition: all 0.3s ease;
         }
-
         .invitation-card:hover {
             border-color: rgba(59, 130, 246, 0.5);
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
@@ -84,45 +78,6 @@
             </div>
         </div>
 
-        <!-- Invitation Statistics -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="glass-effect rounded-xl p-6 animate-fadeIn">
-                <div class="flex items-center">
-                    <div class="p-3 bg-yellow-500 bg-opacity-20 rounded-lg">
-                        <i class="fas fa-clock text-yellow-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-white text-opacity-70 text-sm">Chờ xác nhận</p>
-                        <p class="text-2xl font-bold text-white" th:text="${pendingInvitations?.size() ?: 0}">3</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-effect rounded-xl p-6 animate-fadeIn">
-                <div class="flex items-center">
-                    <div class="p-3 bg-green-500 bg-opacity-20 rounded-lg">
-                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-white text-opacity-70 text-sm">Đã chấp nhận</p>
-                        <p class="text-2xl font-bold text-white" th:text="${acceptedInvitations?.size() ?: 0}">5</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-effect rounded-xl p-6 animate-fadeIn">
-                <div class="flex items-center">
-                    <div class="p-3 bg-red-500 bg-opacity-20 rounded-lg">
-                        <i class="fas fa-times-circle text-red-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-white text-opacity-70 text-sm">Đã từ chối</p>
-                        <p class="text-2xl font-bold text-white" th:text="${rejectedInvitations?.size() ?: 0}">2</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Pending Invitations -->
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-white mb-6">
@@ -130,7 +85,7 @@
                 Lời mời chờ xác nhận
             </h2>
 
-            <div class="space-y-4" th:if="${pendingInvitations != null and not #lists.isEmpty(pendingInvitations)}">
+            <div class="space-y-4" th:if="${pendingInvitations != null and !pendingInvitations.isEmpty()}">
                 <div th:each="invitation : ${pendingInvitations}" 
                      class="glass-effect rounded-xl p-6 invitation-card border border-white border-opacity-10">
                     <div class="flex items-center justify-between">
@@ -139,23 +94,24 @@
                                 <i class="fas fa-users text-white text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-semibold text-white" th:text="${invitation.groupName}">Nhóm Du lịch Hè 2024</h3>
+                                <!-- Hiển thị tên nhóm -->
+                                <h3 class="text-lg font-semibold text-white" th:text="${invitation.group.name}">Tên nhóm</h3>
                                 <div class="flex items-center space-x-4 text-sm text-white text-opacity-70 mt-1">
                                     <span>
                                         <i class="fas fa-user mr-1"></i>
-                                        Mời bởi: <span th:text="${invitation.invitedBy}">Nguyễn Văn A</span>
+                                        Mời bởi: <span th:text="${invitation.invitedBy}">Admin</span>
                                     </span>
                                     <span>
                                         <i class="fas fa-calendar mr-1"></i>
-                                        <span th:text="${invitation.invitedDate}">15/10/2024</span>
+                                        <span th:text="${#temporals.format(invitation.invitedDate, 'dd/MM/yyyy')}">dd/MM/yyyy</span>
                                     </span>
-                                    <span>
+                                    <span th:if="${invitation.group != null && invitation.group.members != null}">
                                         <i class="fas fa-users mr-1"></i>
-                                        <span th:text="${invitation.memberCount}">8</span> thành viên
+                                        <span th:text="${#lists.size(invitation.group.members)}">0</span> thành viên
                                     </span>
                                 </div>
-                                <p class="text-white text-opacity-60 text-sm mt-2" th:text="${invitation.description}">
-                                    Nhóm quản lý chi phí cho chuyến du lịch hè năm nay
+                                <p class="text-white text-opacity-60 text-sm mt-2" th:text="${invitation.group.description}">
+                                    Mô tả nhóm
                                 </p>
                             </div>
                         </div>
@@ -176,65 +132,11 @@
             </div>
 
             <!-- Empty State for Pending -->
-            <div th:if="${pendingInvitations == null or #lists.isEmpty(pendingInvitations)}" 
+            <div th:if="${pendingInvitations == null or pendingInvitations.isEmpty()}" 
                  class="glass-effect rounded-xl p-12 text-center">
                 <i class="fas fa-inbox text-white text-opacity-40 text-6xl mb-4"></i>
                 <h3 class="text-xl font-semibold text-white text-opacity-70 mb-2">Không có lời mời nào</h3>
                 <p class="text-white text-opacity-50">Bạn không có lời mời tham gia nhóm nào đang chờ xác nhận</p>
-            </div>
-        </div>
-
-        <!-- Recent Invitations History -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-white mb-6">
-                <i class="fas fa-history mr-2 text-blue-400"></i>
-                Lịch sử lời mời gần đây
-            </h2>
-
-            <div class="space-y-4" th:if="${recentInvitations != null and not #lists.isEmpty(recentInvitations)}">
-                <div th:each="invitation : ${recentInvitations}" 
-                     class="glass-effect rounded-xl p-6 border border-white border-opacity-10">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-gray-500 bg-opacity-30 rounded-full flex items-center justify-center">
-                                <i class="fas fa-users text-white text-lg"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-white" th:text="${invitation.groupName}">Nhóm Học tập IT</h3>
-                                <div class="flex items-center space-x-4 text-sm text-white text-opacity-70 mt-1">
-                                    <span>
-                                        <i class="fas fa-user mr-1"></i>
-                                        Mời bởi: <span th:text="${invitation.invitedBy}">Trần Thị B</span>
-                                    </span>
-                                    <span>
-                                        <i class="fas fa-calendar mr-1"></i>
-                                        <span th:text="${invitation.responseDate}">10/10/2024</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <span th:if="${invitation.status == 'ACCEPTED'}" 
-                                  class="bg-green-500 bg-opacity-20 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                Đã chấp nhận
-                            </span>
-                            <span th:if="${invitation.status == 'REJECTED'}" 
-                                  class="bg-red-500 bg-opacity-20 text-red-400 px-3 py-1 rounded-full text-sm font-medium">
-                                <i class="fas fa-times-circle mr-1"></i>
-                                Đã từ chối
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State for History -->
-            <div th:if="${recentInvitations == null or #lists.isEmpty(recentInvitations)}" 
-                 class="glass-effect rounded-xl p-12 text-center">
-                <i class="fas fa-history text-white text-opacity-40 text-6xl mb-4"></i>
-                <h3 class="text-xl font-semibold text-white text-opacity-70 mb-2">Chưa có lịch sử</h3>
-                <p class="text-white text-opacity-50">Bạn chưa có lời mời nào được xử lý gần đây</p>
             </div>
         </div>
 
