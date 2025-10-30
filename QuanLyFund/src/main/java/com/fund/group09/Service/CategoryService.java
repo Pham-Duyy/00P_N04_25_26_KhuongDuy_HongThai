@@ -35,4 +35,9 @@ public class CategoryService {
     public boolean existsById(Long id) {
         return repo.existsById(id);
     }
+
+    public List<Category> findByType(String type) {
+        return repo.findByType(type);
+    }
+
 }

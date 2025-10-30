@@ -45,7 +45,7 @@ public class FundController {
     @PostMapping
     public ResponseEntity<Fund> createFund(@Valid @RequestBody Fund fund) {
         // Kiểm tra số dư không âm
-        if (fund.getBalance() == null || 
+        if (fund.getBalance() == null ||
             fund.getBalance().compareTo(BigDecimal.ZERO) < 0) {
             return ResponseEntity.badRequest().build();
         }

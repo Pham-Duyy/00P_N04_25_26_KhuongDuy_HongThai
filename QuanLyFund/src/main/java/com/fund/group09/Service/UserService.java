@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.fund.group09.Model.User;
 import com.fund.group09.Repository.UserRepository;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -50,4 +51,10 @@ public class UserService {
         }
         return null;
     }
+
+    // Hiển thị tạo form giao dịch
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
 }

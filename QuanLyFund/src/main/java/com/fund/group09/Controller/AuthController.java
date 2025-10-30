@@ -26,9 +26,9 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
-                            @RequestParam(value = "logout", required = false) String logout,
-                            HttpSession session,
-                            Model model) {
+            @RequestParam(value = "logout", required = false) String logout,
+            HttpSession session,
+            Model model) {
         // Nếu đã đăng nhập, redirect về dashboard tương ứng
         if (isLoggedIn(session)) {
             String userRole = (String) session.getAttribute("userRole");
@@ -50,10 +50,10 @@ public class AuthController {
     // Xử lý POST đăng nhập
     @PostMapping("/login")
     public String doLogin(@RequestParam("email") String email,
-                          @RequestParam("password") String password,
-                          @RequestParam("role") String role,
-                          HttpSession session,
-                          Model model) {
+            @RequestParam("password") String password,
+            @RequestParam("role") String role,
+            HttpSession session,
+            Model model) {
         // Kiểm tra tài khoản thực tế trong DB
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
@@ -89,8 +89,8 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerPage(@RequestParam(value = "success", required = false) String success,
-                               HttpSession session,
-                               Model model) {
+            HttpSession session,
+            Model model) {
         // Nếu đã đăng nhập, redirect về dashboard
         if (isLoggedIn(session)) {
             String userRole = (String) session.getAttribute("userRole");
@@ -129,7 +129,7 @@ public class AuthController {
         return "user/dashboard"; // Giao diện user
     }
 
-    // Dashboard cho ADMIN  
+    // Dashboard cho ADMIN
     @GetMapping("/admin/dashboard")
     public String adminDashboard(HttpSession session, Model model) {
         // Kiểm tra đăng nhập
@@ -158,7 +158,7 @@ public class AuthController {
         model.addAttribute("errorMessage", "Bạn không có quyền truy cập vào trang này!");
         return "error/access-denied";
     }
-    
+
     // Trang logout
     @GetMapping("/logout")
     public String logout(HttpSession session) {
@@ -173,19 +173,19 @@ public class AuthController {
         Object userId = session.getAttribute("userId");
         return userRole != null && userId != null;
     }
-    
+
     // Utility method kiểm tra quyền admin
     private boolean isAdmin(HttpSession session) {
         String userRole = (String) session.getAttribute("userRole");
         return "ADMIN".equals(userRole);
     }
-    
+
     // Utility method kiểm tra quyền user
     private boolean isUser(HttpSession session) {
         String userRole = (String) session.getAttribute("userRole");
         return "USER".equals(userRole);
     }
-    
+
     // Route cho profile user
     @GetMapping("/profile")
     public String userProfile(HttpSession session, Model model) {
@@ -197,7 +197,7 @@ public class AuthController {
         model.addAttribute("userRole", session.getAttribute("userRole"));
         return "profile";
     }
-    
+
     // Route cho settings (chỉ admin)
     @GetMapping("/admin/settings")
     public String adminSettings(HttpSession session, Model model) {
@@ -208,4 +208,7 @@ public class AuthController {
         model.addAttribute("userRole", session.getAttribute("userRole"));
         return "admin/settings";
     }
+
+
+
 }

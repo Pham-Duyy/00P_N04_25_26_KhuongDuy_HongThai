@@ -1,6 +1,8 @@
 package com.fund.group09.Model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "categories")
@@ -14,6 +16,9 @@ public class Category {
     private String description;
     private String type; // ví dụ: "Expense" hoặc "Income"
 
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions = new ArrayList<>();
+
     public Category() {
     }
 
@@ -23,6 +28,7 @@ public class Category {
         this.type = type;
     }
 
+    // Getters & Setters
     public Long getId() {
         return id;
     }
@@ -53,5 +59,13 @@ public class Category {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 }
