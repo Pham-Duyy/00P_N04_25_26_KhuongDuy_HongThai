@@ -100,7 +100,3 @@ III. YÊU CẦU VỀ DỮ LIỆU
 - addContribution(contribution: Contribution) – Thêm đóng góp vào quỹ (do Member thực hiện).
 - processExpense(expense: Expense) – Trừ tiền quỹ khi có chi tiêu được phê duyệt.
 - getBalance() – Trả về số dư hiện tại của quỹ.
-
-
-
-
