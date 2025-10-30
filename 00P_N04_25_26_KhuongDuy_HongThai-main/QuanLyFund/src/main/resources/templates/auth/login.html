@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Fund Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(30, 30, 30, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <!-- Login Container -->
+    <div class="relative z-10 w-full max-w-md animate-fadeIn">
+        <!-- Logo Section -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-4 shadow-lg">
+                <i class="fas fa-wallet text-3xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">💰Fund Manager</h1>
+            <p class="text-white text-opacity-80">Quản lý ngân sách nhóm thông minh</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Chào mừng trở lại!</h2>
+                <p class="text-white text-opacity-70">Đăng nhập để tiếp tục quản lý ngân sách</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6" method="post" th:action="@{/login}">
+                <!-- Email Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-white text-opacity-60"></i>
+                    </div>
+                    <input 
+                        type="email"
+                        name="email"
+                        id="email"
+                        class="w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder-white placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300" 
+                        placeholder="Email của bạn"
+                        required
+                        th:value="${param.email}"
+                    >
+                </div>
+
+                <!-- Password Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-white text-opacity-60"></i>
+                    </div>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="password"
+                        class="w-full pl-10 pr-12 py-3 rounded-lg text-white placeholder-white placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300" 
+                        placeholder="Mật khẩu"
+                        required
+                    >
+                    <button 
+                        type="button" 
+                        id="togglePassword"
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-white text-opacity-60 hover:text-opacity-100"
+                    >
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user-tag text-white text-opacity-60"></i>
+                    </div>
+                    <select 
+                        name="role" 
+                        id="role"
+                        class="w-full pl-10 pr-4 py-3 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300 appearance-none bg-[rgba(255,255,255,0.1)]"
+                        required
+                    >
+                        <option value="" class="text-gray-800">Chọn vai trò</option>
+                        <option value="USER" class="text-gray-800">Thành viên</option>
+                        <option value="ADMIN" class="text-gray-800">Quản trị viên</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <i class="fas fa-chevron-down text-white text-opacity-60"></i>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 rounded bg-white bg-opacity-10 border-white border-opacity-20">
+                        <span class="ml-2 text-white text-opacity-80 text-sm">Ghi nhớ đăng nhập</span>
+                    </label>
+                    <a href="#" class="text-white text-opacity-80 hover:text-opacity-100 text-sm">Quên mật khẩu?</a>
+                </div>
+
+                <!-- Login Button -->
+                <button 
+                    type="submit" 
+                    class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-lg btn-hover transition-all duration-300"
+                >
+                    <span id="loginBtnText">Đăng nhập</span>
+                    <i id="loginBtnIcon" class="fas fa-sign-in-alt ml-2"></i>
+                </button>
+
+                <!-- Divider -->
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-white border-opacity-20"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-[#232526] text-white text-opacity-60">hoặc</span>
+                    </div>
+                </div>
+
+                <!-- Register Link -->
+                <div class="text-center">
+                    <p class="text-white text-opacity-80">
+                        Chưa có tài khoản? 
+                        <a href="/register" class="text-blue-400 hover:text-blue-300 font-semibold">Đăng ký ngay</a>
+                    </p>
+                </div>
+            </form>
+            <!-- Hiển thị lỗi nếu có -->
+            <div th:if="${error}" class="mt-4 text-center text-red-400 font-semibold">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <div th:if="${message}" class="mt-4 text-center text-green-400 font-semibold">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span th:text="${message}"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle password visibility
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            toggleBtn.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                toggleBtn.innerHTML = `<i class="fas fa-${type === 'password' ? 'eye' : 'eye-slash'}"></i>`;
+            });
+
+            // Kiểm tra chọn vai trò trước khi submit
+            const loginForm = document.getElementById('loginForm');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const loginBtnIcon = document.getElementById('loginBtnIcon');
+
+            loginForm.addEventListener('submit', function(e) {
+                const selectedRole = document.getElementById('role').value;
+                if (!selectedRole) {
+                    alert('Vui lòng chọn vai trò đăng nhập');
+                    e.preventDefault();
+                    return false;
+                }
+                loginForm.querySelector('button[type="submit"]').disabled = true;
+                loginBtnText.textContent = 'Đang đăng nhập...';
+                loginBtnIcon.className = 'fas fa-spinner fa-spin ml-2';
+            });
+        });
+    </script>
+</body>
+</html>

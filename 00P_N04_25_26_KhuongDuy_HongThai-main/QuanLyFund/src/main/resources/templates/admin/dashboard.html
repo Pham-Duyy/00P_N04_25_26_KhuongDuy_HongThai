@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Fund Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .sidebar-link:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateX(5px);
+        }
+        .sidebar-link.active {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .gradient-text {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .transition {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-72 p-6 flex flex-col glass shadow-xl m-4 rounded-2xl">
+            <div class="flex items-center mb-12">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full mr-4">
+                    <i class="fas fa-wallet text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-100">Fund Manager</h1>
+                    <p class="text-sm text-slate-400">Admin Panel</p>
+                </div>
+            </div>
+            
+            <nav class="flex-1 space-y-2">
+                <a href="/admin/dashboard" class="sidebar-link active flex items-center px-6 py-4 rounded-xl mb-2 transition">
+                    <i class="fas fa-tachometer-alt mr-4 text-xl"></i> 
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="/admin/groups" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-users-cog mr-4 text-xl"></i> 
+                    <span class="font-medium">Quản lý nhóm</span>
+                </a>
+                <a href="/admin/finance" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-money-check-alt mr-4 text-xl"></i> 
+                    <span class="font-medium">Quản lý thu chi</span>
+                </a>
+                <a href="/admin/reports" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-chart-bar mr-4 text-xl"></i> 
+                    <span class="font-medium">Báo cáo thống kê</span>
+                </a>
+                <a href="/admin/notifications" class="sidebar-link flex items-center px-6 py-4 rounded-xl mb-2 transition hover:bg-blue-500 hover:bg-opacity-20">
+                    <i class="fas fa-bell mr-4 text-xl"></i> 
+                    <span class="font-medium">Thông báo</span>
+                </a>
+                
+            </nav>
+            
+            <div class="mt-8 pt-6 border-t border-slate-600">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-slate-100" id="userName">Admin</p>
+                        <p class="text-sm text-slate-400">Administrator</p>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition shadow-lg">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <div class="glass p-8 rounded-2xl shadow-xl">
+                <!-- Header -->
+                <div class="mb-8">
+                    <h1 class="text-4xl font-bold mb-2 text-slate-100">
+                        Chào mừng, <span class="gradient-text" id="userNameMain">Admin</span>! 👋
+                    </h1>
+                    <p class="text-lg text-slate-300">Quản lý ngân sách nhóm hiệu quả và chuyên nghiệp</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Tổng nhóm</p>
+                                <p class="text-2xl font-bold text-slate-100">12</p>
+                            </div>
+                            <div class="bg-blue-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-users text-blue-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Tổng quỹ</p>
+                                <p class="text-2xl font-bold text-slate-100">2.5M₫</p>
+                            </div>
+                            <div class="bg-green-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-wallet text-green-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Giao dịch hôm nay</p>
+                                <p class="text-2xl font-bold text-slate-100">8</p>
+                            </div>
+                            <div class="bg-purple-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-exchange-alt text-purple-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card glass p-6 rounded-2xl transition cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400 mb-1">Thông báo mới</p>
+                                <p class="text-2xl font-bold text-slate-100">3</p>
+                            </div>
+                            <div class="bg-orange-500 bg-opacity-20 p-3 rounded-full">
+                                <i class="fas fa-bell text-orange-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <a href="/admin/groups" class="card glass p-6 rounded-2xl transition hover:scale-105 cursor-pointer">
+                        <div class="text-center">
+                            <div class="bg-blue-500 bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                                <i class="fas fa-users-cog text-blue-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-100">Quản lý nhóm</h3>
+                            <p class="text-slate-300">Tạo, chỉnh sửa và quản lý các nhóm quỹ</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/finance" class="card glass p-6 rounded-2xl transition hover:scale-105 cursor-pointer">
+                        <div class="text-center">
+                            <div class="bg-green-500 bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                                <i class="fas fa-money-check-alt text-green-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-100">Quản lý thu chi</h3>
+                            <p class="text-slate-300">Theo dõi và quản lý các giao dịch tài chính</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/reports" class="card glass p-6 rounded-2xl transition hover:scale-105 cursor-pointer">
+                        <div class="text-center">
+                            <div class="bg-purple-500 bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                                <i class="fas fa-chart-bar text-purple-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-100">Báo cáo thống kê</h3>
+                            <p class="text-slate-300">Xem báo cáo và phân tích dữ liệu</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4 text-slate-100">Hoạt động gần đây</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-4 bg-slate-700 bg-opacity-30 rounded-xl">
+                            <div class="bg-blue-500 bg-opacity-20 p-2 rounded-full mr-4">
+                                <i class="fas fa-plus text-blue-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-200">Nhóm "Lớp 12A1" được tạo</p>
+                                <p class="text-sm text-slate-400">2 giờ trước</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-slate-700 bg-opacity-30 rounded-xl">
+                            <div class="bg-green-500 bg-opacity-20 p-2 rounded-full mr-4">
+                                <i class="fas fa-money-bill text-green-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-200">Giao dịch thu 500,000₫ được thêm</p>
+                                <p class="text-sm text-slate-400">4 giờ trước</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-slate-700 bg-opacity-30 rounded-xl">
+                            <div class="bg-orange-500 bg-opacity-20 p-2 rounded-full mr-4">
+                                <i class="fas fa-bell text-orange-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-200">Thông báo mới được gửi đến 5 nhóm</p>
+                                <p class="text-sm text-slate-400">6 giờ trước</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Đăng xuất
+        document.getElementById('logoutBtn').onclick = async function() {
+            try {
+                await fetch('/logout', { method: 'GET', credentials: 'same-origin' });
+            } catch (e) {}
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = '/login?logout';
+        };
+
+        // Đặt tên admin
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const adminName = user?.name || 'Admin';
+            document.getElementById('userName').textContent = adminName;
+            document.getElementById('userNameMain').textContent = adminName;
+        });
+    </script>
+</body>
+</html>

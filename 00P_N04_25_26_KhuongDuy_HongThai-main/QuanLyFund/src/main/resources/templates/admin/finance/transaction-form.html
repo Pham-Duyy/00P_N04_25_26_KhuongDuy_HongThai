@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tạo giao dịch thu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      font-family: "Poppins", sans-serif;
+      color: #e2e8f0;
+      padding: 24px;
+    }
+    .glass {
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 32px;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid #475569;
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+    .btn-submit {
+      background-color: #22c55e;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-submit:hover {
+      background-color: #16a34a;
+    }
+    .btn-copy {
+      background-color: #3b82f6;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .btn-copy:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="glass">
+    <h2 class="text-2xl font-bold text-center mb-6 text-white">💰 Tạo giao dịch thu</h2>
+
+    <!-- Thông tin chuyển khoản -->
+    <div class="text-center text-white mb-4">
+      <p><strong>Số tài khoản:</strong> <span id="accountNumber">9966504911</span></p>
+      <p><strong>Chủ tài khoản:</strong> PHAM KHUONG DUY</p>
+      <p><strong>Ngân hàng:</strong> Techcombank - Chi nhánh Hà Nội</p>
+      <button class="btn-copy" onclick="copyAccount()">📋 Sao chép số tài khoản</button>
+      <p id="copyStatus" class="text-green-400 mt-2 text-sm hidden">✅ Đã sao chép!</p>
+    </div>
+
+    <!-- Mã QR -->
+    <div class="flex justify-center mb-6">
+      <img src="src/img/anh QR.jpg" alt="Mã QR chuyển khoản" class="w-48 h-48 rounded-lg shadow-lg" />
+    </div>
+
+    <!-- Form tạo giao dịch -->
+    <form th:action="@{/admin/finance/transactions/create}" th:object="${transaction}" method="post">
+      <label>Số tiền:</label>
+      <input type="number" th:field="*{amount}" step="0.01" required placeholder="Nhập số tiền..." />
+
+      <label class="mt-4 block">Mô tả giao dịch:</label>
+      <textarea th:field="*{description}" rows="3" placeholder="Ví dụ: Nộp học phí kỳ 2..." required></textarea>
+
+      <!-- Người tạo là admin, không cho chọn -->
+      <input type="hidden" th:field="*{createdBy.id}" th:value="${adminId}" />
+      <input type="hidden" th:field="*{type}" value="INCOME" />
+
+      <div class="text-center mt-6">
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-paper-plane mr-2"></i> Gửi yêu cầu nộp tiền
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function copyAccount() {
+      const account = document.getElementById("accountNumber").innerText;
+      navigator.clipboard.writeText(account).then(() => {
+        document.getElementById("copyStatus").classList.remove("hidden");
+        setTimeout(() => {
+          document.getElementById("copyStatus").classList.add("hidden");
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

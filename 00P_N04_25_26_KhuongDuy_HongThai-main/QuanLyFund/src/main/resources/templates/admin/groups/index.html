@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhóm - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .btn-primary { background: linear-gradient(45deg, #3b82f6, #1d4ed8); }
+        .btn-success { background: linear-gradient(45deg, #10b981, #059669); }
+        .btn-danger { background: linear-gradient(45deg, #ef4444, #dc2626); }
+        .btn-warning { background: linear-gradient(45deg, #f59e0b, #d97706); }
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-4xl font-bold text-slate-100 mb-2">
+                    <i class="fas fa-users-cog mr-3 text-blue-400"></i>
+                    Quản lý nhóm
+                </h1>
+                <p class="text-slate-400">Tổng số nhóm: <span class="font-semibold text-blue-400" th:text="${totalGroups ?: 0}">0</span></p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-3">
+                <button onclick="openCreateGroupModal()" type="button"
+                    class="btn-success px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Tạo nhóm mới
+                </button>
+                <a href="/admin/dashboard" class="btn-primary px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Quay lại Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="glass p-4 rounded-xl mb-6 border-l-4 border-green-500">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-400 text-xl mr-3"></i>
+                <p class="text-green-300" th:text="${success}"></p>
+            </div>
+        </div>
+        <div th:if="${error}" class="glass p-4 rounded-xl mb-6 border-l-4 border-red-500">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-400 text-xl mr-3"></i>
+                <p class="text-red-300" th:text="${error}"></p>
+            </div>
+        </div>
+        <div th:if="${groupCreated}" class="glass p-4 rounded-xl mb-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-400 text-xl mr-3"></i>
+                    <div>
+                        <p class="text-green-300 font-semibold">Nhóm mới đã được tạo thành công!</p>
+                        <p class="text-green-200">Đã gửi lời mời đến tất cả user trong hệ thống.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${inviteMessage}" class="glass p-4 rounded-xl mb-6 border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-envelope text-yellow-400 text-xl mr-3"></i>
+                    <div>
+                        <p class="text-yellow-300 font-semibold">Thông báo mời tham gia nhóm:</p>
+                        <p class="text-yellow-200" th:text="${inviteMessage}"></p>
+                    </div>
+                </div>
+                <button onclick="sendInviteToUsers()" class="btn-primary px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition">
+                    <i class="fas fa-paper-plane mr-2"></i>Gửi cho User
+                </button>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center gap-3">
+            <form id="searchForm" method="get" action="/admin/groups" class="flex gap-2 items-center">
+                <input type="hidden" name="page" th:value="${param.page ?: 0}">
+                <input type="hidden" name="size" th:value="${param.size ?: 6}">
+                <input type="text" name="keyword" id="searchInput" th:value="${param.keyword}" placeholder="Tìm kiếm nhóm theo tên hoặc mô tả..." class="search-input bg-slate-800 text-white px-4 py-2 rounded-lg w-64" autocomplete="off">
+                <button type="submit" class="btn-primary px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition shadow-lg flex items-center">
+                    <i class="fas fa-search mr-2"></i> Tìm kiếm
+                </button>
+                <a href="/admin/groups" class="ml-2 text-blue-400 hover:underline">Xóa tìm kiếm</a>
+            </form>
+        </div>
+
+        <!-- Groups Table -->
+        <div class="glass p-6 rounded-2xl shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-100">
+                    <i class="fas fa-list mr-2 text-blue-400"></i>
+                    Danh sách nhóm
+                </h2>
+                <div class="flex space-x-2">
+                    <button onclick="refreshTable()" class="bg-slate-600 hover:bg-slate-700 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sync-alt mr-2"></i> Làm mới
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-slate-600">
+                            <th class="text-left py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-hashtag mr-2"></i>ID
+                            </th>
+                            <th class="text-left py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-users mr-2"></i>Tên nhóm
+                            </th>
+                            <th class="text-left py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-info-circle mr-2"></i>Mô tả
+                            </th>
+                            <th class="text-left py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-user-friends mr-2"></i>Thành viên
+                            </th>
+                            <th class="text-left py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-wallet mr-2"></i>Quỹ hiện tại
+                            </th>
+                            <th class="text-left py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-calendar mr-2"></i>Ngày tạo
+                            </th>
+                            <th class="text-left py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-link mr-2"></i>Mã tham gia
+                            </th>
+                            <th class="text-center py-4 px-4 font-semibold text-slate-300">
+                                <i class="fas fa-cogs mr-2"></i>Thao tác
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(groups)}" class="border-b border-slate-700">
+                            <td colspan="8" class="text-center py-8 text-slate-400">
+                                <i class="fas fa-inbox text-4xl mb-4 block"></i>
+                                <p class="text-lg">Chưa có nhóm nào</p>
+                                <span class="text-blue-400">Tạo nhóm đầu tiên ở phía trên →</span>
+                            </td>
+                        </tr>
+
+                        <tr th:each="group : ${groups}" class="border-b border-slate-700 hover:bg-slate-800 hover:bg-opacity-30 transition">
+                            <td class="py-4 px-4 font-mono text-slate-300" th:text="${group.id}">1</td>
+                            <td class="py-4 px-4">
+                                <div class="font-semibold text-slate-100" th:text="${group.name}">Tên nhóm</div>
+                                <div class="text-xs text-slate-400" th:if="${group.isActive}" th:text="${group.isActive ? 'Hoạt động' : 'Tạm ngưng'}">Trạng thái</div>
+                            </td>
+                            <td class="py-4 px-4 text-slate-300 max-w-xs truncate" th:text="${group.description ?: 'Không có mô tả'}">Mô tả</td>
+                            <td class="py-4 px-4">
+                                <span class="bg-blue-500 bg-opacity-20 text-blue-300 px-2 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-users mr-1"></i>
+                                    <span th:text="${group.members != null ? group.members.size() : 0}">0</span> thành viên
+                                </span>
+                                <div class="text-xs text-slate-400 mt-1" th:if="${group.maxMembers}" th:text="'Tối đa: ' + ${group.maxMembers}">Max: 50</div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <span class="font-mono text-green-400 font-semibold" th:text="${#numbers.formatDecimal(group.fund?.balance ?: 0, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                            </td>
+                            <td class="py-4 px-4 text-slate-300 text-sm" th:text="${group.createdDate != null ? group.createdDate.toLocalDate() : ''}">01/01/2024</td>
+                            <td class="py-4 px-4">
+                                <div class="flex items-center gap-2">
+                                    <code class="bg-slate-800 px-2 py-1 rounded text-xs font-mono text-blue-300" th:text="${group.joinCode}">ABC123</code>
+                                    <button onclick="copyJoinCode(this)" th:data-code="${group.joinCode}" class="text-slate-400 hover:text-blue-400 transition">
+                                        <i class="fas fa-copy text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <div class="flex justify-center space-x-2">
+                                    <a th:href="@{'/admin/groups/detail/' + ${group.id}}" 
+                                       class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="javascript:void(0);"
+                                       th:attr="data-id=${group.id},data-name=${group.name},data-maxmembers=${group.maxMembers},data-description=${group.description},data-balance=${group.fund?.balance},data-grouptype=${group.groupType},data-isactive=${group.isActive}"
+                                       onclick="openEditGroupModal(this)"
+                                       class="btn-warning text-white px-3 py-2 rounded-lg transition text-sm" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <!-- Nút xóa nhóm bằng AJAX -->
+                                    <button onclick="deleteGroup(this)" th:data-id="${group.id}"
+                                            class="btn-danger text-white px-3 py-2 rounded-lg transition text-sm" title="Xóa nhóm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Phân trang giữ nguyên -->
+            <div th:if="${groupPage != null && groupPage.totalPages > 1}" class="flex flex-wrap justify-center items-center gap-1 mt-6">
+                <!-- Trang đầu -->
+                <a th:if="${groupPage.number > 0}"
+                   th:href="@{/admin/groups(page=0, size=${groupPage.size}, keyword=${param.keyword})}"
+                   class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <!-- Trang trước -->
+                <a th:if="${groupPage.hasPrevious()}"
+                   th:href="@{/admin/groups(page=${groupPage.number - 1}, size=${groupPage.size}, keyword=${param.keyword})}"
+                   class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <!-- Số trang -->
+                <th:block th:with="currentPage=${groupPage.number}, totalPages=${groupPage.totalPages}">
+                    <span th:each="i : ${#numbers.sequence(
+                            currentPage > 2 ? currentPage - 2 : 0,
+                            currentPage < totalPages - 3 ? currentPage + 2 : totalPages - 1
+                        )}">
+                        <a th:if="${i != currentPage}"
+                           th:href="@{/admin/groups(page=${i}, size=${groupPage.size}, keyword=${param.keyword})}"
+                           th:text="${i + 1}"
+                           class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm"></a>
+                        <span th:if="${i == currentPage}"
+                              th:text="${i + 1}"
+                              class="bg-blue-600 px-3 py-2 rounded-lg text-sm font-semibold"></span>
+                    </span>
+                    <span th:if="${currentPage < totalPages - 3}" class="px-2 text-slate-400">...</span>
+                    <a th:if="${currentPage < totalPages - 3}"
+                       th:href="@{/admin/groups(page=${totalPages - 1}, size=${groupPage.size}, keyword=${param.keyword})}"
+                       th:text="${totalPages}"
+                       class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm"></a>
+                </th:block>
+                <a th:if="${groupPage.hasNext()}"
+                   th:href="@{/admin/groups(page=${groupPage.number + 1}, size=${groupPage.size}, keyword=${param.keyword})}"
+                   class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                <a th:if="${groupPage.number < groupPage.totalPages - 1}"
+                   th:href="@{/admin/groups(page=${groupPage.totalPages - 1}, size=${groupPage.size}, keyword=${param.keyword})}"
+                   class="bg-slate-600 hover:bg-slate-700 px-3 py-2 rounded-lg transition text-sm">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Cards giữ nguyên -->
+        <div th:if="${!#lists.isEmpty(groups)}" class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div class="glass p-6 rounded-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-400 mb-1">Tổng số nhóm</p>
+                        <p class="text-2xl font-bold text-slate-100" th:text="${totalGroups}">0</p>
+                    </div>
+                    <div class="bg-blue-500 bg-opacity-20 p-3 rounded-full">
+                        <i class="fas fa-users text-blue-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-400 mb-1">Tổng thành viên</p>
+                        <p class="text-2xl font-bold text-slate-100" th:text="${totalMembers}">0</p>
+                    </div>
+                    <div class="bg-green-500 bg-opacity-20 p-3 rounded-full">
+                        <i class="fas fa-user-friends text-green-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-400 mb-1">Tổng quỹ</p>
+                        <p class="text-2xl font-bold text-slate-100" th:text="${#numbers.formatDecimal(totalFund, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</p>
+                    </div>
+                    <div class="bg-purple-500 bg-opacity-20 p-3 rounded-full">
+                        <i class="fas fa-wallet text-purple-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-400 mb-1">Nhóm hoạt động</p>
+                        <p class="text-2xl font-bold text-slate-100" th:text="${activeGroups}">0</p>
+                    </div>
+                    <div class="bg-green-500 bg-opacity-20 p-3 rounded-full">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal tạo/cập nhật nhóm giữ nguyên -->
+    <div id="createGroupModal" class="fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen bg-black bg-opacity-50">
+            <div class="glass p-8 rounded-2xl w-full max-w-2xl relative mx-4">
+                <button onclick="closeCreateGroupModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-400 text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 id="modalTitle" class="text-2xl font-bold mb-6 text-slate-100">
+                    <i class="fas fa-plus-circle mr-2 text-blue-400"></i>
+                    Tạo nhóm mới
+                </h2>
+                <form id="createGroupForm" action="/admin/groups/create" method="post" onsubmit="return validateGroupForm();">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block mb-1 font-medium">Tên nhóm <span class="text-red-400">*</span></label>
+                            <input name="name" id="groupNameInput" required minlength="3" maxlength="50"
+                                class="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-blue-400" 
+                                placeholder="Nhập tên nhóm...">
+                            <p id="nameError" class="text-red-400 text-sm mt-1 hidden"></p>
+                        </div>
+                        <div>
+                            <label class="block mb-1 font-medium">Số thành viên tối đa</label>
+                            <input name="maxMembers" id="maxMembersInput" type="number" min="2" max="100" value="50"
+                                class="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-blue-400" 
+                                placeholder="Số thành viên tối đa">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block mb-1 font-medium">Mô tả nhóm</label>
+                        <textarea name="description" id="groupDescInput" maxlength="500" rows="3"
+                            class="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-blue-400" 
+                            placeholder="Nhập mô tả về mục đích, quy định của nhóm..."></textarea>
+                        <p class="text-slate-400 text-xs mt-1">Tối đa 500 ký tự</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block mb-1 font-medium">Quỹ ban đầu (₫)</label>
+                            <input name="initialFund" id="initialFundInput" type="number" min="0" value="0" step="1000"
+                                class="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-blue-400" 
+                                placeholder="0">
+                            <p class="text-slate-400 text-xs mt-1">Số tiền ban đầu trong quỹ nhóm</p>
+                        </div>
+                        <div>
+                            <label class="block mb-1 font-medium">Loại nhóm</label>
+                            <select name="groupType" id="groupTypeInput" 
+                                class="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-blue-400">
+                                <option value="PUBLIC">Công khai</option>
+                                <option value="PRIVATE">Riêng tư</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="flex items-center">
+                            <input name="isActive" id="isActiveInput" type="checkbox" checked 
+                                class="mr-2 rounded bg-slate-800 border-slate-600 text-blue-600 focus:ring-blue-500">
+                            <span class="font-medium">Kích hoạt nhóm ngay sau khi tạo</span>
+                        </label>
+                        <p class="text-slate-400 text-xs mt-1">Nhóm sẽ được kích hoạt và sẵn sàng cho thành viên tham gia</p>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="closeCreateGroupModal()" 
+                            class="px-6 py-3 rounded-lg bg-slate-600 hover:bg-slate-700 text-white font-semibold transition">
+                            <i class="fas fa-times mr-2"></i>Hủy
+                        </button>
+                        <button type="submit" id="submitBtn"
+                            class="btn-success px-6 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition">
+                            <i class="fas fa-plus mr-2"></i><span id="submitBtnText">Tạo nhóm</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mở modal tạo nhóm
+        function openCreateGroupModal() {
+            document.getElementById('createGroupModal').classList.remove('hidden');
+            document.getElementById('groupNameInput').focus();
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle mr-2 text-blue-400"></i>Tạo nhóm mới';
+            document.getElementById('createGroupForm').action = '/admin/groups/create';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus mr-2"></i><span id="submitBtnText">Tạo nhóm</span>';
+        }
+
+        // Mở modal chỉnh sửa nhóm
+        function openEditGroupModal(element) {
+            openCreateGroupModal();
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit mr-2 text-yellow-400"></i>Chỉnh sửa nhóm';
+            document.getElementById('createGroupForm').action = '/admin/groups/edit/' + element.getAttribute('data-id');
+            document.getElementById('groupNameInput').value = element.getAttribute('data-name') || '';
+            document.getElementById('maxMembersInput').value = element.getAttribute('data-maxmembers') || 50;
+            document.getElementById('groupDescInput').value = element.getAttribute('data-description') || '';
+            document.getElementById('initialFundInput').value = element.getAttribute('data-balance') || 0;
+            document.getElementById('groupTypeInput').value = element.getAttribute('data-grouptype') || 'PUBLIC';
+            document.getElementById('isActiveInput').checked = element.getAttribute('data-isactive') === 'true';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save mr-2"></i><span id="submitBtnText">Cập nhật nhóm</span>';
+        }
+
+        // Đóng modal tạo nhóm
+        function closeCreateGroupModal() {
+            document.getElementById('createGroupModal').classList.add('hidden');
+            document.getElementById('createGroupForm').reset();
+            document.getElementById('nameError').classList.add('hidden');
+            document.getElementById('createGroupForm').action = '/admin/groups/create';
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle mr-2 text-blue-400"></i>Tạo nhóm mới';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus mr-2"></i><span id="submitBtnText">Tạo nhóm</span>';
+        }
+
+        // Kiểm tra điều kiện form
+        function validateGroupForm() {
+            const name = document.getElementById('groupNameInput').value.trim();
+            const nameError = document.getElementById('nameError');
+            if (name.length < 3) {
+                nameError.textContent = "Tên nhóm phải có ít nhất 3 ký tự!";
+                nameError.classList.remove('hidden');
+                return false;
+            }
+            if (name.length > 50) {
+                nameError.textContent = "Tên nhóm không được vượt quá 50 ký tự!";
+                nameError.classList.remove('hidden');
+                return false;
+            }
+            const maxMembers = parseInt(document.getElementById('maxMembersInput').value);
+            if (maxMembers < 2 || maxMembers > 100) {
+                alert("Số thành viên tối đa phải từ 2 đến 100!");
+                return false;
+            }
+            nameError.classList.add('hidden');
+            return true;
+        }
+
+        // Copy mã tham gia
+        function copyJoinCode(button) {
+            const code = button.getAttribute('data-code');
+            navigator.clipboard.writeText(code).then(() => {
+                const icon = button.querySelector('i');
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                }, 2000);
+            });
+        }
+
+        // Gửi thông báo mời cho user
+        function sendInviteToUsers() {
+            alert('Thông báo mời đã được gửi cho tất cả user!');
+        }
+
+        // Làm mới bảng
+        function refreshTable() {
+            location.reload();
+        }
+
+        // Đóng modal khi nhấn ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") closeCreateGroupModal();
+        });
+
+        // Tự động ẩn thông báo sau 5 giây
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('[th\\:if="${success}"], [th\\:if="${error}"], [th\\:if="${inviteMessage}"], [th\\:if="${groupCreated}"]');
+            alerts.forEach(alert => {
+                if (alert) {
+                    alert.style.transition = 'opacity 0.5s';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }
+            });
+        }, 5000);
+
+        // Hiệu ứng loading khi submit form + gửi lời mời
+
+// Sửa lại sự kiện submit cho nút tạo nhóm: dùng AJAX, trả về JSON, không dùng CSRF
+document.getElementById('createGroupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+    submitBtn.disabled = true;
+
+    // Lấy dữ liệu từ form
+    const formData = new FormData(this);
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
+
+    fetch('/admin/groups/create-ajax', { // Đổi endpoint sang /create-ajax
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Đã tạo nhóm thành công!');
+            closeCreateGroupModal();
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            showNotification('error', data.message || 'Có lỗi xảy ra!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', 'Có lỗi xảy ra khi tạo nhóm!');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>Tạo nhóm';
+        submitBtn.disabled = false;
+    });
+});
+
+// ...existing code...
+        // Xóa nhóm bằng AJAX, xóa khỏi DB luôn
+        // ...existing code...
+function deleteGroup(button) {
+    const id = button.getAttribute('data-id');
+    if (confirm('Bạn có chắc chắn muốn xóa nhóm này không? Hành động này không thể hoàn tác!')) {
+        fetch(`/admin/groups/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+                // Không truyền CSRF nếu không dùng
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                button.closest('tr').remove();
+                showNotification('success', 'Đã xóa nhóm thành công!');
+            } else {
+                showNotification('error', 'Không thể xóa nhóm!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('error', 'Có lỗi xảy ra khi xóa nhóm!');
+        });
+    }
+}
+// ...existing code...
+        // Hiển thị thông báo
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `glass p-4 rounded-xl fixed top-4 right-4 z-50 border-l-4 ${
+                type === 'success' ? 'border-green-500' : 'border-red-500'
+            }`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle 
+                       text-${type === 'success' ? 'green' : 'red'}-400 text-xl mr-3"></i>
+                    <p class="text-${type === 'success' ? 'green' : 'red'}-300">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
