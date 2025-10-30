@@ -25,4 +25,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Tìm user theo email và role (dùng cho xác thực nâng cao)
     Optional<User> findByEmailAndRole(String email, String role);
+
 }

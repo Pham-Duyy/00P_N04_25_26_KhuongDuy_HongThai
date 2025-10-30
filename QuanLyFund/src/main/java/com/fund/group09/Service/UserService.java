@@ -57,4 +57,10 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    // Tìm user theo email (dùng cho controller)
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với email: " + email));
+    }
+
 }
