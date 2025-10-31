@@ -28,15 +28,6 @@ public class TransactionController {
     public String showTransactionPage(Model model, Principal principal) {
         model.addAttribute("transactions", transactionService.getAllTransactions());
         model.addAttribute("transaction", new Transaction());
-
-        // ✅ Truyền biến kiểm tra role để hiển thị nút "Tạo giao dịch mới"
-        if (principal != null) {
-            User currentUser = userService.findByEmail(principal.getName());
-            model.addAttribute("isAdmin", currentUser != null && "ADMIN".equals(currentUser.getRole()));
-        } else {
-            model.addAttribute("isAdmin", false);
-        }
-
         return "admin/finance/transaction";
     }
     // ✅ Hiển thị form tạo giao dịch
@@ -57,4 +48,41 @@ public class TransactionController {
         transactionService.createTransaction(transaction);
         return "redirect:/admin/finance";
     }
+    // ✅ Xử lý tạo giao dịch và gửi thông báo
+    @PostMapping("/transactions/create")
+public String createTransaction(@Valid @ModelAttribute("transaction") Transaction transaction,
+                                BindingResult result,
+                                Model model,
+                                Principal principal) {
+    if (principal == null) return "redirect:/login";
+
+    User admin = userService.findByEmail(principal.getName());
+    if (admin == null || !"ADMIN".equals(admin.getRole())) {
+        return "redirect:/access-denied";
+    }
+
+    if (result.hasErrors()) {
+        model.addAttribute("adminId", admin.getId());
+        return "admin/finance/transaction-form";
+    }
+
+    transaction.setCreatedBy(admin);
+    transactionService.createTransaction(transaction);
+
+    // ✅ Gửi thông báo đến user
+    User recipient = transaction.getCreatedBy(); // hoặc transaction.getCreatedBy()
+    String message = String.format("""
+        🧾 Yêu cầu nộp tiền:
+        Bạn vừa được yêu cầu nộp tiền cho giao dịch: %s
+        Số tiền: %,.0f₫
+        Vui lòng chuyển khoản đến:
+        STK: 9966504911
+        Ngân hàng: Techcombank
+        Chủ tài khoản: PHAM KHUONG DUY
+        """, transaction.getDescription(), transaction.getAmount());
+
+    // ✅ Quay về dashboard
+    return "redirect:/admin/finance";
+}
+
 }
