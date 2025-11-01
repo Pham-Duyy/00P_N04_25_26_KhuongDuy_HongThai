@@ -50,6 +50,11 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
+    public int countPendingInvitationsForUser(String userEmail) {
+        return getPendingInvitationsForUser(userEmail).size();
+    }
+
+    @Override
     public boolean rejectInvitation(Long invitationId, String userEmail) {
         // Cài đặt logic reject invitation ở đây
         return true;

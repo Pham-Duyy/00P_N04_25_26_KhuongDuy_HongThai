@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhóm của tôi - Fund Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(30, 30, 30, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .group-card {
+            transition: all 0.3s ease;
+        }
+        .group-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-active {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .status-inactive {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .member-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+        .debug-info {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <nav class="glass-effect border-b border-white border-opacity-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/user/dashboard" class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-wallet text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">Fund Manager</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-white text-opacity-80" th:text="${userEmail}">user@email.com</span>
+                    <a href="/logout" class="text-white text-opacity-80 hover:text-opacity-100">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Debug Info (ẩn trong production) -->
+        <div th:if="${error}" class="debug-info mb-4">
+            <p class="text-red-300 text-sm">Debug: <span th:text="${error}">Error message</span></p>
+        </div>
+
+        <!-- Page Header -->
+        <div class="mb-8 animate-fadeIn">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">
+                        <i class="fas fa-users mr-3 text-green-400"></i>
+                        Nhóm của tôi
+                    </h1>
+                    <p class="text-white text-opacity-70">Danh sách các nhóm bạn đã tham gia</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="/user/groups/join" class="glass-effect px-4 py-2 rounded-lg text-white hover:bg-white hover:bg-opacity-10 transition-all duration-300">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Lời mời
+                        <span th:if="${pendingCount > 0}" class="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full" th:text="${pendingCount}">0</span>
+                    </a>
+                    <a href="/user/dashboard" class="glass-effect px-4 py-2 rounded-lg text-white hover:bg-white hover:bg-opacity-10 transition-all duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-fadeIn">
+            <div class="glass-effect rounded-xl p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white text-opacity-70 text-sm">Tổng nhóm</p>
+                        <p class="text-2xl font-bold text-white" th:text="${userGroups != null ? #lists.size(userGroups) : 0}">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-blue-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white text-opacity-70 text-sm">Nhóm hoạt động</p>
+                        <p class="text-2xl font-bold text-green-400" th:text="${activeGroupsCount != null ? activeGroupsCount : 0}">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white text-opacity-70 text-sm">Tổng quỹ</p>
+                        <p class="text-2xl font-bold text-yellow-400" th:text="${totalBalance != null ? #numbers.formatDecimal(totalBalance, 0, 0) + '₫' : '0₫'}">0₫</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-coins text-yellow-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white text-opacity-70 text-sm">Lời mời chờ</p>
+                        <p class="text-2xl font-bold text-orange-400" th:text="${pendingCount != null ? pendingCount : 0}">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-envelope text-orange-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Groups List -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white">
+                    <i class="fas fa-list mr-2 text-blue-400"></i>
+                    Danh sách nhóm đã tham gia
+                </h2>
+                <div class="flex space-x-2">
+                    <select id="filterStatus" class="glass-effect text-white bg-transparent border border-white border-opacity-20 rounded-lg px-3 py-2 text-sm">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Hoạt động</option>
+                        <option value="inactive">Không hoạt động</option>
+                    </select>
+                    <button onclick="refreshGroups()" class="glass-effect px-3 py-2 rounded-lg text-white hover:bg-white hover:bg-opacity-10 transition-all duration-300">
+                        <i class="fas fa-refresh"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Groups List -->
+            <div class="space-y-6" th:if="${userGroups != null and !userGroups.isEmpty()}">
+                <div th:each="group : ${userGroups}" 
+                     class="glass-effect rounded-xl p-6 group-card border border-white border-opacity-10"
+                     th:data-status="${group.isActive != null ? (group.isActive ? 'active' : 'inactive') : 'active'}">
+                    
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4 flex-1">
+                            <!-- Group Icon -->
+                            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-users text-white text-3xl"></i>
+                            </div>
+                            
+                            <!-- Group Info -->
+                            <div class="flex-1 min-w-0">
+                                <!-- Group Header -->
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <h3 class="text-2xl font-semibold text-white truncate" th:text="${group.name}">Tên nhóm</h3>
+                                    <span th:class="${group.isActive != null ? (group.isActive ? 'status-active' : 'status-inactive') : 'status-active'}" class="status-badge flex-shrink-0">
+                                        <i th:class="${group.isActive != null ? (group.isActive ? 'fas fa-check-circle' : 'fas fa-times-circle') : 'fas fa-check-circle'}" class="mr-1"></i>
+                                        <span th:text="${group.isActive != null ? (group.isActive ? 'Hoạt động' : 'Tạm dừng') : 'Hoạt động'}">Trạng thái</span>
+                                    </span>
+                                </div>
+                                
+                                <!-- Group Stats -->
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                    <div class="bg-white bg-opacity-5 rounded-lg p-3">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-user-tie text-blue-400 mr-2"></i>
+                                            <div>
+                                                <p class="text-xs text-white text-opacity-60">Admin</p>
+                                                <p class="text-sm font-semibold text-blue-300" th:text="${group.createdBy}">Admin Name</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white bg-opacity-5 rounded-lg p-3">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-users text-green-400 mr-2"></i>
+                                            <div>
+                                                <p class="text-xs text-white text-opacity-60">Thành viên</p>
+                                                <p class="text-sm font-semibold text-green-300" th:text="${group.members != null ? #lists.size(group.members) : 0}">0</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white bg-opacity-5 rounded-lg p-3">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-calendar text-purple-400 mr-2"></i>
+                                            <div>
+                                                <p class="text-xs text-white text-opacity-60">Ngày tạo</p>
+                                                <p class="text-sm font-semibold text-purple-300" th:text="${group.createdDate != null ? #temporals.format(group.createdDate, 'dd/MM/yyyy') : 'N/A'}">N/A</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white bg-opacity-5 rounded-lg p-3">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-coins text-yellow-400 mr-2"></i>
+                                            <div>
+                                                <p class="text-xs text-white text-opacity-60">Quỹ nhóm</p>
+                                                <p class="text-sm font-semibold text-yellow-300" th:text="${group.balance != null ? #numbers.formatDecimal(group.balance, 0, 0) + '₫' : '0₫'}">0₫</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Member List Preview -->
+                                <div th:if="${group.members != null and !group.members.isEmpty()}" class="mb-4">
+                                    <div class="flex items-center space-x-2 mb-3">
+                                        <i class="fas fa-users text-white text-opacity-50 text-sm"></i>
+                                        <span class="text-white text-opacity-50 text-sm font-medium">Thành viên trong nhóm:</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3 flex-wrap">
+                                        <!-- Hiển thị tối đa 6 thành viên đầu -->
+                                        <div th:each="member, iterStat : ${group.members}" 
+                                             th:if="${iterStat.index < 6}"
+                                             class="flex items-center space-x-2 bg-white bg-opacity-10 rounded-full px-3 py-2">
+                                            <div class="member-avatar bg-gradient-to-r from-green-400 to-blue-500" 
+                                                 th:text="${member.user != null ? (member.user.name != null ? #strings.substring(member.user.name, 0, 1) : #strings.substring(member.user.email, 0, 1)) : 'U'}">U</div>
+                                            <div class="flex flex-col">
+                                                <span class="text-xs text-white text-opacity-90 font-medium" 
+                                                      th:text="${member.user != null ? (member.user.name != null ? member.user.name : member.user.email) : 'Unknown User'}">User Name</span>
+                                                <span th:if="${member.role == 'ADMIN'}" class="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded-full">Admin</span>
+                                                <span th:if="${member.role != 'ADMIN'}" class="text-xs text-white text-opacity-50">Thành viên</span>
+                                            </div>
+                                        </div>
+                                        <!-- Hiển thị số lượng thành viên còn lại nếu > 6 -->
+                                        <div th:if="${#lists.size(group.members) > 6}" 
+                                             class="text-sm text-white text-opacity-60 bg-white bg-opacity-5 px-3 py-2 rounded-full">
+                                            +<span th:text="${#lists.size(group.members) - 6}">0</span> thành viên khác
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Group Description -->
+                                <div class="bg-white bg-opacity-5 rounded-lg p-4">
+                                    <h4 class="text-white text-opacity-80 text-sm font-medium mb-2">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        Mô tả nhóm:
+                                    </h4>
+                                    <p class="text-white text-opacity-70 text-sm leading-relaxed" 
+                                       th:text="${group.description != null ? group.description : 'Chưa có mô tả cho nhóm này.'}">
+                                        Mô tả nhóm
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col space-y-3 ml-6 flex-shrink-0">
+                            <a th:href="@{'/user/groups/' + ${group.id}}" 
+                               class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg btn-hover transition-all duration-300 text-center whitespace-nowrap font-medium">
+                                <i class="fas fa-eye mr-2"></i>
+                                Chi tiết nhóm
+                            </a>
+                            
+                            <a th:href="@{'/user/groups/' + ${group.id} + '/transactions'}" 
+                               class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg btn-hover transition-all duration-300 text-center whitespace-nowrap font-medium">
+                                <i class="fas fa-exchange-alt mr-2"></i>
+                                Xem giao dịch
+                            </a>
+                            
+                            <a th:href="@{'/user/groups/' + ${group.id} + '/contribute'}" 
+                               class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg btn-hover transition-all duration-300 text-center whitespace-nowrap font-medium">
+                                <i class="fas fa-hand-holding-usd mr-2"></i>
+                                Đóng góp
+                            </a>
+                            
+                            <button 
+    th:attr="onclick=|leaveGroup(${group.id}, '${group.name}')|"
+    class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg btn-hover transition-all duration-300 whitespace-nowrap font-medium">
+    <i class="fas fa-sign-out-alt mr-2"></i>
+    Rời nhóm
+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${userGroups == null or userGroups.isEmpty()}" 
+                 class="glass-effect rounded-xl p-16 text-center">
+                <i class="fas fa-users-slash text-white text-opacity-40 text-8xl mb-6"></i>
+                <h3 class="text-2xl font-semibold text-white text-opacity-70 mb-4">Chưa tham gia nhóm nào</h3>
+                <p class="text-white text-opacity-50 mb-8 max-w-md mx-auto">
+                    Bạn chưa tham gia nhóm nào. Hãy kiểm tra lời mời hoặc liên hệ admin để được thêm vào nhóm!
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="/user/groups/join" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg btn-hover transition-all duration-300 font-medium">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Kiểm tra lời mời
+                    </a>
+                    <a href="/user/dashboard" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-4 rounded-lg btn-hover transition-all duration-300 font-medium">
+                        <i class="fas fa-home mr-2"></i>
+                        Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-effect rounded-xl p-6">
+            <h3 class="text-xl font-semibold text-white mb-6">
+                <i class="fas fa-bolt mr-2 text-yellow-400"></i>
+                Thao tác nhanh
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="/user/groups/join" class="flex items-center justify-center p-6 bg-blue-500 bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all duration-300 text-white">
+                    <i class="fas fa-envelope mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium">Lời mời chờ duyệt</div>
+                        <div class="text-sm text-opacity-70">Xem các lời mời đang chờ</div>
+                    </div>
+                </a>
+                <a href="/user/dashboard" class="flex items-center justify-center p-6 bg-gray-500 bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all duration-300 text-white">
+                    <i class="fas fa-home mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium">Về trang chủ</div>
+                        <div class="text-sm text-opacity-70">Quay lại dashboard</div>
+                    </div>
+                </a>
+                <a href="/user/profile" class="flex items-center justify-center p-6 bg-green-500 bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all duration-300 text-white">
+                    <i class="fas fa-user mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium">Hồ sơ cá nhân</div>
+                        <div class="text-sm text-opacity-70">Cập nhật thông tin</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden animate-fadeIn">
+        <div class="glass-effect rounded-lg p-4 shadow-lg max-w-sm">
+            <div class="flex items-center">
+                <div id="notificationIcon"></div>
+                <p id="notificationMessage" class="ml-3 text-white"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Leave group function
+        function leaveGroup(groupId, groupName) {
+            if (confirm(`Bạn có chắc chắn muốn rời khỏi nhóm "${groupName}"?\n\nLưu ý: Bạn sẽ không thể truy cập vào các thông tin và giao dịch của nhóm này nữa.`)) {
+                fetch(`/user/groups/${groupId}/leave`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(`✅ Đã rời khỏi nhóm "${groupName}" thành công!`, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification('❌ ' + (data.message || 'Có lỗi xảy ra khi rời nhóm'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('❌ Lỗi kết nối máy chủ', 'error');
+                });
+            }
+        }
+
+        // Filter groups by status
+        document.getElementById('filterStatus').addEventListener('change', function() {
+            const filterValue = this.value;
+            const groupCards = document.querySelectorAll('.group-card');
+            
+            groupCards.forEach(card => {
+                if (filterValue === '' || card.dataset.status === filterValue) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Refresh groups
+        function refreshGroups() {
+            showNotification('🔄 Đang cập nhật danh sách nhóm...', 'info');
+            setTimeout(() => location.reload(), 1000);
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const messageEl = document.getElementById('notificationMessage');
+
+            const icons = {
+                success: '<i class="fas fa-check-circle text-green-400 text-xl"></i>',
+                error: '<i class="fas fa-exclamation-circle text-red-400 text-xl"></i>',
+                info: '<i class="fas fa-info-circle text-blue-400 text-xl"></i>'
+            };
+
+            icon.innerHTML = icons[type] || icons.info;
+            messageEl.textContent = message;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('My Groups page loaded');
+            
+            // Show loading state if needed
+            const groupCards = document.querySelectorAll('.group-card');
+            if (groupCards.length === 0 && !document.querySelector('[th\\:if*="isEmpty"]')) {
+                showNotification('🔄 Đang tải danh sách nhóm...', 'info');
+            }
+        });
+    </script>
+</body>
+</html>

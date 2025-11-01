@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Tạo giao dịch thu</title>
+  <title th:text="${type == 'INCOME' ? 'Tạo giao dịch thu' : 'Tạo giao dịch chi'}">Tạo giao dịch</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -22,69 +22,402 @@
       max-width: 600px;
       margin: auto;
     }
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .spinner {
+      border: 4px solid #374151;
+      border-top: 4px solid #10b981;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  <div class="glass">
-    <h2 class="text-3xl font-bold text-center mb-6 text-white">💰 Tạo giao dịch thu</h2>
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="text-center">
+      <div class="spinner"></div>
+      <p class="text-white mt-4 text-lg">Đang xử lý giao dịch...</p>
+      <p class="text-gray-300 text-sm">Vui lòng không tải lại trang</p>
+    </div>
+  </div>
 
-    <!-- Thông tin chuyển khoản -->
-    <div class="text-center text-white mb-6 space-y-1">
-      <p><strong>Số tài khoản:</strong> <span id="accountNumber">9966504911</span></p>
-      <p><strong>Chủ tài khoản:</strong> PHAM KHUONG DUY</p>
-      <p><strong>Ngân hàng:</strong> Techcombank - Chi nhánh Hà Nội</p>
-      <button onclick="copyAccount()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm mt-2">
-        📋 Sao chép số tài khoản
-      </button>
-      <p id="copyStatus" class="text-green-400 mt-2 text-sm hidden">✅ Đã sao chép!</p>
+  <div class="glass">
+    <!-- Header động theo loại giao dịch -->
+    <div class="text-center mb-6">
+      <div th:if="${type == 'INCOME'}" class="mb-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-600/20 rounded-full mb-3">
+          <i class="fas fa-coins text-green-400 text-2xl"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-green-400">Tạo giao dịch thu</h2>
+        <p class="text-slate-300 mt-2">Gửi yêu cầu đóng tiền đến thành viên nhóm</p>
+      </div>
+      
+      <div th:if="${type == 'EXPENSE'}" class="mb-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-600/20 rounded-full mb-3">
+          <i class="fas fa-credit-card text-red-400 text-2xl"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-red-400">Tạo giao dịch chi</h2>
+        <p class="text-slate-300 mt-2">Thông báo chi tiền từ quỹ nhóm</p>
+      </div>
     </div>
 
-    <!-- Mã QR -->
-    <div class="flex justify-center mb-6">
-      <img src="/img/anh%20QR.jpg" alt="Mã QR chuyển khoản" class="w-48 h-48 rounded-lg shadow-lg border border-slate-600" />
+    <!-- Hiển thị thông báo lỗi từ server -->
+    <div th:if="${error}" class="mb-6 p-4 bg-red-600/20 border border-red-600/30 rounded-lg">
+      <div class="flex items-center">
+        <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+        <p class="text-red-400 font-semibold" th:text="${error}"></p>
+      </div>
+    </div>
+
+    <!-- Thông tin chuyển khoản - chỉ hiển thị khi tạo giao dịch thu -->
+    <div th:if="${type == 'INCOME'}" class="mb-6 bg-gradient-to-r from-green-600/20 to-blue-600/20 p-6 rounded-xl border border-green-600/30">
+      <div class="text-center">
+        <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center justify-center">
+          <i class="fas fa-university mr-2"></i>
+          Thông tin chuyển khoản
+        </h3>
+        
+        <div class="space-y-3">
+          <div class="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg">
+            <span class="text-slate-300">Số tài khoản:</span>
+            <div class="flex items-center space-x-2">
+              <span id="accountNumber" class="text-blue-300 font-mono text-lg font-bold">9966504911</span>
+              <button type="button" onclick="copyAccount()" 
+                      class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg">
+            <span class="text-slate-300">Chủ tài khoản:</span>
+            <span class="text-yellow-300 font-semibold">PHAM KHUONG DUY</span>
+          </div>
+          
+          <div class="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg">
+            <span class="text-slate-300">Ngân hàng:</span>
+            <span class="text-purple-300 font-semibold">Techcombank</span>
+          </div>
+        </div>
+        
+        <p id="copyStatus" class="text-green-400 mt-3 text-sm hidden flex items-center justify-center">
+          <i class="fas fa-check mr-1"></i> Đã sao chép số tài khoản!
+        </p>
+      </div>
+    </div>
+
+    <!-- Mã QR - chỉ hiển thị khi tạo giao dịch thu -->
+    <div th:if="${type == 'INCOME'}" class="flex justify-center mb-6">
+      <div class="bg-white p-6 rounded-xl shadow-2xl">
+        <img src="/img/anh%20QR.jpg" alt="Mã QR chuyển khoản" 
+             class="w-48 h-48 rounded-lg" />
+        <p class="text-center text-slate-700 text-sm mt-3 font-medium">
+          <i class="fas fa-qrcode mr-1"></i>
+          Quét mã QR để chuyển khoản
+        </p>
+      </div>
     </div>
 
     <!-- Form tạo giao dịch -->
-    <form th:action="@{/admin/finance/transactions/create}" th:object="${transaction}" method="post" class="space-y-6">
+    <form th:action="@{/admin/finance/create}" th:object="${transaction}" method="post" class="space-y-6" id="transactionForm">
+      
+      <!-- Chọn nhóm -->
+      <div>
+        <label for="groupId" class="flex items-center text-sm font-medium text-slate-300 mb-2">
+          <i class="fas fa-users mr-2 text-blue-400"></i>
+          Chọn nhóm <span class="text-red-400 ml-1">*</span>
+        </label>
+        <select id="groupId" name="groupId" required onchange="updateGroupInfo()"
+                class="w-full px-4 py-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+          <option value="">-- Chọn nhóm --</option>
+          <option th:each="group : ${groups}" 
+                  th:value="${group.id}" 
+                  th:text="${group.name}"
+                  th:attr="data-members=${group.members != null ? group.members.size() : 0}"
+                  th:selected="${selectedGroupId != null && selectedGroupId == group.id}">
+          </option>
+        </select>
+        
+        <!-- Hiển thị thông tin nhóm đã chọn -->
+        <div id="groupInfo" class="mt-3 p-3 bg-blue-600/10 border border-blue-600/30 rounded-lg hidden">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-blue-400 font-medium">
+                <i class="fas fa-info-circle mr-1"></i>
+                <span id="selectedGroupName"></span>
+              </span>
+              <span class="text-slate-400 ml-2">
+                (<span id="memberCount">0</span> thành viên)
+              </span>
+            </div>
+            <div id="amountPerMember" class="text-right hidden">
+              <span class="text-slate-400 text-sm">Số tiền/người:</span>
+              <div class="text-green-400 font-bold" id="perMemberAmount">0₫</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Số tiền -->
       <div>
-        <label for="amount" class="block text-sm font-medium text-slate-300 mb-1">Số tiền:</label>
-        <input type="number" id="amount" th:field="*{amount}" step="1000.000.000" required
-               placeholder="Nhập số tiền..."
-               class="w-full px-4 py-3 rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-slate-600 transition duration-200" />
+        <label for="amount" class="flex items-center text-sm font-medium text-slate-300 mb-2">
+          <i class="fas fa-money-bill-wave mr-2 text-green-400"></i>
+          Số tiền <span class="text-red-400 ml-1">*</span>
+        </label>
+        <div class="relative">
+          <input type="number" id="amount" th:field="*{amount}" min="1000" step="1000" required
+                 placeholder="Nhập số tiền (VNĐ)..." oninput="updateAmountPerMember()"
+                 class="w-full px-4 py-3 pr-12 rounded-lg bg-slate-700 text-white placeholder-slate-400 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200" />
+          <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 font-medium">₫</span>
+        </div>
+        <div class="mt-1 flex justify-between text-xs text-slate-400">
+          <span>Tối thiểu: 1,000₫</span>
+          <span id="formattedAmount" class="font-mono"></span>
+        </div>
       </div>
 
       <!-- Mô tả -->
       <div>
-        <label for="description" class="block text-sm font-medium text-slate-300 mb-1">Mô tả giao dịch:</label>
-        <textarea id="description" th:field="*{description}" rows="3" required
-                  placeholder="Ví dụ: nhóm Đội bóng tháng 4..."
-                  class="w-full px-4 py-3 rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-slate-600 transition duration-200 resize-none"></textarea>
+        <label for="description" class="flex items-center text-sm font-medium text-slate-300 mb-2">
+          <i class="fas fa-edit mr-2 text-yellow-400"></i>
+          <span th:if="${type == 'INCOME'}">Mô tả thu tiền</span>
+          <span th:if="${type == 'EXPENSE'}">Lý do chi tiền</span>
+          <span class="text-red-400 ml-1">*</span>
+        </label>
+        <textarea id="description" th:field="*{description}" rows="4" required
+                  th:placeholder="${type == 'INCOME' ? 'Ví dụ: Đóng quỹ nhóm tháng 11/2024 cho hoạt động cuối năm...' : 'Ví dụ: Mua đồ dùng học tập, tổ chức sự kiện nhóm...'}"
+                  class="w-full px-4 py-3 rounded-lg bg-slate-700 text-white placeholder-slate-400 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 resize-none"></textarea>
+        <div class="mt-1 text-xs text-slate-400">
+          <span id="charCount">0</span>/500 ký tự
+        </div>
+      </div>
+
+      <!-- Danh mục (chỉ cho chi) -->
+      <div th:if="${type == 'EXPENSE'}">
+        <label for="category" class="flex items-center text-sm font-medium text-slate-300 mb-2">
+          <i class="fas fa-tags mr-2 text-pink-400"></i>
+          Danh mục chi tiêu
+        </label>
+        <select id="category" name="categoryId"
+                class="w-full px-4 py-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition duration-200">
+          <option value="">-- Chọn danh mục (tùy chọn) --</option>
+          <option value="1">Ăn uống</option>
+          <option value="2">Học tập</option>
+          <option value="3">Sự kiện</option>
+          <option value="4">Khác</option>
+        </select>
       </div>
 
       <!-- Hidden fields -->
-      <input type="hidden" th:field="*{createdBy.id}" th:value="${adminId}" />
-      <input type="hidden" th:field="*{type}" value="INCOME" />
-
-      <!-- Submit -->
-      <div class="text-center">
-        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow">
-          <i class="fas fa-paper-plane mr-2"></i> Gửi yêu cầu nộp tiền
+      <input type="hidden" name="type" th:value="${type}" />
+      
+      <!-- Submit buttons -->
+      <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
+        <a th:href="@{/admin/finance(groupId=${selectedGroupId})}" 
+           class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold shadow inline-flex items-center justify-center transition duration-200">
+          <i class="fas fa-arrow-left mr-2"></i> Quay lại
+        </a>
+        
+        <button type="submit" 
+                th:class="${type == 'INCOME' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}"
+                class="text-white px-6 py-3 rounded-lg font-semibold shadow inline-flex items-center justify-center transition duration-200"
+                id="submitBtn">
+          <i th:class="${type == 'INCOME' ? 'fas fa-paper-plane' : 'fas fa-credit-card'}" class="mr-2"></i>
+          <span th:text="${type == 'INCOME' ? 'Gửi yêu cầu đóng tiền' : 'Tạo giao dịch chi'}" id="submitText"></span>
         </button>
       </div>
     </form>
+
+    <!-- Thông báo sẽ được gửi -->
+    <div class="mt-6 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-600/30 p-4 rounded-lg">
+      <div class="flex items-center space-x-2 text-blue-300 mb-3">
+        <i class="fas fa-bell"></i>
+        <span class="font-semibold">Thông báo tự động sẽ được gửi:</span>
+      </div>
+      <div th:if="${type == 'INCOME'}" class="text-sm text-blue-200 space-y-1">
+        <p class="flex items-center">
+          <i class="fas fa-check-circle text-green-400 mr-2 w-4"></i>
+          Yêu cầu đóng tiền đến tất cả thành viên trong nhóm
+        </p>
+        <p class="flex items-center">
+          <i class="fas fa-check-circle text-green-400 mr-2 w-4"></i>
+          Thông tin chuyển khoản và mã QR đính kèm
+        </p>
+        <p class="flex items-center">
+          <i class="fas fa-check-circle text-green-400 mr-2 w-4"></i>
+          Nội dung chuyển khoản: <code class="bg-slate-700 px-2 py-1 rounded text-xs ml-1">[Tên nhóm]-[Tên thành viên]</code>
+        </p>
+      </div>
+      <div th:if="${type == 'EXPENSE'}" class="text-sm text-blue-200 space-y-1">
+        <p class="flex items-center">
+          <i class="fas fa-check-circle text-green-400 mr-2 w-4"></i>
+          Thông báo chi tiền đến tất cả thành viên trong nhóm
+        </p>
+        <p class="flex items-center">
+          <i class="fas fa-check-circle text-green-400 mr-2 w-4"></i>
+          Chi tiết lý do chi và số tiền từ quỹ chung
+        </p>
+        <p class="flex items-center">
+          <i class="fas fa-check-circle text-green-400 mr-2 w-4"></i>
+          Cập nhật lịch sử giao dịch và số dư quỹ
+        </p>
+      </div>
+    </div>
   </div>
 
+  <!-- ...existing code... -->
   <script>
+    // Copy account number function
     function copyAccount() {
       const account = document.getElementById("accountNumber").innerText;
       navigator.clipboard.writeText(account).then(() => {
-        document.getElementById("copyStatus").classList.remove("hidden");
-        setTimeout(() => {
-          document.getElementById("copyStatus").classList.add("hidden");
-        }, 2000);
+        showCopyStatus();
+      }).catch(() => {
+        const textArea = document.createElement("textarea");
+        textArea.value = account;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showCopyStatus();
       });
     }
+
+    function showCopyStatus() {
+      const status = document.getElementById("copyStatus");
+      status.classList.remove("hidden");
+      setTimeout(() => {
+        status.classList.add("hidden");
+      }, 3000);
+    }
+
+    // Update group info when group is selected
+    function updateGroupInfo() {
+      const groupSelect = document.getElementById('groupId');
+      const selectedOption = groupSelect.options[groupSelect.selectedIndex];
+      const groupInfo = document.getElementById('groupInfo');
+      
+      if (selectedOption.value) {
+        const groupName = selectedOption.text;
+        const memberCount = selectedOption.getAttribute('data-members') || 0;
+        
+        document.getElementById('selectedGroupName').textContent = groupName;
+        document.getElementById('memberCount').textContent = memberCount;
+        groupInfo.classList.remove('hidden');
+        
+        updateAmountPerMember();
+      } else {
+        groupInfo.classList.add('hidden');
+      }
+    }
+
+    // Update amount per member calculation
+    function updateAmountPerMember() {
+      const amount = document.getElementById('amount').value;
+      const memberCount = document.getElementById('memberCount').textContent;
+      const amountPerMemberDiv = document.getElementById('amountPerMember');
+      const perMemberAmount = document.getElementById('perMemberAmount');
+      const formattedAmount = document.getElementById('formattedAmount');
+      
+      if (amount && memberCount > 0) {
+        const perMember = Math.ceil(parseFloat(amount) / parseInt(memberCount));
+        perMemberAmount.textContent = perMember.toLocaleString('vi-VN') + '₫';
+        amountPerMemberDiv.classList.remove('hidden');
+      } else {
+        amountPerMemberDiv.classList.add('hidden');
+      }
+      
+      // Format total amount
+      if (amount) {
+        formattedAmount.textContent = parseFloat(amount).toLocaleString('vi-VN') + '₫';
+      } else {
+        formattedAmount.textContent = '';
+      }
+    }
+
+    // Character count for description
+    document.getElementById('description').addEventListener('input', function() {
+      const charCount = this.value.length;
+      document.getElementById('charCount').textContent = charCount;
+      
+      if (charCount > 500) {
+        this.value = this.value.substring(0, 500);
+        document.getElementById('charCount').textContent = 500;
+      }
+    });
+
+    // ✅ KHỞI TẠO KHI TRANG TẢI
+    document.addEventListener('DOMContentLoaded', function() {
+      // Auto-select group if selectedGroupId is provided
+      const groupSelect = document.getElementById('groupId');
+      if (groupSelect.value) {
+        updateGroupInfo();
+      }
+      
+      // Initialize amount formatting
+      updateAmountPerMember();
+    });
+
+    // ✅ XỬ LÝ FORM SUBMIT - CHỈ VALIDATE CÁC TRƯỜNG THỰC SỰ CÓ
+    document.getElementById('transactionForm').addEventListener('submit', function(e) {
+      console.log('Form submit triggered'); // Debug log
+      
+      const groupId = document.getElementById('groupId').value;
+      const amount = document.getElementById('amount').value;
+      const description = document.getElementById('description').value.trim();
+      
+      console.log('Form data:', { groupId, amount, description }); // Debug log
+      
+      // Validation - chỉ kiểm tra các trường có thật
+      if (!groupId || groupId === '') {
+        alert('Vui lòng chọn nhóm!');
+        e.preventDefault();
+        return false;
+      }
+      
+      if (!amount || parseFloat(amount) < 1000) {
+        alert('Vui lòng nhập số tiền hợp lệ (tối thiểu 1,000 VNĐ)!');
+        e.preventDefault();
+        return false;
+      }
+      
+      if (!description || description === '') {
+        alert('Vui lòng nhập mô tả giao dịch!');
+        e.preventDefault();
+        return false;
+      }
+      
+      // ✅ TẤT CẢ DỮ LIỆU HỢP LỆ - CHO PHÉP SUBMIT
+      console.log('Validation passed, showing loading...'); // Debug log
+      showLoadingOverlay();
+      
+      // Không preventDefault() - cho phép form submit bình thường
+      return true;
+    });
+
+    function showLoadingOverlay() {
+      document.getElementById('loadingOverlay').style.display = 'flex';
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitText').textContent = 'Đang xử lý...';
+    }
   </script>
+<!-- ...existing code... -->
 </body>
 </html>

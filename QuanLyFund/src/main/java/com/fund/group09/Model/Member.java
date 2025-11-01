@@ -21,16 +21,17 @@ public class Member {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
-    @Column(name = "joined_at", nullable = false)
+    // ✅ Fix: Map to correct database column name
+    @Column(name = "join_date", nullable = false)
     private LocalDateTime joinedAt;
 
-    @Column(length = 20, nullable = false)
-    private String role;
+    @Column(name = "role", length = 20, nullable = false)
+    private String role = "MEMBER"; // Default value
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -41,19 +42,39 @@ public class Member {
     @JsonIgnore
     private List<Income> incomes = new ArrayList<>();
 
-    // Constructors
+    // ✅ Enhanced Constructors
     public Member() {
         this.joinedAt = LocalDateTime.now();
+        this.role = "MEMBER";
     }
 
     public Member(User user, Group group, String role) {
         this.user = user;
         this.group = group;
-        this.role = role;
+        this.role = role != null ? role : "MEMBER";
         this.joinedAt = LocalDateTime.now();
         if (user != null) {
             this.name = user.getName();
             this.email = user.getEmail();
+        }
+    }
+
+    // ✅ Add PrePersist to ensure required fields
+    @PrePersist
+    public void prePersist() {
+        if (this.joinedAt == null) {
+            this.joinedAt = LocalDateTime.now();
+        }
+        if (this.role == null || this.role.trim().isEmpty()) {
+            this.role = "MEMBER";
+        }
+        if (this.user != null) {
+            if (this.name == null || this.name.trim().isEmpty()) {
+                this.name = this.user.getName();
+            }
+            if (this.email == null || this.email.trim().isEmpty()) {
+                this.email = this.user.getEmail();
+            }
         }
     }
 
@@ -73,8 +94,12 @@ public class Member {
     public void setUser(User user) {
         this.user = user;
         if (user != null) {
-            this.name = user.getName();
-            this.email = user.getEmail();
+            if (this.name == null || this.name.trim().isEmpty()) {
+                this.name = user.getName();
+            }
+            if (this.email == null || this.email.trim().isEmpty()) {
+                this.email = user.getEmail();
+            }
         }
     }
 
@@ -99,7 +124,7 @@ public class Member {
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = role != null ? role : "MEMBER";
     }
 
     public String getName() {
@@ -155,6 +180,15 @@ public class Member {
         income.setMember(null);
     }
 
+    // ✅ Enhanced validation method
+    public boolean isValid() {
+        return user != null && 
+               group != null && 
+               name != null && !name.trim().isEmpty() &&
+               email != null && !email.trim().isEmpty() &&
+               role != null && !role.trim().isEmpty();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -176,6 +210,8 @@ public class Member {
                ", email='" + email + '\'' +
                ", role='" + role + '\'' +
                ", joinedAt=" + joinedAt +
+               ", userId=" + (user != null ? user.getId() : null) +
+               ", groupId=" + (group != null ? group.getId() : null) +
                '}';
     }
 }

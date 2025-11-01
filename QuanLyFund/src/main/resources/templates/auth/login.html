@@ -7,36 +7,59 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Base styles */
         body {
             background: linear-gradient(135deg, #232526 0%, #414345 100%);
             color: #e0e0e0;
             min-height: 100vh;
         }
+
         .glass-effect {
             background: rgba(30, 30, 30, 0.5);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        input {
+
+        /* Input styles */
+        input, select {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             transition: all 0.3s ease;
         }
-        input:focus {
+
+        input:focus, select:focus {
             border-color: rgba(255, 255, 255, 0.5);
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
         }
+
+        /* Button hover effects */
         .btn-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
+
+        /* Animation keyframes */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .animate-fadeIn {
             animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Success and Error messages */
+        .success-message {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
         }
     </style>
 </head>
@@ -59,7 +82,22 @@
                 <p class="text-white text-opacity-70">Đăng nhập để tiếp tục quản lý ngân sách</p>
             </div>
 
-            <form id="loginForm" class="space-y-6" method="post" th:action="@{/login}">
+            <!-- Success/Error Messages -->
+            <div id="successMessage" class="success-message rounded-lg p-4 mb-4 hidden">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span id="successText"></span>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="error-message rounded-lg p-4 mb-4 hidden">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span id="errorText"></span>
+                </div>
+            </div>
+
+            <form action="/login" method="POST" id="loginForm" class="space-y-6">
                 <!-- Email Input -->
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -72,7 +110,6 @@
                         class="w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder-white placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300" 
                         placeholder="Email của bạn"
                         required
-                        th:value="${param.email}"
                     >
                 </div>
 
@@ -130,6 +167,7 @@
                 <!-- Login Button -->
                 <button 
                     type="submit" 
+                    id="loginBtn"
                     class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-lg btn-hover transition-all duration-300"
                 >
                     <span id="loginBtnText">Đăng nhập</span>
@@ -154,15 +192,6 @@
                     </p>
                 </div>
             </form>
-            <!-- Hiển thị lỗi nếu có -->
-            <div th:if="${error}" class="mt-4 text-center text-red-400 font-semibold">
-                <i class="fas fa-exclamation-circle mr-2"></i>
-                <span th:text="${error}"></span>
-            </div>
-            <div th:if="${message}" class="mt-4 text-center text-green-400 font-semibold">
-                <i class="fas fa-check-circle mr-2"></i>
-                <span th:text="${message}"></span>
-            </div>
         </div>
     </div>
 
@@ -178,21 +207,89 @@
                 toggleBtn.innerHTML = `<i class="fas fa-${type === 'password' ? 'eye' : 'eye-slash'}"></i>`;
             });
 
-            // Kiểm tra chọn vai trò trước khi submit
-            const loginForm = document.getElementById('loginForm');
-            const loginBtnText = document.getElementById('loginBtnText');
-            const loginBtnIcon = document.getElementById('loginBtnIcon');
+            // Show success/error messages
+            function showMessage(message, type) {
+                const successDiv = document.getElementById('successMessage');
+                const errorDiv = document.getElementById('errorMessage');
+                const successText = document.getElementById('successText');
+                const errorText = document.getElementById('errorText');
+                
+                // Hide both messages first
+                successDiv.classList.add('hidden');
+                errorDiv.classList.add('hidden');
+                
+                if (type === 'success') {
+                    successText.textContent = message;
+                    successDiv.classList.remove('hidden');
+                } else if (type === 'error') {
+                    errorText.textContent = message;
+                    errorDiv.classList.remove('hidden');
+                }
+            }
 
-            loginForm.addEventListener('submit', function(e) {
-                const selectedRole = document.getElementById('role').value;
-                if (!selectedRole) {
-                    alert('Vui lòng chọn vai trò đăng nhập');
+            // Form validation and submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const role = document.getElementById('role').value;
+                
+                // Client-side validation
+                if (!email || email.trim() === '') {
                     e.preventDefault();
+                    showMessage('Email không được để trống!', 'error');
                     return false;
                 }
-                loginForm.querySelector('button[type="submit"]').disabled = true;
-                loginBtnText.textContent = 'Đang đăng nhập...';
-                loginBtnIcon.className = 'fas fa-spinner fa-spin ml-2';
+                
+                if (!password || password.trim() === '') {
+                    e.preventDefault();
+                    showMessage('Mật khẩu không được để trống!', 'error');
+                    return false;
+                }
+                
+                if (!role) {
+                    e.preventDefault();
+                    showMessage('Vui lòng chọn vai trò đăng nhập!', 'error');
+                    return false;
+                }
+
+                // Show loading state
+                const btn = document.getElementById('loginBtn');
+                const btnText = document.getElementById('loginBtnText');
+                const btnIcon = document.getElementById('loginBtnIcon');
+                
+                btn.disabled = true;
+                btnText.textContent = 'Đang đăng nhập...';
+                btnIcon.className = 'fas fa-spinner fa-spin ml-2';
+            });
+
+            // Check URL parameters for success/error messages
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error')) {
+                const errorParam = urlParams.get('error');
+                let errorMessage = 'Đăng nhập thất bại!';
+                
+                if (errorParam === 'notLoggedIn') {
+                    errorMessage = 'Vui lòng đăng nhập để tiếp tục!';
+                } else {
+                    errorMessage = 'Thông tin đăng nhập không chính xác!';
+                }
+                
+                showMessage(errorMessage, 'error');
+            }
+            
+            if (urlParams.get('logout')) {
+                showMessage('Đăng xuất thành công!', 'success');
+            }
+
+            // Add form field animations
+            document.querySelectorAll('input, select').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('scale-105');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('scale-105');
+                });
             });
         });
     </script>

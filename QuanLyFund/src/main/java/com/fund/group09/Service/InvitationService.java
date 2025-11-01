@@ -6,6 +6,9 @@ import com.fund.group09.Model.User;
 import com.fund.group09.Model.Group;
 
 public interface InvitationService {
+
+
+    int countPendingInvitationsForUser(String userEmail);
     // Lấy lời mời chờ xác nhận theo email
     List<Invitation> getPendingInvitationsForUser(String userEmail);
 

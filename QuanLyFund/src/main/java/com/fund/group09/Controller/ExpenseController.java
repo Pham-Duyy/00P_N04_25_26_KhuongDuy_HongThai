@@ -18,7 +18,7 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
-    //  Lấy toàn bộ expense
+    //  Lấy toàn bộ     
     @GetMapping
     public ResponseEntity<List<Expense>> getAllExpenses() {
         List<Expense> expenses = expenseService.getAll();

@@ -1,6 +1,8 @@
 package com.fund.group09.Model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,24 @@ public class Group {
     @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Fund fund;
 
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions = new ArrayList<>();
+
+    private BigDecimal balance;
+
+    // --- Thêm trường memberCount không ánh xạ DB ---
+    @Transient
+    private Integer memberCount;
+
+    // Getters and Setters cho balance
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
     // Constructor
     public Group() {
         this.createdDate = LocalDateTime.now();
@@ -68,6 +88,22 @@ public class Group {
     public void removeInvitation(Invitation invitation) {
         invitations.remove(invitation);
         invitation.setGroup(null);
+    }
+
+    // Helper methods for managing transactions
+    public void addTransaction(Transaction transaction) {
+        transactions.add(transaction);
+        transaction.setGroup(this);
+    }
+
+    public void removeTransaction(Transaction transaction) {
+        transactions.remove(transaction);
+        transaction.setGroup(null);
+    }
+
+    // Helper method để lấy danh sách users từ members (giả sử Member có User)
+    public List<User> getUsers() {
+        return members.stream().map(Member::getUser).toList();
     }
 
     // Getters and Setters
@@ -101,6 +137,14 @@ public class Group {
 
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        this.isActive = active;
     }
 
     public Boolean getIsActive() {
@@ -165,6 +209,23 @@ public class Group {
 
     public void setFund(Fund fund) {
         this.fund = fund;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    // Getter/Setter cho memberCount (không ánh xạ DB)
+    public Integer getMemberCount() {
+        return memberCount;
+    }
+
+    public void setMemberCount(Integer memberCount) {
+        this.memberCount = memberCount;
     }
 
     // Object methods

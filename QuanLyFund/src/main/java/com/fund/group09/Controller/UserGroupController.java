@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,46 +31,100 @@ public class UserGroupController {
         this.memberService = memberService;
     }
 
-    // Trang danh sách nhóm và lời mời
-    @GetMapping
-    public String groupsPage(HttpSession session, Model model) {
+    // Trang danh sách nhóm đã tham gia
+    @GetMapping("/my-groups")
+    public String myGroupsPage(HttpSession session, Model model) {
         String userEmail = getUserEmailFromSession(session);
         if (userEmail == null) {
             return "redirect:/login";
         }
 
         try {
-            List<Group> myGroups = groupService.getUserGroups(userEmail);
-            model.addAttribute("myGroups", myGroups);
-
-            // Không lấy lời mời ở đây, chỉ lấy ở trang /join
-            List<Group> newGroups = groupService.getNewGroupsForUser(userEmail);
-            model.addAttribute("newGroups", newGroups);
-
-            Map<Long, Map<String, Object>> groupSummaries = new HashMap<>();
-            for (Group group : myGroups) {
-                groupSummaries.put(group.getId(), groupService.getGroupSummary(group.getId()));
+            List<Group> userGroups = groupService.getUserGroups(userEmail);
+            
+            // Lấy thông tin chi tiết cho từng nhóm
+            for (Group group : userGroups) {
+                // Lấy danh sách thành viên của nhóm
+                List<Member> members = memberService.getMembersByGroup(group.getId());
+                group.setMembers(members);
+                
+                // Set member count
+                group.setMemberCount(members != null ? members.size() : 0);
+                
+                // Đảm bảo có balance (nếu null thì set = 0)
+                if (group.getBalance() == null) {
+                    group.setBalance(BigDecimal.ZERO);
+                }
+                
+                // Đảm bảo có trạng thái active
+                if (group.isActive() == null) {
+                    group.setActive(true);
+                }
             }
-            model.addAttribute("groupSummaries", groupSummaries);
+            
+            // Tính toán thống kê
+            int activeGroupsCount = (int) userGroups.stream()
+                .filter(g -> Boolean.TRUE.equals(g.isActive()))
+                .count();
+                
+            BigDecimal totalBalance = userGroups.stream()
+                .filter(g -> g.getBalance() != null)
+                .map(Group::getBalance)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+            int pendingCount = 0;
+            try {
+                pendingCount = invitationService.countPendingInvitationsForUser(userEmail);
+            } catch (Exception e) {
+                // Nếu lỗi khi lấy pending invitations, set = 0
+                pendingCount = 0;
+            }
 
-            return "user/groups/index";
+            // Thêm vào model
+            model.addAttribute("userGroups", userGroups != null ? userGroups : List.of());
+            model.addAttribute("activeGroupsCount", activeGroupsCount);
+            model.addAttribute("totalBalance", totalBalance);
+            model.addAttribute("pendingCount", pendingCount);
+            model.addAttribute("userEmail", userEmail);
+
+            return "user/groups/my-groups";
         } catch (Exception e) {
-            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
-            return "error";
+            e.printStackTrace(); // Log lỗi để debug
+            
+            // Trả về dữ liệu rỗng thay vì lỗi
+            model.addAttribute("userGroups", List.of());
+            model.addAttribute("activeGroupsCount", 0);
+            model.addAttribute("totalBalance", BigDecimal.ZERO);
+            model.addAttribute("pendingCount", 0);
+            model.addAttribute("userEmail", userEmail);
+            model.addAttribute("error", "Có lỗi khi tải danh sách nhóm: " + e.getMessage());
+            
+            return "user/groups/my-groups";
         }
     }
 
-    // Trang hiển thị lời mời tham gia nhóm
+    // Trang join nhóm (mapping này phải đặt trước mapping /{groupId})
     @GetMapping("/join")
     public String joinGroupPage(HttpSession session, Model model) {
         String userEmail = getUserEmailFromSession(session);
         if (userEmail == null) {
             return "redirect:/login";
         }
-        List<Invitation> pendingInvitations = invitationService.getPendingInvitationsForUser(userEmail);
-        model.addAttribute("pendingInvitations", pendingInvitations);
-        model.addAttribute("userEmail", userEmail);
-        return "user/groups/join";
+
+        try {
+            // Lấy danh sách lời mời chờ xác nhận
+            List<Invitation> pendingInvitations = invitationService.getPendingInvitationsForUser(userEmail);
+            model.addAttribute("pendingInvitations", pendingInvitations != null ? pendingInvitations : List.of());
+            model.addAttribute("userEmail", userEmail);
+
+            return "user/groups/join";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("pendingInvitations", List.of());
+            model.addAttribute("userEmail", userEmail);
+            model.addAttribute("error", "Có lỗi khi tải lời mời: " + e.getMessage());
+            return "user/groups/join";
+        }
     }
 
     // Xem chi tiết nhóm
@@ -91,55 +146,14 @@ public class UserGroupController {
             List<Member> members = memberService.getMembersByGroup(groupId);
 
             model.addAttribute("group", group);
-            model.addAttribute("summary", summary);
-            model.addAttribute("members", members);
+            model.addAttribute("summary", summary != null ? summary : Map.of());
+            model.addAttribute("members", members != null ? members : List.of());
+            model.addAttribute("userEmail", userEmail);
 
             return "user/groups/detail";
         } catch (Exception e) {
             model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
             return "error";
-        }
-    }
-
-    // Xử lý chấp nhận lời mời
-    @PostMapping("/invitations/{invitationId}/accept")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> acceptInvitation(
-            @PathVariable Long invitationId,
-            HttpSession session) {
-        String userEmail = getUserEmailFromSession(session);
-        if (userEmail == null) {
-            return createErrorResponse("Phiên đăng nhập không hợp lệ");
-        }
-
-        try {
-            Member newMember = memberService.acceptInvitation(invitationId, userEmail);
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Đã tham gia nhóm thành công!");
-            response.put("memberId", newMember.getId());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return createErrorResponse(e.getMessage());
-        }
-    }
-
-    // Xử lý từ chối lời mời
-    @PostMapping("/invitations/{invitationId}/reject")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> rejectInvitation(
-            @PathVariable Long invitationId,
-            HttpSession session) {
-        String userEmail = getUserEmailFromSession(session);
-        if (userEmail == null) {
-            return createErrorResponse("Phiên đăng nhập không hợp lệ");
-        }
-
-        try {
-            memberService.rejectInvitation(invitationId, userEmail);
-            return createResponse(true, "Đã từ chối lời mời thành công");
-        } catch (Exception e) {
-            return createErrorResponse(e.getMessage());
         }
     }
 

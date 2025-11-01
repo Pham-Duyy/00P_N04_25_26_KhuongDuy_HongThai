@@ -21,14 +21,14 @@
         }
 
         /* Input styles */
-        input {
+        input, select {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             transition: all 0.3s ease;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color: rgba(255, 255, 255, 0.5);
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
         }
@@ -75,6 +75,19 @@
             background-color: #10b981;
             width: 100%;
         }
+
+        /* Success and Error messages */
+        .success-message {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
@@ -96,7 +109,22 @@
                 <p class="text-white text-opacity-70">Tham gia cùng chúng tôi ngay hôm nay</p>
             </div>
 
-            <form id="registerForm" class="space-y-5">
+            <!-- Success/Error Messages -->
+            <div id="successMessage" class="success-message rounded-lg p-4 mb-4 hidden">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span id="successText"></span>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="error-message rounded-lg p-4 mb-4 hidden">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span id="errorText"></span>
+                </div>
+            </div>
+
+            <form action="/register" method="POST" id="registerForm" class="space-y-5">
                 <!-- Full Name Input -->
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -123,21 +151,6 @@
                         id="email"
                         class="w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder-white placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300" 
                         placeholder="Email của bạn"
-                        required
-                    >
-                </div>
-
-                <!-- Username Input -->
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-at text-white text-opacity-60"></i>
-                    </div>
-                    <input 
-                        type="text" 
-                        name="username" 
-                        id="username"
-                        class="w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder-white placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:border-transparent transition-all duration-300" 
-                        placeholder="Tên đăng nhập"
                         required
                     >
                 </div>
@@ -239,6 +252,7 @@
                 <!-- Register Button -->
                 <button 
                     type="submit" 
+                    id="registerBtn"
                     class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-lg btn-hover transition-all duration-300"
                 >
                     <span id="registerBtnText">Tạo tài khoản</span>
@@ -264,32 +278,12 @@
                 </div>
             </form>
         </div>
-
-        <!-- Notification -->
-        <div id="notification" class="fixed top-4 right-4 z-50 hidden animate-fadeIn">
-            <div class="glass-effect rounded-lg p-4 shadow-lg">
-                <div class="flex items-center">
-                    <div id="notificationIcon"></div>
-                    <p id="notificationMessage" class="ml-3 text-white"></p>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Toggle password visibility
-            const toggleBtn = document.getElementById('togglePassword');
-            const passwordInput = document.getElementById('password');
-            
-            toggleBtn.addEventListener('click', function() {
-                const type = passwordInput.type === 'password' ? 'text' : 'password';
-                passwordInput.type = type;
-                toggleBtn.innerHTML = `<i class="fas fa-${type === 'password' ? 'eye' : 'eye-slash'}"></i>`;
-            });
-
             // Password strength checker
-            function checkPasswordStrength(password) {
+            window.checkPasswordStrength = function(password) {
                 const strengthDiv = document.getElementById('passwordStrength');
                 const strengthBar = document.getElementById('strengthBar');
                 const strengthText = document.getElementById('strengthText');
@@ -305,8 +299,8 @@
                 let strengthLabel = '';
                 
                 // Length check
+                if (password.length >= 6) strength += 1;
                 if (password.length >= 8) strength += 1;
-                if (password.length >= 12) strength += 1;
                 
                 // Character variety checks
                 if (/[a-z]/.test(password)) strength += 1;
@@ -331,10 +325,10 @@
                 }
                 
                 strengthText.textContent = strengthLabel;
-            }
+            };
 
             // Password match checker
-            function checkPasswordMatch() {
+            window.checkPasswordMatch = function() {
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 const matchDiv = document.getElementById('passwordMatch');
@@ -357,85 +351,80 @@
                     matchText.textContent = 'Mật khẩu không khớp';
                     matchText.className = 'text-red-400 text-sm';
                 }
+            };
+
+            // Toggle password visibility
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            toggleBtn.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                toggleBtn.innerHTML = `<i class="fas fa-${type === 'password' ? 'eye' : 'eye-slash'}"></i>`;
+            });
+
+            // Show success/error messages
+            function showMessage(message, type) {
+                const successDiv = document.getElementById('successMessage');
+                const errorDiv = document.getElementById('errorMessage');
+                const successText = document.getElementById('successText');
+                const errorText = document.getElementById('errorText');
+                
+                // Hide both messages first
+                successDiv.classList.add('hidden');
+                errorDiv.classList.add('hidden');
+                
+                if (type === 'success') {
+                    successText.textContent = message;
+                    successDiv.classList.remove('hidden');
+                } else if (type === 'error') {
+                    errorText.textContent = message;
+                    errorDiv.classList.remove('hidden');
+                }
             }
 
-            // Show notification
-            function showNotification(message, type = 'info') {
-                const notification = document.getElementById('notification');
-                const icon = document.getElementById('notificationIcon');
-                const messageEl = document.getElementById('notificationMessage');
-                
-                const icons = {
-                    success: '<i class="fas fa-check-circle text-green-400 text-xl"></i>',
-                    error: '<i class="fas fa-exclamation-circle text-red-400 text-xl"></i>',
-                    info: '<i class="fas fa-info-circle text-blue-400 text-xl"></i>'
-                };
-                
-                icon.innerHTML = icons[type] || icons.info;
-                messageEl.textContent = message;
-                notification.classList.remove('hidden');
-                
-                setTimeout(() => {
-                    notification.classList.add('hidden');
-                }, 3000);
-            }
-
-            // Form submission
-            document.getElementById('registerForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
+            // Form validation
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 const terms = document.getElementById('terms').checked;
                 
-                // Validation
+                // Client-side validation
                 if (password !== confirmPassword) {
-                    showNotification('Mật khẩu xác nhận không khớp!', 'error');
-                    return;
+                    e.preventDefault();
+                    showMessage('Mật khẩu xác nhận không khớp!', 'error');
+                    return false;
                 }
                 
-                if (password.length < 6) {
-                    showNotification('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
-                    return;
+                if (password.length < 3) {
+                    e.preventDefault();
+                    showMessage('Mật khẩu phải có ít nhất 3 ký tự!', 'error');
+                    return false;
                 }
                 
                 if (!terms) {
-                    showNotification('Vui lòng đồng ý với điều khoản sử dụng!', 'error');
-                    return;
+                    e.preventDefault();
+                    showMessage('Vui lòng đồng ý với điều khoản sử dụng!', 'error');
+                    return false;
                 }
-                
-                const formData = new FormData(this);
-                const data = Object.fromEntries(formData.entries());
-                
-                // Remove unnecessary data
-                delete data.confirmPassword;
-                delete data.terms;
-                
-                try {
-                    const response = await fetch('/users/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
 
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        showNotification('Đăng ký thành công! Đang chuyển hướng...', 'success');
-                        setTimeout(() => {
-                            window.location.href = '/login';
-                        }, 1500);
-                    } else {
-                        throw new Error(result.message || 'Đăng ký thất bại');
-                    }
-                } catch (error) {
-                    showNotification(error.message, 'error');
-                }
+                // Show loading
+                const btn = document.getElementById('registerBtn');
+                const btnText = document.getElementById('registerBtnText');
+                const btnIcon = document.getElementById('registerBtnIcon');
+                
+                btn.disabled = true;
+                btnText.textContent = 'Đang xử lý...';
+                btnIcon.className = 'fas fa-spinner fa-spin ml-2';
             });
 
-            // Check if already logged in
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                window.location.href = '/index';
+            // Check URL parameters for success/error messages
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success')) {
+                showMessage('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
+            }
+            if (urlParams.get('error')) {
+                showMessage('Có lỗi xảy ra trong quá trình đăng ký!', 'error');
             }
 
             // Add form field animations

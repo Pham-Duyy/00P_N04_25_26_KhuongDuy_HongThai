@@ -2,8 +2,8 @@ package com.fund.group09.Controller;
 
 import com.fund.group09.Model.User;
 import com.fund.group09.Repository.UserRepository;
+import com.fund.group09.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder; // Thêm import này
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ public class AuthController {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // Thêm PasswordEncoder
+    private UserService userService;
 
     @GetMapping("/")
     public String root() {
@@ -47,44 +47,86 @@ public class AuthController {
         return "auth/login";
     }
 
-    // Xử lý POST đăng nhập
     @PostMapping("/login")
     public String doLogin(@RequestParam("email") String email,
             @RequestParam("password") String password,
             @RequestParam("role") String role,
             HttpSession session,
             Model model) {
-        // Kiểm tra tài khoản thực tế trong DB
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            model.addAttribute("error", "Tài khoản không tồn tại!");
+        
+        System.out.println("🔍 Login attempt - Email: " + email + ", Role: " + role);
+        
+        // Validate input
+        if (email == null || email.trim().isEmpty()) {
+            model.addAttribute("error", "Email không được để trống!");
             return "auth/login";
         }
-        User user = optionalUser.get();
-
-        // So sánh mật khẩu (dùng PasswordEncoder nếu mật khẩu đã mã hóa)
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            model.addAttribute("error", "Sai mật khẩu!");
-            return "auth/login";
-        }
-
-        // Kiểm tra vai trò thực tế của tài khoản
-        if (!user.getRole().equalsIgnoreCase(role)) {
-            model.addAttribute("error", "Bạn không có quyền đăng nhập với vai trò này!");
+        if (password == null || password.trim().isEmpty()) {
+            model.addAttribute("error", "Mật khẩu không được để trống!");
             return "auth/login";
         }
 
-        // Đăng nhập thành công, lưu thông tin vào session
-        session.setAttribute("userRole", user.getRole());
-        session.setAttribute("userEmail", user.getEmail());
-        session.setAttribute("userId", user.getId());
-        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
-            return "redirect:/admin/dashboard";
-        } else if ("USER".equalsIgnoreCase(user.getRole())) {
-            return "redirect:/user/dashboard";
+        try {
+            // Tìm user trong database
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            if (optionalUser.isEmpty()) {
+                System.out.println("❌ User not found: " + email);
+                model.addAttribute("error", "Email không tồn tại!");
+                return "auth/login";
+            }
+
+            User user = optionalUser.get();
+            System.out.println("✅ Found user: " + user.getEmail() + " with role: " + user.getRole());
+            
+            // Debug password comparison
+            System.out.println("🔍 Password comparison:");
+            System.out.println("   Input password: '" + password + "' (length: " + password.length() + ")");
+            System.out.println("   Stored password: '" + user.getPassword() + "' (length: " + (user.getPassword() != null ? user.getPassword().length() : 0) + ")");
+            System.out.println("   Passwords match: " + password.equals(user.getPassword()));
+
+            // So sánh mật khẩu trực tiếp (trim để loại bỏ khoảng trắng thừa)
+            String inputPassword = password.trim();
+            String storedPassword = user.getPassword() != null ? user.getPassword().trim() : "";
+            
+            if (!inputPassword.equals(storedPassword)) {
+                System.out.println("❌ Wrong password for user: " + email);
+                model.addAttribute("error", "Mật khẩu không đúng!");
+                return "auth/login";
+            }
+
+            // Kiểm tra vai trò
+            if (!role.equalsIgnoreCase(user.getRole())) {
+                System.out.println("❌ Wrong role for user: " + email + " (expected: " + user.getRole() + ", got: " + role + ")");
+                model.addAttribute("error", "Vai trò không đúng!");
+                return "auth/login";
+            }
+
+            System.out.println("✅ Login successful for user: " + email + " with role: " + user.getRole());
+
+            // Lưu thông tin vào session
+            session.setAttribute("userRole", user.getRole());
+            session.setAttribute("userEmail", user.getEmail());
+            session.setAttribute("userId", user.getId());
+            session.setAttribute("userName", user.getName());
+
+            // Redirect dựa trên role
+            if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                System.out.println("🔄 Redirecting to admin dashboard");
+                return "redirect:/admin/dashboard";
+            } else if ("USER".equalsIgnoreCase(user.getRole())) {
+                System.out.println("🔄 Redirecting to user dashboard");
+                return "redirect:/user/dashboard";
+            }
+
+            model.addAttribute("error", "Vai trò không hợp lệ!");
+            return "auth/login";
+
+        } catch (Exception e) {
+            System.err.println("❌ Login error: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Đăng nhập thất bại: " + e.getMessage());
+            return "auth/login";
         }
-        model.addAttribute("error", "Vai trò không hợp lệ!");
-        return "auth/login";
     }
 
     @GetMapping("/register")
@@ -106,87 +148,124 @@ public class AuthController {
         return "auth/register";
     }
 
-    // Dashboard cho USER
+    // ...existing code...
+@PostMapping("/register")
+public String doRegister(@RequestParam("name") String name,
+        @RequestParam("email") String email,
+        @RequestParam("password") String password,
+        @RequestParam("confirmPassword") String confirmPassword,
+        @RequestParam("role") String role,
+        Model model) {
+
+    System.out.println("🔍 Register attempt - Email: " + email + ", Role: " + role);
+
+    // Validate input
+    if (name == null || name.trim().isEmpty()) {
+        model.addAttribute("error", "Tên không được để trống!");
+        return "auth/register";
+    }
+    if (email == null || email.trim().isEmpty()) {
+        model.addAttribute("error", "Email không được để trống!");
+        return "auth/register";
+    }
+    if (password == null || password.trim().isEmpty()) {
+        model.addAttribute("error", "Mật khẩu không được để trống!");
+        return "auth/register";
+    }
+    if (!password.equals(confirmPassword)) {
+        model.addAttribute("error", "Mật khẩu xác nhận không khớp!");
+        return "auth/register";
+    }
+    if (role == null || (!role.equals("USER") && !role.equals("ADMIN"))) {
+        model.addAttribute("error", "Vai trò không hợp lệ!");
+        return "auth/register";
+    }
+
+    try {
+        // Kiểm tra email đã tồn tại
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isPresent()) {
+            model.addAttribute("error", "Email này đã được đăng ký!");
+            return "auth/register";
+        }
+
+        // Tạo user mới
+        User newUser = new User();
+        newUser.setName(name.trim());
+        newUser.setEmail(email.trim().toLowerCase());
+        newUser.setPassword(password.trim()); // Lưu mật khẩu trực tiếp, không mã hóa
+        newUser.setRole(role.toUpperCase());
+        // Sửa tại đây: set username mặc định là email (hoặc name tuỳ ý)
+        newUser.setUsername(email.trim().toLowerCase());
+
+        // Lưu user trực tiếp vào database
+        User savedUser = userRepository.save(newUser);
+
+        System.out.println("✅ Registration successful for: " + email);
+        System.out.println("   Saved user ID: " + savedUser.getId());
+        System.out.println("   Saved password: '" + savedUser.getPassword() + "'");
+
+        return "redirect:/register?success";
+
+    } catch (Exception e) {
+        System.err.println("❌ Registration error: " + e.getMessage());
+        e.printStackTrace();
+        model.addAttribute("error", "Đăng ký thất bại: " + e.getMessage());
+        return "auth/register";
+    }
+}
+// ...existing code...
+
     @GetMapping("/user/dashboard")
     public String userDashboard(HttpSession session, Model model) {
-        // Kiểm tra đăng nhập
         if (!isLoggedIn(session)) {
             return "redirect:/login?error=notLoggedIn";
         }
         String userRole = (String) session.getAttribute("userRole");
-        // Nếu là ADMIN thì không cho vào trang user
         if ("ADMIN".equals(userRole)) {
             return "redirect:/access-denied";
         }
-        // Nếu không phải USER thì từ chối truy cập
         if (!"USER".equals(userRole)) {
             return "redirect:/access-denied";
         }
-        // Thêm thông tin user vào model
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
         model.addAttribute("userId", session.getAttribute("userId"));
+        model.addAttribute("userName", session.getAttribute("userName"));
         model.addAttribute("userRole", userRole);
-        return "user/dashboard"; // Giao diện user
+        return "user/dashboard";
     }
 
-    // Dashboard cho ADMIN
     @GetMapping("/admin/dashboard")
     public String adminDashboard(HttpSession session, Model model) {
-        // Kiểm tra đăng nhập
         if (!isLoggedIn(session)) {
             return "redirect:/login?error=notLoggedIn";
         }
         String userRole = (String) session.getAttribute("userRole");
-        // Nếu là USER thì không cho vào trang admin
         if ("USER".equals(userRole)) {
             return "redirect:/access-denied";
         }
-        // Nếu không phải ADMIN thì từ chối truy cập
         if (!"ADMIN".equals(userRole)) {
             return "redirect:/access-denied";
         }
-        // Thêm thông tin admin vào model
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
         model.addAttribute("userId", session.getAttribute("userId"));
+        model.addAttribute("userName", session.getAttribute("userName"));
         model.addAttribute("userRole", userRole);
-        return "admin/dashboard"; // Giao diện admin
+        return "admin/dashboard";
     }
 
-    // Trang từ chối truy cập
     @GetMapping("/access-denied")
     public String accessDenied(Model model) {
         model.addAttribute("errorMessage", "Bạn không có quyền truy cập vào trang này!");
         return "error/access-denied";
     }
 
-    // Trang logout
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate(); // Xóa toàn bộ session
-        // Chuyển hướng về trang đăng nhập (không kiểm tra đăng nhập nữa)
         return "redirect:/login?logout";
     }
 
-    // Utility method kiểm tra đăng nhập
-    private boolean isLoggedIn(HttpSession session) {
-        Object userRole = session.getAttribute("userRole");
-        Object userId = session.getAttribute("userId");
-        return userRole != null && userId != null;
-    }
-
-    // Utility method kiểm tra quyền admin
-    private boolean isAdmin(HttpSession session) {
-        String userRole = (String) session.getAttribute("userRole");
-        return "ADMIN".equals(userRole);
-    }
-
-    // Utility method kiểm tra quyền user
-    private boolean isUser(HttpSession session) {
-        String userRole = (String) session.getAttribute("userRole");
-        return "USER".equals(userRole);
-    }
-
-    // Route cho profile user
     @GetMapping("/profile")
     public String userProfile(HttpSession session, Model model) {
         if (!isLoggedIn(session)) {
@@ -194,21 +273,92 @@ public class AuthController {
         }
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
         model.addAttribute("userId", session.getAttribute("userId"));
+        model.addAttribute("userName", session.getAttribute("userName"));
         model.addAttribute("userRole", session.getAttribute("userRole"));
         return "profile";
     }
 
-    // Route cho settings (chỉ admin)
     @GetMapping("/admin/settings")
     public String adminSettings(HttpSession session, Model model) {
         if (!isLoggedIn(session) || !isAdmin(session)) {
             return "redirect:/access-denied";
         }
         model.addAttribute("userEmail", session.getAttribute("userEmail"));
+        model.addAttribute("userName", session.getAttribute("userName"));
         model.addAttribute("userRole", session.getAttribute("userRole"));
         return "admin/settings";
     }
 
+    @GetMapping("/debug/users")
+    @ResponseBody
+    public String debugUsers() {
+        try {
+            StringBuilder result = new StringBuilder();
+            result.append("📋 All users in database:\n\n");
+            
+            Iterable<User> users = userRepository.findAll();
+            for (User user : users) {
+                result.append("- ID: ").append(user.getId()).append("\n")
+                      .append("  Name: ").append(user.getName()).append("\n")
+                      .append("  Email: ").append(user.getEmail()).append("\n")
+                      .append("  Password: '").append(user.getPassword()).append("' (length: ")
+                      .append(user.getPassword() != null ? user.getPassword().length() : 0).append(")\n")
+                      .append("  Role: ").append(user.getRole()).append("\n")
+                      .append("  Username: ").append(user.getUsername()).append("\n")
+                      .append("----------------------------------------\n");
+            }
+            
+            return result.toString();
+            
+        } catch (Exception e) {
+            return "❌ Error: " + e.getMessage();
+        }
+    }
 
+    // Tạo user test nhanh
+    @GetMapping("/debug/create-test-user")
+    @ResponseBody
+    public String createTestUser() {
+        try {
+            // Tạo admin test
+            User admin = new User();
+            admin.setName("Admin Test");
+            admin.setEmail("admin@test.com");
+            admin.setPassword("123456");
+            admin.setRole("ADMIN");
+            userRepository.save(admin);
+            
+            // Tạo user test
+            User user = new User();
+            user.setName("User Test");
+            user.setEmail("user@test.com");
+            user.setPassword("123456");
+            user.setRole("USER");
+            userRepository.save(user);
+            
+            return "✅ Created test users:\n" +
+                   "Admin: admin@test.com / 123456 / ADMIN\n" +
+                   "User: user@test.com / 123456 / USER";
+            
+        } catch (Exception e) {
+            return "❌ Error creating test users: " + e.getMessage();
+        }
+    }
 
+    // Utility methods
+    private boolean isLoggedIn(HttpSession session) {
+        Object userRole = session.getAttribute("userRole");
+        Object userId = session.getAttribute("userId");
+        return userRole != null && userId != null;
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        String userRole = (String) session.getAttribute("userRole");
+        return "ADMIN".equals(userRole);
+    }
+
+    private boolean isUser(HttpSession session) {
+        String userRole = (String) session.getAttribute("userRole");
+        return "USER".equals(userRole);
+    }
 }
