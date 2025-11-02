@@ -1,92 +1,84 @@
 package com.oop.quanlingansach.Service;
 
 import com.oop.quanlingansach.Model.User;
+import com.oop.quanlingansach.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
-    // Giả lập database bằng Map
-    private final Map<Long, User> userDb = new HashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    @Autowired
+    private UserRepository userRepository;
 
-    // Đăng ký tài khoản mới
     public User registerUser(User user) {
-        user.setId(idGenerator.getAndIncrement());
         user.setActive(true);
         user.setCreatedDate(java.time.LocalDateTime.now());
-        userDb.put(user.getId(), user);
-        return user;
+        return userRepository.save(user);
     }
 
-    // Xác thực đăng nhập
     public Optional<User> authenticate(String username, String password) {
-        return userDb.values().stream()
-                .filter(u -> u.getUsername().equals(username) && u.getPassword().equals(password))
-                .findFirst();
+        return userRepository.findByUsername(username)
+                .filter(u -> u.getPassword().equals(password));
     }
 
-    // Kiểm tra username đã tồn tại chưa
     public boolean existsByUsername(String username) {
-        return userDb.values().stream()
-                .anyMatch(u -> u.getUsername().equalsIgnoreCase(username));
+        return userRepository.existsByUsername(username);
     }
 
-    // Kiểm tra email đã tồn tại chưa
     public boolean existsByEmail(String email) {
-        return userDb.values().stream()
-                .anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
+        return userRepository.existsByEmail(email);
     }
 
-    // Đổi mật khẩu
     public boolean changePassword(Long userId, String currentPassword, String newPassword) {
-        User user = userDb.get(userId);
-        if (user != null && user.getPassword().equals(currentPassword)) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(currentPassword)) {
+            User user = userOpt.get();
             user.setPassword(newPassword);
+            userRepository.save(user);
             return true;
         }
         return false;
     }
 
-    // Lấy user theo id (trả về Optional cho phù hợp với controller)
     public Optional<User> getUserById(Long id) {
-        return Optional.ofNullable(userDb.get(id));
+        return userRepository.findById(id);
     }
 
-    // Cập nhật thông tin user
     public Optional<User> updateUser(Long userId, User userDetails) {
-        User user = userDb.get(userId);
-        if (user != null) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
             user.setFullName(userDetails.getFullName());
             user.setEmail(userDetails.getEmail());
-            // Không cập nhật username, password, role ở đây để đảm bảo an toàn
-            return Optional.of(user);
+            return Optional.of(userRepository.save(user));
         }
         return Optional.empty();
     }
 
-    // Lấy tất cả user
     public List<User> getAllUsers() {
-        return new ArrayList<>(userDb.values());
+        return userRepository.findAll();
     }
 
-    // Vô hiệu hóa tài khoản
     public boolean deactivateUser(Long userId) {
-        User user = userDb.get(userId);
-        if (user != null) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
             user.setActive(false);
+            userRepository.save(user);
             return true;
         }
         return false;
     }
 
-    // Kích hoạt tài khoản
     public boolean activateUser(Long userId) {
-        User user = userDb.get(userId);
-        if (user != null) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
             user.setActive(true);
+            userRepository.save(user);
             return true;
         }
         return false;

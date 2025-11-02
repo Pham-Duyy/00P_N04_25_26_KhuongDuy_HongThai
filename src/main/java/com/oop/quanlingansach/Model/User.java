@@ -1,16 +1,36 @@
 package com.oop.quanlingansach.Model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "users") // tên bảng trong DB, có thể đổi tuỳ ý
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
+
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(name = "full_name", nullable = false)
     private String fullName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role; // ADMIN hoặc USER
+
+    @Column(name = "created_date")
     private LocalDateTime createdDate;
+
+    @Column(name = "is_active")
     private boolean isActive;
 
     public enum Role {
@@ -43,55 +63,23 @@ public class User {
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    // Cho phép set role từ String nếu cần
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
     public void setRole(String roleStr) {
         if ("ADMIN".equalsIgnoreCase(roleStr)) {
             this.role = Role.ADMIN;
@@ -100,38 +88,17 @@ public class User {
         }
     }
 
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
+    public LocalDateTime getCreatedDate() { return createdDate; }
+    public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
 
     // Business Methods
-    public boolean isAdmin() {
-        return Role.ADMIN.equals(this.role);
-    }
-
-    public boolean isUser() {
-        return Role.USER.equals(this.role);
-    }
-
-    public void activate() {
-        this.isActive = true;
-    }
-
-    public void deactivate() {
-        this.isActive = false;
-    }
+    public boolean isAdmin() { return Role.ADMIN.equals(this.role); }
+    public boolean isUser() { return Role.USER.equals(this.role); }
+    public void activate() { this.isActive = true; }
+    public void deactivate() { this.isActive = false; }
 
     // Override methods
     @Override
