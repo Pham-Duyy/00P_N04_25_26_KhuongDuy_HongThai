@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Quản Lý Ngân Sách</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(80, 80, 160, 0.15);
+            padding: 2.5rem 2rem 2rem 2rem;
+            width: 100%;
+            max-width: 370px;
+            margin: 1rem;
+        }
+        .login-card .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-card .login-header .icon {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        .login-card .login-header h2 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+            color: #2d3748;
+        }
+        .login-card .login-header p {
+            color: #718096;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #4a5568;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 1rem;
+            margin-bottom: 1.1rem;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 0 2px #667eea22;
+        }
+        .btn-login {
+            width: 100%;
+            background: #667eea;
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            padding: 0.85rem 0;
+            font-size: 1.1rem;
+            transition: background 0.2s, box-shadow 0.2s;
+            margin-top: 0.5rem;
+        }
+        .btn-login:hover, .btn-login:focus {
+            background: #5a67d8;
+            box-shadow: 0 4px 16px #667eea33;
+        }
+        .alert {
+            border-radius: 8px;
+            font-size: 0.97rem;
+            margin-bottom: 1.2rem;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .register-link a:hover {
+            color: #764ba2;
+        }
+        @media (max-width: 500px) {
+            .login-card {
+                padding: 1.5rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <div class="icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <h2>Chào mừng trở lại!</h2>
+            <p>Đăng nhập vào hệ thống quản lý ngân sách</p>
+        </div>
+        <!-- Hiển thị thông báo lỗi -->
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+        <!-- Hiển thị thông báo thành công -->
+        <div th:if="${success}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+        </div>
+        <!-- Form đăng nhập -->
+        <form th:action="@{/login}" method="post" id="loginForm" autocomplete="off">
+            <label for="username" class="form-label"><i class="fas fa-user me-1"></i> Tên đăng nhập</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
+
+            <label for="password" class="form-label"><i class="fas fa-lock me-1"></i> Mật khẩu</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
+
+            <label for="userType" class="form-label"><i class="fas fa-user-tag me-1"></i> Loại tài khoản</label>
+            <select class="form-select" id="userType" name="userType">
+                <option value="user" selected>Người dùng</option>
+                <option value="admin">Quản trị viên</option>
+            </select>
+
+            <button type="submit" class="btn btn-login" id="loginBtn">
+                <i class="fas fa-sign-in-alt me-2"></i> Đăng Nhập
+            </button>
+        </form>
+        <div class="register-link">
+            <span>Chưa có tài khoản?</span>
+            <a th:href="@{/auth/register}">
+                <i class="fas fa-user-plus me-1"></i> Đăng ký ngay
+            </a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Loading state for button
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            form.addEventListener('submit', function() {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang đăng nhập...';
+            });
+            // Auto-hide alerts
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                }, 4000);
+            });
+        });
+    </script>
+</body>
+</html>
