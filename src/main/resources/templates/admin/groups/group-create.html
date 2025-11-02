@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách nhóm ngân sách - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+        }
+        .table thead th {
+            background: #2c3e50;
+            color: #fff;
+        }
+        .modal-header {
+            background: #3498db;
+            color: #fff;
+        }
+        .modal-header.bg-success {
+            background: #27ae60 !important;
+        }
+        .btn-primary, .btn-success {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn-warning, .btn-danger, .btn-info, .btn-outline-primary, .btn-success {
+            font-weight: 500;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .modal-content {
+            border-radius: 16px;
+        }
+        .table-bordered > :not(caption) > * > * {
+            border-width: 1.5px;
+        }
+        .badge {
+            font-size: 0.95em;
+        }
+        .alert {
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="fas fa-users-cog me-2"></i>Danh sách nhóm ngân sách</h2>
+        <button class="btn btn-primary shadow" data-bs-toggle="modal" data-bs-target="#groupFormModal" onclick="openCreateGroupModal()">
+            <i class="fas fa-plus-circle me-1"></i> Tạo nhóm mới
+        </button>
+    </div>
+
+    <!-- Thông báo -->
+    <div th:if="${success}" class="alert alert-success shadow-sm" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger shadow-sm" th:text="${error}"></div>
+
+    <!-- Tìm kiếm -->
+    <form class="row mb-3" method="get" th:action="@{/admin/groups}">
+        <div class="col-md-4">
+            <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm nhóm...">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary" type="submit">
+                <i class="fas fa-search"></i> Tìm kiếm
+            </button>
+        </div>
+    </form>
+
+    <!-- Danh sách nhóm -->
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-bordered align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên nhóm</th>
+                    <th>Loại</th>
+                    <th>Mô tả</th>
+                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
+                    <th>Thành viên</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr th:each="group, idx : ${groups}">
+                <td th:text="${idx.index + 1}"></td>
+                <td class="fw-semibold text-primary" th:text="${group.name}"></td>
+                <td th:text="${group.type}"></td>
+                <td th:text="${group.description}"></td>
+                <td th:text="${#temporals.format(group.createdDate, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <span th:if="${group.active}" class="badge bg-success">Đang hoạt động</span>
+                    <span th:if="${!group.active}" class="badge bg-secondary">Đã đóng</span>
+                </td>
+                <td th:text="${group.members.size()}"></td>
+                <!-- ...existing code... -->
+<td>
+<a th:href="@{'/admin/groups/' + ${group.id}}" class="btn btn-info btn-sm mb-1">
+    <i class="fas fa-eye"></i> Xem
+</a>
+    <button type="button" class="btn btn-warning btn-sm mb-1"
+        data-bs-toggle="modal" data-bs-target="#groupFormModal"
+        th:attr="onclick='openEditGroupModal(' + ${group.id} + ');'">
+        <i class="fas fa-edit"></i> Sửa
+    </button>
+    <form th:action="@{'/admin/groups/' + ${group.id} + '/delete'}" method="post" style="display:inline-block" 
+          onsubmit="return confirm('Bạn chắc chắn muốn xóa nhóm này?');">
+        <button type="submit" class="btn btn-danger btn-sm mb-1">
+            <i class="fas fa-trash"></i> Xóa
+        </button>
+    </form>
+    <!-- Nút gửi lại yêu cầu tham gia nhóm cho admin thao tác -->
+    <button type="button" class="btn btn-outline-primary btn-sm mb-1"
+        th:attr="onclick='showJoinRequestForm(' + ${group.id} + ');'">
+        <i class="fas fa-user-plus"></i> Gửi lại yêu cầu tham gia
+    </button>
+</td>
+<!-- ...existing code... -->
+            </tr>
+            <tr th:if="${#lists.isEmpty(groups)}">
+                <td colspan="8" class="text-center text-muted">Chưa có nhóm nào.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Form Tạo/Chỉnh sửa nhóm -->
+<div class="modal fade" id="groupFormModal" tabindex="-1" aria-labelledby="groupFormModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="groupForm" method="post" th:action="@{/admin/groups/create}" th:object="${group}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="groupFormModalLabel">Tạo nhóm ngân sách mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Tên nhóm *</label>
+            <input type="text" class="form-control" id="name" name="name" th:field="*{name}" required>
+          </div>
+          <div class="mb-3">
+            <label for="type" class="form-label">Loại nhóm</label>
+            <select class="form-select" id="type" name="type" th:field="*{type}">
+                <option value="FAMILY">Gia đình</option>
+                <option value="FRIENDS">Bạn bè</option>
+                <option value="WORK">Công việc</option>
+                <option value="TRAVEL">Du lịch</option>
+                <option value="OTHER">Khác</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="fundAmount" class="form-label">Số tiền quỹ ban đầu (VNĐ)</label>
+            <input type="number" class="form-control" id="fundAmount" name="fundAmount" th:field="*{fundAmount}" min="0" step="1000" placeholder="Nhập số tiền quỹ ban đầu">
+          </div>
+          <div class="mb-3">
+            <label for="targetAmount" class="form-label">Mục tiêu quỹ (VNĐ)</label>
+            <input type="number" class="form-control" id="targetAmount" name="targetAmount" th:field="*{targetAmount}" min="0" step="1000" placeholder="Nhập mục tiêu quỹ (nếu có)">
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Mô tả nhóm</label>
+            <textarea class="form-control" id="description" name="description" th:field="*{description}" placeholder="Nhập mô tả về nhóm, quy định, mục đích..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="active" class="form-label">Trạng thái nhóm</label>
+            <select class="form-select" id="active" name="active" th:field="*{active}">
+                <option th:value="true">Đang hoạt động</option>
+                <option th:value="false">Đã đóng</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal gửi yêu cầu tham gia nhóm -->
+<div class="modal fade" id="joinRequestModal" tabindex="-1" aria-labelledby="joinRequestModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="joinRequestForm" method="post">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="joinRequestModalLabel">Gửi yêu cầu tham gia nhóm</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="requestMessage" class="form-label">Lời nhắn (tuỳ chọn)</label>
+            <textarea class="form-control" id="requestMessage" name="requestMessage" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Hiển thị modal gửi yêu cầu tham gia nhóm
+    function showJoinRequestForm(groupId) {
+        var form = document.getElementById('joinRequestForm');
+        form.action = '/admin/groups/' + groupId + '/join-request';
+        document.getElementById('requestMessage').value = '';
+        var modal = new bootstrap.Modal(document.getElementById('joinRequestModal'));
+        modal.show();
+    }
+
+    // Hiển thị modal tạo nhóm
+    function openCreateGroupModal() {
+        document.getElementById('groupForm').reset();
+        document.getElementById('groupFormModalLabel').innerText = 'Tạo nhóm ngân sách mới';
+        document.getElementById('groupForm').action = '/admin/groups/create';
+    }
+
+    // Hiển thị modal chỉnh sửa nhóm (cần AJAX để load dữ liệu nhóm)
+    function openEditGroupModal(groupId) {
+        fetch('/admin/groups/' + groupId + '/json')
+            .then(response => response.json())
+            .then(group => {
+                document.getElementById('groupFormModalLabel').innerText = 'Chỉnh sửa nhóm ngân sách';
+                document.getElementById('groupForm').action = '/admin/groups/' + groupId + '/edit';
+                document.getElementById('name').value = group.name;
+                document.getElementById('type').value = group.type;
+                document.getElementById('description').value = group.description || '';
+                // Xử lý chọn thành viên (memberIds)
+                const membersSelect = document.getElementById('members');
+                if (membersSelect) {
+                    for (let i = 0; i < membersSelect.options.length; i++) {
+                        membersSelect.options[i].selected = group.memberIds.includes(Number(membersSelect.options[i].value));
+                    }
+                }
+            });
+    }
+</script>
+</body>
+</html>
