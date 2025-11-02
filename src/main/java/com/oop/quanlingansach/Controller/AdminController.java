@@ -18,49 +18,41 @@ public class AdminController {
         if (user == null || user.getRole() != User.Role.ADMIN) {
             return "redirect:/login";
         }
-        model.addAttribute("username", user.getUsername());
-        model.addAttribute("fullName", user.getFullName());
+        model.addAttribute("user", user);
         // Có thể truyền thêm dữ liệu thống kê ở đây nếu cần
         return "admin/dashboard";
     }
 
-    // Quản lý nhóm
-    @GetMapping("/groups")
-    public String manageGroups(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != User.Role.ADMIN) {
-            return "redirect:/login";
-        }
-        return "admin/groups";
-    }
-
     // Quản lý thu chi
     @GetMapping("/transactions")
-    public String manageTransactions(HttpSession session) {
+    public String manageTransactions(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
         if (user == null || user.getRole() != User.Role.ADMIN) {
             return "redirect:/login";
         }
+        model.addAttribute("user", user);
         return "admin/transactions";
     }
 
     // Báo cáo thống kê
     @GetMapping("/reports")
-    public String viewReports(HttpSession session) {
+    public String viewReports(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
         if (user == null || user.getRole() != User.Role.ADMIN) {
             return "redirect:/login";
         }
+        model.addAttribute("user", user);
         return "admin/reports";
     }
 
     // Thông báo
     @GetMapping("/notifications")
-    public String viewNotifications(HttpSession session) {
+    public String viewNotifications(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
         if (user == null || user.getRole() != User.Role.ADMIN) {
             return "redirect:/login";
         }
+        model.addAttribute("user", user);
         return "admin/notifications";
     }
 

@@ -26,7 +26,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập để truy cập trang này!");
             return "redirect:/login";
         }
-        
+
         User user = (User) session.getAttribute("user");
         model.addAttribute("user", user);
 
@@ -48,10 +48,10 @@ public class UserController {
             redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập để truy cập trang này!");
             return "redirect:/login";
         }
-        
+
         User user = (User) session.getAttribute("user");
         model.addAttribute("user", user);
-        
+
         return "user/profile";
     }
 
@@ -62,10 +62,10 @@ public class UserController {
             redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập để truy cập trang này!");
             return "redirect:/login";
         }
-        
+
         User user = (User) session.getAttribute("user");
         model.addAttribute("user", user);
-        
+
         return "user/settings";
     }
 
