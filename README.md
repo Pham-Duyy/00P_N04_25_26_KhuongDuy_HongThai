@@ -1,102 +1,176 @@
 # 00P_N04_25_26_KhuongDuy_HongThai
-Repo Working Group
-## NỘI DUNG 1
-## XÂY DỰNG ỨNG DỤNG QUẢN LÝ NGÂN SÁCH NHÓM  
-I. MỤC TIÊU ỨNG DỤNG
-* Ứng dụng hỗ trợ các nhóm cộng đồng như lớp học, nhóm bạn bè, nhóm thiện nguyện, câu lạc bộ... trong việc quản lý quỹ hoạt động, bao gồm:
-* Quản lý thành viên
-* Ghi nhận các khoản đóng góp và chi tiêu
-* Phân loại chi tiêu theo danh mục
-* Tính toán số dư quỹ
-* Thống kê, báo cáo và xuất file
-* Ứng dụng có giao diện web đơn giản, dễ sử dụng, chạy được trên trình duyệt với công nghệ Spring Boot.
+# 🏦 Fund Manager – Ứng Dụng Quản Lý Ngân Sách Nhóm
 
-II. CÁC CHỨC NĂNG CHÍNH
-1.  Quản lý Thành viên (Member)
-- Thêm, sửa, xoá thành viên
-- kê danh sách tất cả thành viên
-- kiếm và lọc theo tên hoặc vai trò
-2.  Quản lý Khoản đóng góp (Contribution)
-- Sửa, xoá khoản đóng góp
-- Gán khoản đóng góp cho thành viên
-- Thống kê theo thành viên hoặc theo tháng
-Thống kê:
-- Thành viên đóng nhiều nhất
-- Thành viên đóng ít nhất
-3.  Quản lý Khoản chi tiêu (Expense)
-- Thêm, sửa, xoá khoản chi tiêu
-- Liệt kê khoản chi theo ngày hoặc tháng
-- Gán khoản chi cho danh mục
-4.  Quản lý Danh mục chi tiêu (Category)
-- Các danh mục mặc định:
-- Ăn uống
-- Đi chơi/Giải trí
-- Hoạt động tập thể
-- Người dùng có thể thêm danh mục mới
-- Dùng để phân loại khoản chi tiêu
-5.  Tính năng nâng cao
-- Tính số dư quỹ:
-- Số dư = Tổng đóng góp - Tổng chi tiêu
-Thống kê:
-- Chi tiêu theo tháng
-- Chi tiêu theo danh mục
-- Báo cáo cuối tháng:
-- Dạng bảng (trên giao diện hoặc xuất file)
+## 📘 Giới thiệu
 
-III. YÊU CẦU VỀ DỮ LIỆU
-* Dữ liệu trong bộ nhớ:
-* Sử dụng các cấu trúc như: ArrayList, LinkedList, HashMap, Map, v.v.
-* Dữ liệu lưu trữ vĩnh viễn:
-* Được ghi xuống các file nhị phân có đuôi .dat
-* Mỗi loại dữ liệu có thể lưu riêng ra một file
+**Fund Manager** là ứng dụng web giúp các nhóm (bạn bè, lớp học, câu lạc bộ, tổ chức nhỏ, v.v.) quản lý chi tiêu chung một cách **minh bạch, chính xác và hiệu quả**.  
+Hệ thống giúp ghi nhận, phân loại và thống kê các giao dịch thu – chi, hạn chế sai sót và giảm mâu thuẫn trong quản lý tài chính nhóm.
+
+---
+
+## 🎯 Mục tiêu dự án
+
+- Tự động hóa việc ghi chép và phân chia chi tiêu nhóm.  
+- Tạo môi trường minh bạch và tiện lợi trong quản lý ngân sách.  
+- Hỗ trợ thống kê và báo cáo tài chính theo thời gian.  
+- Áp dụng **mô hình MVC** và **nguyên lý OOP** (Encapsulation, Inheritance, Polymorphism, Abstraction, SOLID).  
+- Nâng cao kỹ năng lập trình hướng đối tượng và teamwork thực tế.
+
+---
+
+## ⚙️ Công nghệ sử dụng
+
+| Thành phần | Công nghệ |
+|-------------|------------|
+| **Backend** | Spring Boot (Java) |
+| **Frontend** | Thymeleaf, HTML, CSS, Bootstrap 5 |
+| **CSDL** | MySQL (Cloud MySQL – Aiven) |
+| **ORM** | Spring Data JPA / Hibernate |
+| **Security** | Spring Security (phân quyền Admin – User) |
+| **Testing** | JUnit, MockMVC |
+
+---
+
+## 🧩 Kiến trúc hệ thống
+
+Dự án được xây dựng theo mô hình **MVC (Model – View – Controller)**:
+
+- **Model:** Các entity chính gồm `User`, `Group`, `Transaction`, `Member`, `Category`, `Invitation`.  
+- **View:** Giao diện động sử dụng **Thymeleaf** và **Bootstrap**.  
+- **Controller:** Xử lý yêu cầu người dùng, gọi dịch vụ (Service), tương tác với dữ liệu qua Repository.  
+
+Hệ thống có phân tầng rõ ràng:
+- **Controller Layer:** Tiếp nhận và xử lý yêu cầu từ người dùng.  
+- **Service Layer:** Chứa logic nghiệp vụ chính (tạo nhóm, thêm giao dịch, duyệt chi, tính toán số dư).  
+- **Repository Layer:** Thao tác dữ liệu với MySQL qua JPA.  
+- **View Layer:** Hiển thị kết quả, biểu đồ, báo cáo qua Thymeleaf.
+
+---
+
+## 🔑 Các chức năng chính
+
+### 👤 Quản lý người dùng
+- Đăng ký, đăng nhập, đổi mật khẩu.  
+- Phân quyền **Admin** và **User**.  
+- Cập nhật thông tin cá nhân, ảnh đại diện.
+
+### 👥 Quản lý nhóm
+- Tạo nhóm mới, chỉnh sửa, xóa nhóm.  
+- Gửi lời mời tham gia nhóm qua mã hoặc email.  
+- Quản lý danh sách thành viên, vai trò, số lượng.  
+- Theo dõi tổng quan quỹ nhóm và báo cáo.
+
+### 💰 Quản lý giao dịch
+- Thêm, sửa, xóa giao dịch thu – chi.  
+- Gắn danh mục (`Category`) cho giao dịch.  
+- Duyệt hoặc từ chối giao dịch (theo quyền Admin).  
+- Tự động cập nhật **tổng thu, tổng chi, số dư**.  
+- Gửi thông báo đến các thành viên khi có thay đổi.
+
+### 📊 Báo cáo & thống kê
+- Biểu đồ trực quan (Line / Bar / Pie).  
+- Báo cáo thu chi theo nhóm, thời gian, thành viên.  
+- Lọc dữ liệu và xuất báo cáo tổng hợp.  
+
+---
+
+## 🧠 Cơ sở dữ liệu
+
+### Cấu trúc chính
+
+| Bảng | Chức năng | Mối quan hệ |
+|------|------------|-------------|
+| `users` | Quản lý thông tin người dùng | 1 người có thể thuộc nhiều nhóm |
+| `groups` | Quản lý thông tin nhóm | 1 nhóm có nhiều thành viên và giao dịch |
+| `group_members` | Liên kết User ↔ Group | Quan hệ N–N |
+| `transactions` | Lưu giao dịch thu – chi | 1 nhóm có nhiều giao dịch |
+| `group_invites` | Quản lý lời mời tham gia nhóm | 1 nhóm có nhiều lời mời |
+
+Dữ liệu được truy xuất qua **Spring Data JPA**, tự động ánh xạ giữa entity và bảng MySQL.
+
+---
+
+## 🧭 Quy trình hoạt động
+
+1. **Người dùng thao tác** (đăng nhập, tạo nhóm, thêm giao dịch, xem báo cáo).  
+2. **Controller** tiếp nhận request và xác thực quyền.  
+3. **Service Layer** xử lý logic nghiệp vụ.  
+4. **Repository** truy xuất dữ liệu trong MySQL.  
+5. **View (Thymeleaf)** hiển thị kết quả và phản hồi người dùng.  
+
+Vòng lặp hoạt động khép kín giữa:  
+👉 *User → Controller → Service → Repository → View → User.*
+
+---
+
+## 💡 Bảo mật & xử lý lỗi
+
+- **Phân quyền rõ ràng:** Admin / User.  
+- **Xác thực dữ liệu đầu vào:** tránh nhập sai, thiếu thông tin.  
+- **Ghi log và rollback khi xảy ra lỗi.**  
+- **Thông báo lỗi thân thiện:** hiển thị hướng dẫn cụ thể.  
+- **Kết nối Cloud MySQL bảo mật bằng SSL.**
+
+---
+
+## 🧩 Các luồng chức năng tiêu biểu
+
+### 🔸 Quản lý nhóm
+1. Admin tạo nhóm (tên, mô tả, loại nhóm).  
+2. Hệ thống sinh mã tham gia tự động.  
+3. Gửi lời mời qua email hoặc QR code.  
+4. Thành viên nhập mã để tham gia nhóm.  
+
+### 🔸 Quản lý thu chi
 
 
-## SƠ ĐÔ KHỐI YÊU CẦU
-### 1.1 Sơ đồ lớp UML
+### 🔸 Quản lý thông báo
+1. Admin tạo giao dịch thu/chi.  
+2. Hệ thống cập nhật số dư nhóm.  
+3. Nếu cần, gửi yêu cầu phê duyệt đến Admin.  
+4. Giao dịch được duyệt / từ chối → quỹ nhóm được cập nhật.  
 
-![af9006db-f208-4a1d-8eb0-3a2ef9275470](https://github.com/user-attachments/assets/bd670b60-03b7-498a-bfb5-a0cd1f5fb10f)
+### 🔸 Báo cáo và thống kê
+- Tính **tổng thu**, **tổng chi**, **số dư**, hiển thị biểu đồ.  
+- Cho phép lọc dữ liệu theo nhóm, thời gian, loại giao dịch.  
 
-### 1.2 1.2 Sơ đồ trình tự UML
+---
 
-![291e4296-14f3-4501-a959-2889b4b7acf5](https://github.com/user-attachments/assets/7bf4ee60-e3ae-49ce-a9f1-a60cbe727ecd)
+## 🧠 Lợi ích của lập trình hướng đối tượng (OOP)
 
-### CÁC ĐỐI TƯỢNG CHÍNH ĐỂ MÔ TẢ ỨNG DỤNG 
- ### 1. User (Người dùng)
-## Vai trò của User:
-- Là lớp cơ sở (base class) đại diện cho tất cả các loại người dùng trong hệ thống.
-- Quản lý thông tin chung về người dùng như tài khoản, quyền truy cập.
-- Cung cấp các hành động cơ bản mà tất cả người dùng đều thực hiện được, như đăng nhập và đăng xuất.
-## Chức năng chính của User:
-- login()	Cho phép người dùng đăng nhập vào hệ thống bằng tài khoản và mật khẩu.
-- logout()	Cho phép người dùng đăng xuất khỏi hệ thống.
-- Thuộc tính chung	Lưu trữ thông tin cơ bản: userId, username, password, role (vai trò).
- 
- ### 2. Admin (Quản trị viên)
-## Vai trò:
-- Là người quản lý hệ thống, chịu trách nhiệm quản lý người dùng và phân quyền cho các vai trò khác như Treasurer (Thủ quỹ) hoặc Member (Thành viên).
-## Chức năng chính:
-- addUser(user: User) – Thêm người dùng mới vào hệ thống.
-- removeUser(userId: int) – Xóa người dùng khỏi hệ thống.
-- assignRole(userId: int, role: String) – Gán hoặc thay đổi vai trò của người dùng (ví dụ: từ Member thành Treasurer).
+- **Encapsulation:** Bảo vệ và kiểm soát dữ liệu.  
+- **Inheritance:** Tái sử dụng và mở rộng dễ dàng.  
+- **Polymorphism:** Linh hoạt trong xử lý nghiệp vụ.  
+- **Abstraction:** Giảm độ phức tạp, dễ bảo trì.  
+- **SOLID:** Cấu trúc rõ ràng, dễ mở rộng module.  
 
- ### 3. Treasurer (Thủ quỹ)
-## Vai trò:
-- Là người phụ trách tài chính của tổ chức. Có quyền kiểm soát các khoản chi tiêu và lập báo cáo tài chính.
-## Chức năng chính:
-- approveExpense(expenseId: int) – Phê duyệt các khoản chi tiêu trước khi được xử lý.
-- generateReport() – Tạo báo cáo tài chính dựa trên các giao dịch thu – chi.
+---
 
- ### 4. Member (Thành viên)
-## Vai trò:
-- Là thành viên của tổ chức, người có thể đóng góp tiền vào quỹ và theo dõi tình hình tài chính.
-## Chức năng chính:
-- makeContribution(amount: double) – Góp tiền vào quỹ chung.
-- viewBalance() – Xem số dư hiện tại của quỹ.
+## ⚠️ Hạn chế hiện tại
 
- ### 5. Fund (Quỹ tài chính)
-## Vai trò:
-- Là đối tượng trung tâm của hệ thống, nơi lưu trữ và quản lý số dư tiền mặt. Mọi giao dịch đều ảnh hưởng đến quỹ này.
-## Chức năng chính:
-- addContribution(contribution: Contribution) – Thêm đóng góp vào quỹ (do Member thực hiện).
-- processExpense(expense: Expense) – Trừ tiền quỹ khi có chi tiêu được phê duyệt.
-- getBalance() – Trả về số dư hiện tại của quỹ.
+- Giao diện chưa hỗ trợ **Dark Mode** và **đa ngôn ngữ**.  
+- Thiếu xác thực nâng cao (JWT, 2FA).  
+- Chưa tối ưu cho thiết bị di động.  
+- Phụ thuộc vào kết nối mạng (Cloud Database).  
+
+---
+
+## 🚀 Định hướng phát triển
+
+- Phát triển **ứng dụng di động (Flutter / React Native)**.  
+- Tích hợp **AI** để phân tích và dự báo chi tiêu.  
+- Bổ sung **JWT Authentication**, **2FA**, và **mã hóa dữ liệu**.  
+- Nâng cấp hệ thống **real-time notification** bằng WebSocket / Firebase.  
+- Bổ sung báo cáo nâng cao (xuất PDF/Excel).  
+- Tối ưu **UI/UX**, hỗ trợ nhiều ngôn ngữ.  
+
+---
+
+## 👨‍💻 Thành viên nhóm
+
+| Họ và tên | Vai trò | Tỉ lệ đóng góp |
+|------------|----------|----------------|
+| **Phạm Khương Duy** | Trưởng nhóm – Backend, Database, Kiểm thử | 65% |
+| **Dương Hồng Thái** | Frontend, UI/UX, Báo cáo, Demo | 35% |
+
+
