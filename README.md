@@ -145,3 +145,80 @@ project-root/
 ├─ mvnw
 ├─ mvnw.cmd
 └─ pom.xml
+'''
+
+#7️⃣ Mô tả các chức năng chính
+📂 Quản lý nhóm
+
+Tạo nhóm, đặt tên và mô tả.
+
+Xóa nhóm (chỉ admin có quyền).
+
+Xem danh sách nhóm đã tham gia.
+
+💵 Quản lý giao dịch
+
+Thêm, sửa, xóa, xem chi tiết giao dịch.
+
+Tự động tính tổng chi, thu của từng nhóm.
+
+Hiển thị biểu đồ chi tiêu theo loại.
+
+✉️ Mời và quản lý thành viên
+
+Gửi lời mời qua GroupInvite.
+
+Thành viên có thể chấp nhận hoặc từ chối lời mời.
+
+Admin có thể xóa thành viên khỏi nhóm.
+
+📊 Báo cáo tài chính
+
+Thống kê chi tiêu theo thành viên, loại giao dịch và thời gian.
+
+Hiển thị tổng đóng góp và phần chi tiêu từng thành viên.
+
+🧭 Sơ đồ UML & Kiến trúc hệ thống
+🎯 Use Case Diagram
+<img src="https://github.com/user-attachments/assets/7bd82403-e56c-480e-bace-b03883649d63" width="600" />
+🧩 Class Diagram
+<img src="https://github.com/user-attachments/assets/0d4a267b-a8fd-44d3-b9b6-ea3f944ae4ec" width="800" />
+🔁 Sequence Diagram
+CRUD cho User
+<img src="https://github.com/user-attachments/assets/ec888897-a68d-434a-9212-b47003e8958d" width="700" />
+CRUD cho GroupAdmin
+<img src="https://github.com/user-attachments/assets/8e4d5a96-87f8-4ec8-9306-7072968835cf" width="800" />
+CRUD cho Transaction
+<img src="https://github.com/user-attachments/assets/c116881a-5e95-4cf2-8572-46e3ba097461" width="1000" />
+⚙️ Cách chạy dự án
+
+1️1️⃣ Clone repository:
+
+git clone https://github.com/Pham-Duyy/00P_N04_25_26_KhuongDuy_HongThai.git
+
+
+2️⃣ Mở dự án bằng IDE (IntelliJ / Eclipse)
+3️⃣ Cấu hình database trong application.properties
+4️⃣ Chạy dự án:
+
+mvn spring-boot:run
+
+5️⃣ Truy cập trình duyệt:
+👉 http://localhost:8080
+
+🚧 Hạn chế & Định hướng phát triển
+⚠️ Hạn chế
+
+Giao diện chưa hỗ trợ Dark Mode và đa ngôn ngữ.
+
+Chưa có JWT Authentication hoặc 2FA.
+
+Phân quyền còn đơn giản (Admin, User).
+
+🌱 Định hướng
+
+Phát triển ứng dụng Mobile (Flutter/React Native).
+
+Ứng dụng AI để dự báo chi tiêu và tối ưu ngân sách.
+
+Cải tiến UI/UX, bổ sung Dashboard thông minh.
