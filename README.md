@@ -181,55 +181,49 @@ project-root/
 -Hiển thị tổng đóng góp và phần chi tiêu từng thành viên.
 
  ## 8.Sơ đồ UML & Kiến trúc hệ thống
-🎯 Use Case Diagram
+### Use Case Diagram
 <img src="https://github.com/user-attachments/assets/7bd82403-e56c-480e-bace-b03883649d63" width="600" />
----
-🧩 Class Diagram
+
+### Class Diagram
 <img src="https://github.com/user-attachments/assets/0d4a267b-a8fd-44d3-b9b6-ea3f944ae4ec" width="800" />
----
-🔁 Sequence Diagram
-CRUD cho User
+
+## Sequence Diagram
+### CRUD cho User
 <img src="https://github.com/user-attachments/assets/ec888897-a68d-434a-9212-b47003e8958d" width="700" />
----
-CRUD cho GroupAdmin
+
+### CRUD cho GroupAdmin
 <img src="https://github.com/user-attachments/assets/8e4d5a96-87f8-4ec8-9306-7072968835cf" width="800" />
----
-CRUD cho Transaction
+
+### CRUD cho Transaction
 <img src="https://github.com/user-attachments/assets/c116881a-5e95-4cf2-8572-46e3ba097461" width="1000" />
----
+
 
  ## 9. Cách chạy dự án
 
-1️1️⃣ Clone repository:
-
-git clone https://github.com/Pham-Duyy/00P_N04_25_26_KhuongDuy_HongThai.git
-
-
-2️⃣ Mở dự án bằng IDE (IntelliJ / Eclipse)
-3️⃣ Cấu hình database trong application.properties
-4️⃣ Chạy dự án:
-'''bash
-mvn spring-boot:run
-'''
+### Bước 1: Clone repository về máy
+```bash
+git clone https://github.com/PhamDuyVQ/VP_NM_25_26_KhuongDuy_HongThai.git
+```
 ---
-5️⃣ Truy cập trình duyệt:
-'''bash
-👉 http://localhost:8080
-'''
+
+### Bước 2: Mở dự án bằng IDE (IntelliJ / Eclipse)
+### Bước 3: Cấu hình database trong application.properties
+### Bước 4: Chạy dự án:
+```bash
+mvn spring-boot:run
+```
+---
+### Bước 5 : Truy cập trình duyệt:
+```bash
+ http://localhost:8080
+```
 
 ## 10. Hạn chế & Định hướng phát triển
-⚠️ Hạn chế
-
+### Hạn chế
 Giao diện chưa hỗ trợ Dark Mode và đa ngôn ngữ.
-
 Chưa có JWT Authentication hoặc 2FA.
-
 Phân quyền còn đơn giản (Admin, User).
-
-🌱 Định hướng
-
+### Định hướng
 Phát triển ứng dụng Mobile (Flutter/React Native).
-
 Ứng dụng AI để dự báo chi tiêu và tối ưu ngân sách.
-
 Cải tiến UI/UX, bổ sung Dashboard thông minh.
