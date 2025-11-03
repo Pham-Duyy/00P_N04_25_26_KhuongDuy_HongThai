@@ -12,7 +12,7 @@ public interface GroupService {
      * Lấy tất cả nhóm.
      */
     List<Group> findAll();
-
+void saveGroup(Group group);
     /**
      * Tìm kiếm nhóm theo tên.
      */

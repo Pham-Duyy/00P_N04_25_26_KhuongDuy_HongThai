@@ -29,7 +29,6 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.findByMembersId(userId);
     }
 
-    // Bổ sung: Tên rõ ràng cho controller mới
     @Override
     public List<Group> findGroupsByMemberId(Long userId) {
         return groupRepository.findByMembersId(userId);
@@ -88,10 +87,10 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.deleteById(groupId);
     }
 
-@Override
-public long countAllGroups() {
-    return groupRepository.count();
-}
+    @Override
+    public long countAllGroups() {
+        return groupRepository.count();
+    }
 
     @Override
     public List<User> getGroupMembers(Long groupId) {
@@ -122,5 +121,11 @@ public long countAllGroups() {
             group.getMembers().removeIf(user -> user.getId().equals(userId));
             groupRepository.save(group);
         }
+    }
+
+    // === BỔ SUNG: Cho phép cập nhật quỹ nhóm (dùng cho giao dịch chi/thu) ===
+    @Override
+    public void saveGroup(Group group) {
+        groupRepository.save(group);
     }
 }

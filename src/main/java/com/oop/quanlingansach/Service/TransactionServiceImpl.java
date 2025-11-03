@@ -7,6 +7,7 @@ import com.oop.quanlingansach.Repository.TransactionParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,5 +86,18 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionParticipant> findAllContributionsByUserId(Long userId) {
         return transactionParticipantRepository.findByUserId(userId);
+    }
+
+    // Tổng số tiền đã chi (từ các giao dịch chi của nhóm)
+    @Override
+    public BigDecimal getTotalExpenseByGroup(Long groupId) {
+        BigDecimal sum = transactionRepository.sumExpenseByGroup(groupId);
+        return sum != null ? sum : BigDecimal.ZERO;
+    }
+
+    // Lấy lịch sử các giao dịch chi của nhóm
+    @Override
+    public List<Transaction> getExpenseHistoryByGroup(Long groupId) {
+        return transactionRepository.findExpensesByGroup(groupId);
     }
 }

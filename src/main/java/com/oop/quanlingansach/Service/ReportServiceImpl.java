@@ -105,6 +105,7 @@ public class ReportServiceImpl implements ReportService {
         return result;
     }
 
+    // SỬA ĐÚNG: Trả về từng đóng góp (participant), không tổng hợp theo user!
     @Override
     public List<Map<String, Object>> getContributionStatistics(Long groupId) {
         List<TransactionParticipant> participants;
@@ -113,19 +114,23 @@ public class ReportServiceImpl implements ReportService {
         } else {
             participants = transactionParticipantRepository.findAll();
         }
-        Map<User, List<TransactionParticipant>> byUser = participants.stream()
-                .collect(Collectors.groupingBy(TransactionParticipant::getUser));
         List<Map<String, Object>> result = new ArrayList<>();
-        for (var entry : byUser.entrySet()) {
+        for (TransactionParticipant tp : participants) {
             Map<String, Object> map = new HashMap<>();
-            map.put("user", entry.getKey());
-            map.put("totalContributions", entry.getValue().size());
-            map.put("totalAmount", entry.getValue().stream()
-                    .map(TransactionParticipant::getAmount)
-                    .filter(Objects::nonNull)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add));
-            map.put("paidCount", entry.getValue().stream().filter(TransactionParticipant::isPaid).count());
-            map.put("unpaidCount", entry.getValue().stream().filter(tp -> !tp.isPaid()).count());
+            User user = tp.getUser();
+            Transaction transaction = tp.getTransaction();
+            String groupName = "";
+            if (transaction != null && transaction.getGroup() != null) {
+                groupName = transaction.getGroup().getName();
+            }
+            map.put("userName", user != null ? user.getFullName() : "");
+            map.put("userEmail", user != null ? user.getEmail() : "");
+            map.put("groupName", groupName);
+            map.put("transactionDescription", transaction != null ? transaction.getDescription() : "");
+            map.put("transactionType", transaction != null ? transaction.getType() : "");
+            map.put("amount", tp.getAmount());
+            map.put("status", tp.isPaid() ? "PAID" : "PENDING");
+            map.put("createdDate", transaction != null ? transaction.getCreatedDate() : null);
             result.add(map);
         }
         return result;

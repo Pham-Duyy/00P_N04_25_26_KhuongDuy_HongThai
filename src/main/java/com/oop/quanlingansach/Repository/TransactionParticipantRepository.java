@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -31,4 +32,12 @@ public interface TransactionParticipantRepository extends JpaRepository<Transact
     // Lấy tất cả participant theo groupId (thông qua transaction)
     @Query("SELECT tp FROM TransactionParticipant tp WHERE tp.transaction.group.id = :groupId")
     List<TransactionParticipant> findByGroupId(Long groupId);
+
+    // Tổng số tiền đã đóng góp thực tế (đã xác nhận) cho một nhóm
+    @Query("SELECT COALESCE(SUM(tp.amount), 0) FROM TransactionParticipant tp WHERE tp.transaction.group.id = :groupId AND tp.paid = true")
+    BigDecimal sumPaidAmountByGroup(Long groupId);
+
+    // Lấy tất cả đóng góp đã xác nhận của nhóm
+    @Query("SELECT tp FROM TransactionParticipant tp WHERE tp.transaction.group.id = :groupId AND tp.paid = true")
+    List<TransactionParticipant> findByGroupIdAndPaidTrue(Long groupId);
 }

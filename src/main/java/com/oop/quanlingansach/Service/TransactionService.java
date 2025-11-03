@@ -2,6 +2,7 @@ package com.oop.quanlingansach.Service;
 
 import com.oop.quanlingansach.Model.Transaction;
 import com.oop.quanlingansach.Model.TransactionParticipant;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,4 +46,10 @@ public interface TransactionService {
 
     // Lấy tất cả đóng góp (cả đã đóng và chưa đóng) của user
     List<TransactionParticipant> findAllContributionsByUserId(Long userId);
+
+    // Tổng số tiền đã chi (từ các giao dịch chi của nhóm)
+    BigDecimal getTotalExpenseByGroup(Long groupId);
+
+    // Lấy lịch sử các giao dịch chi của nhóm
+    List<Transaction> getExpenseHistoryByGroup(Long groupId);
 }

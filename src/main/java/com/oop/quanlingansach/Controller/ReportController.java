@@ -112,36 +112,87 @@ public class ReportController {
 
     // Báo cáo đóng góp của thành viên
     @GetMapping("/contributions")
-    public String contributionReport(HttpSession session, Model model,
-                                     @RequestParam(required = false) Long groupId) {
+public String contributionReport(HttpSession session, Model model,
+                                 @RequestParam(required = false) Long groupId) {
+    User user = (User) session.getAttribute("user");
+    if (user == null || user.getRole() != User.Role.ADMIN) {
+        return "redirect:/login";
+    }
+
+    List<Map<String, Object>> contributionStatistics = reportService.getContributionStatistics(groupId);
+
+    // Tính tổng tiền ở đây
+    BigDecimal totalAmount = BigDecimal.ZERO;
+    for (Map<String, Object> stat : contributionStatistics) {
+        Object amountObj = stat.get("amount");
+        if (amountObj instanceof BigDecimal) {
+            totalAmount = totalAmount.add((BigDecimal) amountObj);
+        } else if (amountObj != null) {
+            try {
+                totalAmount = totalAmount.add(new BigDecimal(amountObj.toString()));
+            } catch (Exception ignored) {}
+        }
+    }
+
+    var groups = groupService.findAll();
+
+    model.addAttribute("contributionStatistics", contributionStatistics);
+    model.addAttribute("groups", groups);
+    model.addAttribute("selectedGroupId", groupId);
+    model.addAttribute("totalContributionAmount", totalAmount); // truyền ra view
+    return "admin/reports/contributions";
+}
+
+// ...existing code...
+    // Báo cáo thu chi chi tiết theo nhóm
+    @GetMapping("/expenses")
+    public String groupExpenseReport(
+            HttpSession session,
+            Model model,
+            @RequestParam(required = false) Long groupId
+    ) {
         User user = (User) session.getAttribute("user");
         if (user == null || user.getRole() != User.Role.ADMIN) {
             return "redirect:/login";
         }
 
-        List<Map<String, Object>> contributionStatistics = reportService.getContributionStatistics(groupId);
-
+        // Lấy danh sách nhóm để chọn lọc
         var groups = groupService.findAll();
-
-        model.addAttribute("contributionStatistics", contributionStatistics);
         model.addAttribute("groups", groups);
         model.addAttribute("selectedGroupId", groupId);
-        return "admin/reports/contributions";
-    }
 
-    // Báo cáo thành viên hoạt động
-    @GetMapping("/users")
-    public String userActivityReport(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != User.Role.ADMIN) {
-            return "redirect:/login";
+        if (groupId != null) {
+            // Lấy thông tin nhóm
+            var group = groupService.findById(groupId);
+            model.addAttribute("group", group);
+
+            // Tổng quỹ mục tiêu ban đầu (nếu có)
+            model.addAttribute("targetAmount", group.getTargetAmount());
+
+            // Tổng số tiền thành viên đã đóng góp thực tế (đã xác nhận)
+            BigDecimal totalContributed = transactionParticipantService.getTotalPaidAmountByGroup(groupId);
+            model.addAttribute("totalContributed", totalContributed);
+
+            // Tổng số tiền đã chi (từ các giao dịch chi của nhóm)
+            BigDecimal totalExpense = transactionService.getTotalExpenseByGroup(groupId);
+            model.addAttribute("totalExpense", totalExpense);
+
+            // Số dư quỹ hiện tại = tổng đóng góp thực tế - tổng chi
+            BigDecimal currentFund = totalContributed.subtract(totalExpense != null ? totalExpense : BigDecimal.ZERO);
+            model.addAttribute("currentFund", currentFund);
+
+            // Lịch sử chi (danh sách giao dịch chi)
+            var expenseHistory = transactionService.getExpenseHistoryByGroup(groupId);
+            model.addAttribute("expenseHistory", expenseHistory);
+
+            // Lịch sử đóng góp (danh sách các đóng góp đã xác nhận)
+            var contributionHistory = transactionParticipantService.getPaidContributionsByGroup(groupId);
+            model.addAttribute("contributionHistory", contributionHistory);
         }
 
-        List<Map<String, Object>> userActivityStatistics = reportService.getUserActivityStatistics();
-
-        model.addAttribute("userActivityStatistics", userActivityStatistics);
-        return "admin/reports/users";
+        return "admin/reports/expenses";
     }
+// ...existing code...
 
     // API endpoint để lấy dữ liệu biểu đồ (JSON)
     @GetMapping("/api/chart-data")

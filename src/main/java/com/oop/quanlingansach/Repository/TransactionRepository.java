@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -22,5 +23,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     // Đếm số giao dịch theo loại (INCOME/EXPENSE)
     long countByType(String type);
-    
+
+    // Tổng số tiền đã chi (từ các giao dịch chi của nhóm)
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.group.id = :groupId AND t.type = 'EXPENSE'")
+    BigDecimal sumExpenseByGroup(Long groupId);
+
+    // Lấy lịch sử các giao dịch chi của nhóm (mới nhất trước)
+    @Query("SELECT t FROM Transaction t WHERE t.group.id = :groupId AND t.type = 'EXPENSE' ORDER BY t.createdDate DESC")
+    List<Transaction> findExpensesByGroup(Long groupId);
 }
