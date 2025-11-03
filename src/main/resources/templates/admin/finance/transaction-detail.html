@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết giao dịch - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .navbar {
+            background: rgba(44, 62, 80, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border: none;
+        }
+
+        .card-header-custom h3 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .transaction-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .transaction-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--success-color);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .qr-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .qr-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            border: 3px solid #e9ecef;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .bank-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .participants-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .table thead th {
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.01);
+        }
+
+        .badge-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .badge-paid {
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+            color: white;
+        }
+
+        .badge-unpaid {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            color: white;
+        }
+
+        .status-icon {
+            margin-right: 0.5rem;
+        }
+
+        .info-item {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+        }
+
+        .stats-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .transaction-amount {
+                font-size: 2rem;
+            }
+            .qr-image {
+                width: 150px;
+                height: 150px;
+            }
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin">
+                <i class="fas fa-shield-alt me-2"></i>
+                Admin Dashboard
+            </a>
+            <div class="ms-auto">
+                <a href="/admin/finance/transactions" class="btn btn-back">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Main Card -->
+        <div class="main-card fade-in">
+            <!-- Header -->
+            <div class="card-header-custom">
+                <h3>
+                    <i class="fas fa-file-invoice-dollar me-3"></i>
+                    Chi tiết giao dịch
+                </h3>
+                <p class="mb-0 opacity-75">Xem thông tin chi tiết và trạng thái thanh toán của thành viên</p>
+            </div>
+
+            <div class="p-4">
+                <!-- Transaction Info & QR -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="transaction-info">
+                            <h4 class="fw-bold mb-3" th:text="${transaction.title}">Tên giao dịch</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <div class="info-label">Nhóm</div>
+                                        <div class="info-value">
+                                            <span class="badge bg-primary fs-6" th:text="${transaction.group.name}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <div class="info-label">Loại giao dịch</div>
+                                        <div class="info-value">
+                                            <span th:if="${transaction.type == 'INCOME'}" class="badge bg-success fs-6">
+                                                <i class="fas fa-arrow-up me-1"></i>Thu
+                                            </span>
+                                            <span th:if="${transaction.type == 'EXPENSE'}" class="badge bg-danger fs-6">
+                                                <i class="fas fa-arrow-down me-1"></i>Chi
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">Số tiền</div>
+                                <div class="transaction-amount">
+                                    <span th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT')}"></span> VNĐ
+                                </div>
+                            </div>
+
+                            <div class="info-item" th:if="${transaction.description}">
+                                <div class="info-label">Mô tả</div>
+                                <div class="info-value" th:text="${transaction.description}"></div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">Ngày tạo</div>
+                                <div class="info-value">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <span th:text="${#temporals.format(transaction.createdDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="qr-section">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-qrcode me-2"></i>QR Thanh toán
+                            </h5>
+                            <img src="/img/anh QR.jpg" alt="QR Techcombank" class="qr-image mb-3">
+                            
+                            <div class="bank-info text-start">
+                                <div class="mb-2">
+                                    <strong><i class="fas fa-university me-2"></i>Ngân hàng:</strong>
+                                    <span class="text-primary">Techcombank</span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong><i class="fas fa-credit-card me-2"></i>STK:</strong>
+                                    <span class="text-primary fw-bold">9966504911</span>
+                                </div>
+                                <div class="mb-0">
+                                    <strong><i class="fas fa-user me-2"></i>Chủ TK:</strong>
+                                    <span class="text-primary">PHAM KHUONG DUY</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="stats-summary">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number text-primary" th:text="${totalParticipants ?: 0}">0</div>
+                                <div class="stat-label">Tổng thành viên</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number text-success" th:text="${paidCount ?: 0}">0</div>
+                                <div class="stat-label">Đã thanh toán</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number text-danger" th:text="${unpaidCount ?: 0}">0</div>
+                                <div class="stat-label">Chưa thanh toán</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number text-info">
+                                    <span th:text="${paidPercentage ?: 0}">0</span>%
+                                </div>
+                                <div class="stat-label">Tỷ lệ hoàn thành</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participants Table -->
+                <div class="participants-table">
+                    <div class="table-header p-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            Danh sách thành viên & trạng thái thanh toán
+                        </h5>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-header">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">Họ tên</th>
+                                    <th width="30%">Email</th>
+                                    <th width="20%">Ngày xác nhận</th>
+                                    <th width="20%">Trạng thái</th>
+                                </tr>
+                            </thead>
+                           <!-- ...existing code... -->
+<tbody>
+    <tr th:each="participant, idx : ${participants}" class="align-middle">
+        <td>
+            <span class="fw-bold text-muted" th:text="${idx.index + 1}"></span>
+        </td>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                     style="width: 35px; height: 35px; font-size: 0.8rem;">
+                    <span th:text="${participant.user.fullName != null ? #strings.substring(participant.user.fullName, 0, 1).toUpperCase() : #strings.substring(participant.user.username, 0, 1).toUpperCase()}"></span>
+                </div>
+                <span class="fw-bold" th:text="${participant.user.fullName != null ? participant.user.fullName : participant.user.username}"></span>
+            </div>
+        </td>
+        <td>
+            <span class="text-muted" th:text="${participant.user.email}"></span>
+        </td>
+        <td>
+            <span th:if="${participant.paidDate != null}" 
+                  class="text-success fw-bold"
+                  th:text="${#temporals.format(participant.paidDate, 'dd/MM/yyyy HH:mm')}"></span>
+            <span th:if="${participant.paidDate == null}" 
+                  class="text-muted fst-italic">Chưa xác nhận</span>
+        </td>
+        <td>
+            <span th:if="${participant.paid}" class="badge badge-status badge-paid">
+                <i class="fas fa-check-circle status-icon"></i>Đã thanh toán
+            </span>
+            <span th:if="${!participant.paid}" class="badge badge-status badge-unpaid">
+                <i class="fas fa-times-circle status-icon"></i>Chưa thanh toán
+            </span>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(participants)}">
+        <td colspan="5" class="text-center text-muted py-4">
+            <i class="fas fa-users-slash fa-2x mb-2"></i>
+            <div>Không có thành viên nào tham gia giao dịch này</div>
+        </td>
+    </tr>
+</tbody>
+<!-- ...existing code... -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation cho các số thống kê
+        document.addEventListener('DOMContentLoaded', function() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const finalValue = parseInt(stat.textContent) || 0;
+                let currentValue = 0;
+                const increment = finalValue / 50;
+                
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        stat.textContent = finalValue + (stat.textContent.includes('%') ? '%' : '');
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(currentValue) + (stat.textContent.includes('%') ? '%' : '');
+                    }
+                }, 30);
+            });
+        });
+    </script>
+</body>
+</html>

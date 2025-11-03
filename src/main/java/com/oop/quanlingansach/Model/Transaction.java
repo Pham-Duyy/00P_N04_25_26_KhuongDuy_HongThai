@@ -3,6 +3,7 @@ package com.oop.quanlingansach.Model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -43,17 +44,31 @@ public class Transaction {
 
     @Column(nullable = false, length = 20)
     private String status; // "ACTIVE", "COMPLETED", "CANCELLED"
-@ManyToOne(fetch = FetchType.LAZY)
-@JoinColumn(name = "target_user_id")
-private User targetUser;
 
-public User getTargetUser() {
-    return targetUser;
-}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_user_id")
+    private User targetUser;
 
-public void setTargetUser(User targetUser) {
-    this.targetUser = targetUser;
-}
+    // Liên kết tới các participant (thành viên tham gia giao dịch)
+    @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY)
+    private List<TransactionParticipant> participants;
+
+    public User getTargetUser() {
+        return targetUser;
+    }
+
+    public void setTargetUser(User targetUser) {
+        this.targetUser = targetUser;
+    }
+
+    public List<TransactionParticipant> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<TransactionParticipant> participants) {
+        this.participants = participants;
+    }
+
     // Constructors
     public Transaction() {}
 

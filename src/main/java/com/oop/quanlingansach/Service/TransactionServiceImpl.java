@@ -44,22 +44,31 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByCreatedById(userId);
     }
 
-    // Lấy danh sách giao dịch thu cần đóng của user
     @Override
     public List<Transaction> findIncomeTransactionsForUser(Long userId) {
         return transactionRepository.findIncomeTransactionsForUser(userId);
     }
 
-    // Lấy danh sách giao dịch chi nhận thông báo của user
     @Override
     public List<Transaction> findExpenseNotificationsForUser(Long userId) {
         return transactionRepository.findExpenseNotificationsForUser(userId);
     }
 
-    // Xác nhận đã chuyển tiền cho giao dịch thu
     @Override
     public void confirmPayment(Long transactionId, Long userId) {
         // TODO: Cập nhật trạng thái xác nhận thanh toán cho user với transactionId
         // Tùy vào thiết kế bảng dữ liệu của bạn
+    }
+
+    // Đếm tổng số giao dịch
+    @Override
+    public long countAll() {
+        return transactionRepository.count();
+    }
+
+    // Đếm số giao dịch theo loại (INCOME/EXPENSE)
+    @Override
+    public long countByType(String type) {
+        return transactionRepository.countByType(type);
     }
 }

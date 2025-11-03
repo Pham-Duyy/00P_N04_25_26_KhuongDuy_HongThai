@@ -32,4 +32,10 @@ public interface TransactionService {
 
     // Xóa giao dịch
     void deleteById(Long id);
+
+    // Đếm tổng số giao dịch
+    long countAll();
+
+    // Đếm số giao dịch theo loại (INCOME/EXPENSE)
+    long countByType(String type);
 }

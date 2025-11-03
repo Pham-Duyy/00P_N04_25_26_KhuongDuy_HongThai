@@ -59,7 +59,7 @@
             <a href="/admin/dashboard" class="btn btn-outline-light me-2">
                 <i class="fas fa-arrow-left"></i> Quay lại
             </a>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#createTransactionModal">
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#createTransactionModal" id="btnCreateTransaction">
                 <i class="fas fa-plus"></i> Tạo giao dịch mới
             </button>
         </div>
@@ -202,15 +202,21 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a th:href="@{/admin/finance/transactions/{id}/detail(id=${transaction.id})}" 
+                                    <a th:href="@{/admin/finance/transactions/detail/{id}(id=${transaction.id})}" 
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-warning"
-                                            data-bs-toggle="modal" data-bs-target="#editTransactionModal"
-                                            th:attr="onclick=|editTransaction('${transaction.id}')|">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+<button type="button" class="btn btn-sm btn-outline-warning btn-edit-transaction"
+        data-bs-toggle="modal" data-bs-target="#createTransactionModal"
+        th:attr="data-id=${transaction.id}, 
+                 data-title=${transaction.title}, 
+                 data-amount=${transaction.amount}, 
+                 data-type=${transaction.type}, 
+                 data-group=${transaction.group.id}, 
+                 data-description=${transaction.description}, 
+                 data-duedate=${transaction.dueDate != null ? #temporals.format(transaction.dueDate, &quot;yyyy-MM-dd'T'HH:mm&quot;) : ''}">
+    <i class="fas fa-edit"></i>
+</button>
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                             th:attr="onclick=|deleteTransaction('${transaction.id}', '${transaction.title}')|">
                                         <i class="fas fa-trash"></i>
@@ -225,13 +231,13 @@
     </div>
 </div>
 
-<!-- Modal tạo giao dịch mới -->
+<!-- Modal tạo/chỉnh sửa giao dịch -->
 <div class="modal fade" id="createTransactionModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <form th:action="@{/admin/finance/transactions/create}" method="post">
+            <form id="transactionForm" th:action="@{/admin/finance/transactions/create}" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title">
+                    <h5 class="modal-title" id="transactionModalTitle">
                         <i class="fas fa-plus"></i> Tạo giao dịch mới
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -303,33 +309,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-save"></i> Tạo giao dịch
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal chỉnh sửa giao dịch -->
-<div class="modal fade" id="editTransactionModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <form id="editTransactionForm" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit"></i> Chỉnh sửa giao dịch
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="editTransactionContent">
-                    <!-- Nội dung sẽ được load bằng JavaScript -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-save"></i> Cập nhật
+                    <button type="submit" class="btn btn-warning" id="transactionSubmitBtn">
+                        <i class="fas fa-save"></i> <span id="transactionSubmitText">Tạo giao dịch</span>
                     </button>
                 </div>
             </form>
@@ -399,79 +380,6 @@
         });
     });
 
-    // Chỉnh sửa giao dịch - load form giống form tạo
-    function editTransaction(transactionId) {
-        fetch(`/admin/finance/transactions/${transactionId}/edit-form`)
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('editTransactionContent').innerHTML = html;
-                document.getElementById('editTransactionForm').action = `/admin/finance/transactions/${transactionId}/update`;
-                // Khởi tạo lại event listeners cho form edit
-                initEditFormEvents();
-            })
-            .catch(error => {
-                document.getElementById('editTransactionContent').innerHTML = '<div class="alert alert-danger">Không tải được form chỉnh sửa!</div>';
-                console.error('Error loading transaction edit form:', error);
-            });
-    }
-
-    // Khởi tạo events cho form edit (tương tự form create)
-    function initEditFormEvents() {
-        const editTypeSelect = document.getElementById('editType');
-        const editGroupSelect = document.getElementById('editGroupId');
-        const editTargetUserDiv = document.getElementById('editTargetUserDiv');
-        const editTargetUserSelect = document.getElementById('editTargetUserId');
-
-        if (editTypeSelect) {
-            editTypeSelect.addEventListener('change', function() {
-                if (this.value === 'INCOME') {
-                    editTargetUserDiv.style.display = 'block';
-                    loadEditGroupMembers();
-                } else {
-                    editTargetUserDiv.style.display = 'none';
-                }
-            });
-        }
-
-        if (editGroupSelect) {
-            editGroupSelect.addEventListener('change', function() {
-                if (editTypeSelect.value === 'INCOME') {
-                    loadEditGroupMembers();
-                }
-            });
-        }
-    }
-
-    // Load members cho form edit
-    function loadEditGroupMembers() {
-        const groupId = document.getElementById('editGroupId').value;
-        const targetUserSelect = document.getElementById('editTargetUserId');
-        
-        if (!groupId) {
-            targetUserSelect.innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
-            return;
-        }
-
-        fetch(`/admin/finance/transactions/group/${groupId}/members`)
-            .then(response => response.json())
-            .then(members => {
-                const currentSelected = Array.from(targetUserSelect.selectedOptions).map(o => o.value);
-                targetUserSelect.innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
-                members.forEach(member => {
-                    const option = document.createElement('option');
-                    option.value = member.id;
-                    option.text = member.fullName || member.username;
-                    if (currentSelected.includes(member.id.toString())) {
-                        option.selected = true;
-                    }
-                    targetUserSelect.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Error loading members for edit:', error);
-            });
-    }
-
     // Xóa giao dịch
     function deleteTransaction(transactionId, title) {
         if (confirm(`Bạn chắc chắn muốn xóa giao dịch "${title}"?`)) {
@@ -482,6 +390,54 @@
             form.submit();
         }
     }
+
+    // --- Chỉnh sửa giao dịch dùng chung modal với tạo mới ---
+    document.addEventListener('DOMContentLoaded', function() {
+        // Khi nhấn nút tạo mới
+        document.getElementById('btnCreateTransaction').addEventListener('click', function() {
+            resetTransactionModal();
+        });
+
+        // Khi nhấn nút chỉnh sửa
+        document.querySelectorAll('.btn-edit-transaction').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                // Đổi title, action, button text
+                document.getElementById('transactionModalTitle').innerHTML = '<i class="fas fa-edit"></i> Chỉnh sửa giao dịch';
+                document.getElementById('transactionForm').action = '/admin/finance/transactions/' + (btn.getAttribute('data-id') || '') + '/update';
+                document.getElementById('transactionSubmitText').innerText = 'Cập nhật';
+
+                // Điền dữ liệu
+                document.getElementById('title').value = btn.getAttribute('data-title') || '';
+                document.getElementById('amount').value = btn.getAttribute('data-amount') || '';
+                document.getElementById('type').value = btn.getAttribute('data-type') || '';
+                document.getElementById('groupId').value = btn.getAttribute('data-group') || '';
+                document.getElementById('description').value = btn.getAttribute('data-description') || '';
+                document.getElementById('dueDate').value = btn.getAttribute('data-duedate') || '';
+
+                // Hiện/ẩn targetUserDiv nếu là INCOME
+                if (btn.getAttribute('data-type') === 'INCOME') {
+                    document.getElementById('targetUserDiv').style.display = 'block';
+                    loadGroupMembers();
+                } else {
+                    document.getElementById('targetUserDiv').style.display = 'none';
+                }
+            });
+        });
+
+        // Khi đóng modal thì reset lại về trạng thái tạo mới
+        document.getElementById('createTransactionModal').addEventListener('hidden.bs.modal', function () {
+            resetTransactionModal();
+        });
+
+        function resetTransactionModal() {
+            document.getElementById('transactionModalTitle').innerHTML = '<i class="fas fa-plus"></i> Tạo giao dịch mới';
+            document.getElementById('transactionForm').action = '/admin/finance/transactions/create';
+            document.getElementById('transactionSubmitText').innerText = 'Tạo giao dịch';
+            document.getElementById('transactionForm').reset();
+            document.getElementById('targetUserDiv').style.display = 'none';
+            document.getElementById('targetUserId').innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+        }
+    });
 </script>
 </body>
 </html>

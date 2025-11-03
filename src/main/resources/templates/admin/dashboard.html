@@ -322,33 +322,34 @@
                     </div>
 
                     <!-- Stats Row -->
-                    <div class="row stats-row">
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="stat-number text-primary">1,234</div>
-                                <div class="stat-label">Tổng người dùng</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="stat-number text-success">89</div>
-                                <div class="stat-label">Nhóm hoạt động</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="stat-number text-warning">15.8M</div>
-                                <div class="stat-label">Tổng giao dịch</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="stat-number text-info">98.5%</div>
-                                <div class="stat-label">Uptime hệ thống</div>
-                            </div>
-                        </div>
-                    </div>
-
+                    <!-- ...existing code... -->
+<div class="row stats-row">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-number text-primary" th:text="${totalUsers != null ? totalUsers : 0}">0</div>
+            <div class="stat-label">Tổng người dùng</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-number text-success" th:text="${activeGroups != null ? activeGroups : 0}">0</div>
+            <div class="stat-label">Tổng số nhóm</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-number text-info" th:text="${totalIncomeTransactions != null ? totalIncomeTransactions : 0}">0</div>
+            <div class="stat-label">Số giao dịch thu</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-number text-warning" th:text="${totalExpenseTransactions != null ? totalExpenseTransactions : 0}">0</div>
+            <div class="stat-label">Số giao dịch chi</div>
+        </div>
+    </div>
+</div>
+<!-- ...existing code... -->
                     <!-- Admin Cards -->
                     <div class="row">
                         <!-- Đã bỏ card Quản lý người dùng -->

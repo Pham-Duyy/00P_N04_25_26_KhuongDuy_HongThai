@@ -13,6 +13,9 @@ public interface UserService {
     Optional<User> getUserById(Long id);
     Optional<User> updateUser(Long id, User userDetails);
     boolean changePassword(Long id, String oldPassword, String newPassword);
-    Optional<User> findById(Long id); // Đã chuẩn, giữ lại
+    Optional<User> findById(Long id);
     Optional<User> findByUsername(String username);
+
+    // Thêm phương thức đếm số user theo vai trò
+    long countByRole(User.Role role);
 }

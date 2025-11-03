@@ -2,6 +2,7 @@ package com.oop.quanlingansach.Controller;
 
 import com.oop.quanlingansach.Model.Group;
 import com.oop.quanlingansach.Model.Transaction;
+import com.oop.quanlingansach.Model.TransactionParticipant;
 import com.oop.quanlingansach.Model.User;
 import com.oop.quanlingansach.Service.GroupService;
 import com.oop.quanlingansach.Service.TransactionService;
@@ -123,13 +124,26 @@ public String createTransaction(
     return "redirect:/admin/finance/transactions";
 }
 
-    // Xem chi tiết một giao dịch
-    @GetMapping("/{transactionId}/detail")
-    public String viewTransaction(@PathVariable Long transactionId, Model model) {
-        Transaction tx = transactionService.getTransactionById(transactionId).orElse(null);
-        model.addAttribute("transaction", tx);
-        return "admin/finance/transaction-detail";
-    }
+  // Xem chi tiết một giao dịch
+@GetMapping("/detail/{transactionId}")
+public String viewTransaction(@PathVariable Long transactionId, Model model) {
+    Transaction tx = transactionService.getTransactionById(transactionId).orElse(null);
+    model.addAttribute("transaction", tx);
+
+    List<TransactionParticipant> participantEntities = tx != null && tx.getParticipants() != null ? tx.getParticipants() : List.of();
+
+    long paidCount = participantEntities.stream().filter(TransactionParticipant::isPaid).count();
+    long unpaidCount = participantEntities.size() - paidCount;
+    int paidPercentage = participantEntities.size() > 0 ? (int) (paidCount * 100 / participantEntities.size()) : 0;
+
+    model.addAttribute("participants", participantEntities); // Truyền participantEntities để view lấy trạng thái paid, paidDate
+    model.addAttribute("totalParticipants", participantEntities.size());
+    model.addAttribute("paidCount", paidCount);
+    model.addAttribute("unpaidCount", unpaidCount);
+    model.addAttribute("paidPercentage", paidPercentage);
+
+    return "admin/finance/transaction-detail";
+}
 
     // Xóa giao dịch
     @PostMapping("/{transactionId}/delete")
