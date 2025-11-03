@@ -18,6 +18,13 @@ Hệ thống giúp ghi nhận, phân loại và thống kê các giao dịch thu
 
 ---
 
+## 👨‍💻 Thành viên nhóm
+
+| Họ và tên | Vai trò | Tỉ lệ đóng góp |
+|------------|----------|----------------|
+| **Phạm Khương Duy** | Trưởng nhóm – Backend, Database, Kiểm thử | 65% |
+| **Dương Hồng Thái** | Frontend, UI/UX, Báo cáo, Demo | 35% |
+
 ## ⚙️ Công nghệ sử dụng
 
 | Thành phần | Công nghệ |
@@ -122,7 +129,11 @@ Vòng lặp hoạt động khép kín giữa:
 4. Thành viên nhập mã để tham gia nhóm.  
 
 ### 🔸 Quản lý thu chi
-
+1. Thêm, sửa, xóa giao dịch thu hoặc chi.  
+2. Gán giao dịch cho nhóm, người thực hiện, danh mục.  
+3. Tính toán tự động **tổng thu, tổng chi, số dư**.  
+4. Phê duyệt giao dịch (Admin duyệt, thành viên gửi yêu cầu).  
+5. Hiển thị danh sách giao dịch và chi tiết từng giao dịch.
 
 ### 🔸 Quản lý thông báo
 1. Admin tạo giao dịch thu/chi.  
@@ -165,12 +176,5 @@ Vòng lặp hoạt động khép kín giữa:
 - Tối ưu **UI/UX**, hỗ trợ nhiều ngôn ngữ.  
 
 ---
-
-## 👨‍💻 Thành viên nhóm
-
-| Họ và tên | Vai trò | Tỉ lệ đóng góp |
-|------------|----------|----------------|
-| **Phạm Khương Duy** | Trưởng nhóm – Backend, Database, Kiểm thử | 65% |
-| **Dương Hồng Thái** | Frontend, UI/UX, Báo cáo, Demo | 35% |
 
 
