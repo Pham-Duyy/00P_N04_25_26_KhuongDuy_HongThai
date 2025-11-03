@@ -1,37 +1,37 @@
 # 00P_N04_25_26_KhuongDuy_HongThai
 # 💰 Fund Manager – Ứng Dụng Quản Lý Ngân Sách Nhóm
 
-## 🧩 Giới thiệu
+##  Giới thiệu
 *Fund Manager* là ứng dụng web giúp người dùng quản lý thu chi nhóm một cách minh bạch, tiện lợi và hiệu quả.  
 Ứng dụng cho phép tạo nhóm, gửi lời mời, ghi nhận giao dịch, thống kê chi tiêu, và theo dõi quỹ nhóm theo thời gian thực.
 
 ---
 
-## 🚀 Tính năng chính
+## Tính năng chính
 
-### 👑 Dành cho Admin
+###  Dành cho Admin
 - Tạo và quản lý nhóm, gửi lời mời thành viên.  
 - Quản lý giao dịch thu/chi, phê duyệt hoặc từ chối giao dịch.  
 - Theo dõi báo cáo tổng hợp, thống kê và biểu đồ tài chính.  
 - Quản lý thành viên và phân quyền người dùng.  
 
-### 👥 Dành cho User
+###  Dành cho User
 - Đăng ký, đăng nhập, tham gia nhóm qua mã hoặc lời mời.  
 - Theo dõi giao dịch, đóng góp, và xem lịch sử thu chi cá nhân.  
 - Xem báo cáo tổng quan và quản lý thông tin cá nhân.  
 
 ---
 
-## 🧱 Kiến trúc hệ thống
+##  Kiến trúc hệ thống
 Ứng dụng được thiết kế theo mô hình *MVC (Model – View – Controller)* giúp tách biệt logic xử lý, giao diện và dữ liệu.
 ---
 
-## 👨‍💻 Thành Viên Nhóm
+##  Thành Viên Nhóm
 
 | Họ và tên | MSV | Vai trò |
 |------------|------|----------|
-| *Phạm Khương Duy* | 23010743 | Trưởng nhóm – Backend, Database, Kiểm thử |
-| *Dương Hồng Thái* | 23010326 | Frontend, UI/UX, Báo cáo, Demo |
+| *Phạm Khương Duy* | 23010743 | Trưởng nhóm – Frontend, Backend, Database, Kiểm thử |
+| *Dương Hồng Thái* | 23010326 | Kiểm thử, UI/UX, Báo cáo, Demo |
 
 
 - *Model:* Lưu trữ dữ liệu người dùng, nhóm, giao dịch.  
@@ -40,7 +40,7 @@
 
 ---
 
-## 🧰 Công nghệ sử dụng
+## Công nghệ sử dụng
 
 | Công nghệ / Công cụ | Vai trò |
 |----------------------|---------|
@@ -54,7 +54,7 @@
 
 ---
 
-## 🗂️ Cấu trúc thư mục dự án
+##  Cấu trúc thư mục dự án
 
 project-root/
 │
@@ -160,7 +160,7 @@ project-root/
 
 ---
 
-## 🧮 Các chức năng CRUD chính
+## Các chức năng CRUD chính
 
 | Đối tượng | Create | Read | Update | Delete |
 |------------|---------|-------|---------|---------|
@@ -169,14 +169,44 @@ project-root/
 | *Transaction* | Tạo giao dịch thu/chi | Xem chi tiết, thống kê | Cập nhật giao dịch | Xóa giao dịch |
 | *Member* | Gửi yêu cầu tham gia | Duyệt hoặc từ chối lời mời | Cập nhật trạng thái | Rời nhóm |
 
+## Mô tả các chức năng chính 
+
+# Quản lý nhóm
+
+Tạo nhóm, đặt tên và mô tả.
+
+Xóa nhóm (chỉ admin có quyền).
+
+Xem danh sách nhóm đã tham gia.
+
+# Quản lý giao dịch
+
+Thêm, sửa, xóa, xem chi tiết giao dịch.
+
+Tự động tính tổng chi, thu của từng nhóm.
+
+Hiển thị biểu đồ chi tiêu theo loại.
+
+# Mời và quản lý thành viên
+
+Gửi lời mời qua GroupInvite.
+
+Thành viên có thể chấp nhận hoặc từ chối lời mời.
+
+Admin có thể xóa thành viên khỏi nhóm.
+
+# Báo cáo tài chính
+
+Thống kê chi tiêu theo thành viên, loại giao dịch và thời gian.
+Thành viên đóng góp bao nhiêu 
+
 ---
 
 ## 🧭 Sơ đồ UML & Kiến trúc hệ thống
 
 ### 🎯 Use Case Diagram
 Mô tả các tương tác chính giữa *User*, *Admin*, và *Hệ thống*.
-
-![Use Case Diagram](assets/image-1.png)
+<img width="599" height="613" alt="Screenshot 2025-11-03 222206" src="https://github.com/user-attachments/assets/7bd82403-e56c-480e-bace-b03883649d63" />
 
 ---
 
@@ -184,32 +214,26 @@ Mô tả các tương tác chính giữa *User*, *Admin*, và *Hệ thống*.
 Mô tả mối quan hệ giữa các lớp chính trong hệ thống:  
 User, Group, Member, Transaction, TransactionParticipant
 
-![Class Diagram](assets/image-2.png)
-
+<img width="1207" height="1073" alt="Screenshot 2025-11-03 151603" src="https://github.com/user-attachments/assets/0d4a267b-a8fd-44d3-b9b6-ea3f944ae4ec" />
 ---
 
 ### 🔁 Sequence Diagram
 
 #### CRUD cho User
-![User CRUD Sequence](assets/image-3.png)
+<img width="752" height="707" alt="Screenshot 2025-11-03 222402" src="https://github.com/user-attachments/assets/ec888897-a68d-434a-9212-b47003e8958d" />
 
-#### CRUD cho GroupAdmin
-![Group CRUD Sequence](assets/image-4.png)
+
+## CRUD cho GroupAdmin
+<img width="994" height="1023" alt="Screenshot 2025-11-03 222441" src="https://github.com/user-attachments/assets/8e4d5a96-87f8-4ec8-9306-7072968835cf" />
 
 #### CRUD cho Transaction
-![Transaction CRUD Sequence](assets/image-5.png)
+<img width="1495" height="1073" alt="Screenshot 2025-11-03 222538" src="https://github.com/user-attachments/assets/c116881a-5e95-4cf2-8572-46e3ba097461" />
+
 
 ---
 
-## 💾 Cấu hình cơ sở dữ liệu (Cloud MySQL – Aiven)
 
-```properties
-spring.datasource.url=jdbc:mysql://mysql-a509a6c-nghaiii-205.c.aivencloud.com:18866/defaultdb?useSSL=true
-spring.datasource.username=avnadmin
-spring.datasource.password=AVNS_-76HHlAsdxW3wCDCtxa
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-⚙️ Cách chạy dự án
+## Cách chạy dự án
 1️⃣ Clone repository
 git clone https://github.com/Pham-Duyy/00P_N04_25_26_KhuongDuy_HongThai.git
 
@@ -220,8 +244,8 @@ mvn spring-boot:run
 
 5️⃣ Truy cập trình duyệt
 http://localhost:8080
-🧠 Hạn chế & Định hướng phát triển
-⚠️ Hạn chế:
+# Hạn chế & Định hướng phát triển
+# Hạn chế:
 
 Giao diện chưa hỗ trợ Dark Mode và đa ngôn ngữ.
 
@@ -229,7 +253,7 @@ Chưa có JWT Authentication hoặc 2FA.
 
 Phân quyền còn đơn giản (Admin, User).
 
-🌱 Định hướng:
+# Định hướng:
 
 Phát triển ứng dụng Mobile (Flutter/React Native).
 
