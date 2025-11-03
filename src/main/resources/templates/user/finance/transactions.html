@@ -177,7 +177,8 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                    <form th:action="@{/user/finance/transactions/{id}/confirm(id=${transaction.id})}" method="post" class="d-inline">
+                                    <form th:action="@{/user/finance/transactions/{id}/confirm(id=${transaction.id})}" method="post" class="d-inline"
+                                          th:onsubmit="'setTimeout(function(){removeIncomeTransaction(' + ${transaction.id} + ');}, 100);'">
                                         <button type="submit" class="btn btn-success">
                                             <i class="fas fa-check me-2"></i>Xác nhận đã chuyển tiền
                                         </button>
@@ -207,7 +208,7 @@
             </div>
 
             <div th:if="${expenseNotifications != null and !#lists.isEmpty(expenseNotifications)}">
-                <div th:each="transaction : ${expenseNotifications}" class="border rounded p-3 mb-3 expense-card">
+                <div th:each="transaction : ${expenseNotifications}" th:id="'expense-notify-' + ${transaction.id}" class="border rounded p-3 mb-3 expense-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="fw-bold text-danger">
@@ -231,10 +232,13 @@
                                 <span th:text="${#temporals.format(transaction.createdDate, 'dd/MM/yyyy HH:mm')}"></span>
                             </small>
                         </div>
-                        <div>
-                            <span class="badge bg-info">
+                        <div class="d-flex flex-column align-items-end">
+                            <span class="badge bg-info mb-2">
                                 <i class="fas fa-bell"></i> Thông báo
                             </span>
+                            <button type="button" class="btn btn-outline-danger btn-sm" th:onclick="'removeExpenseNotification(' + ${transaction.id} + ')'">
+                                <i class="fas fa-times"></i> Xóa thông báo
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -263,6 +267,22 @@
             }, 2500);
         }
     });
+
+    // Xóa thông báo chi tiêu khỏi màn hình
+    function removeExpenseNotification(id) {
+        var el = document.getElementById('expense-notify-' + id);
+        if (el) el.remove();
+    }
+
+    // Xóa income transaction khỏi màn hình sau khi xác nhận chuyển tiền (nếu muốn realtime, không reload)
+    function removeIncomeTransaction(id) {
+        var el = document.querySelector('[data-bs-target="#paymentModal' + id + '"]');
+        if (el) {
+            // Tìm phần tử cha là row income-card
+            var row = el.closest('.income-card');
+            if (row) row.remove();
+        }
+    }
 </script>
 </body>
 </html>
