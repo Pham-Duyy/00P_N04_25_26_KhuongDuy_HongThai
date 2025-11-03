@@ -31,6 +31,10 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     @Query("SELECT g FROM Group g JOIN g.members m WHERE m.id = :userId")
     List<Group> findByMembersId(@Param("userId") Long userId);
 
+    // Alias cho findByMembersId để dùng cho thống kê user activity (không ảnh hưởng code cũ)
+    @Query("SELECT g FROM Group g JOIN g.members m WHERE m.id = :userId")
+    List<Group> findByMembers_Id(@Param("userId") Long userId);
+
     // Đếm số lượng thành viên trong nhóm
     @Query("SELECT COUNT(m) FROM Group g JOIN g.members m WHERE g.id = :groupId")
     Long countMembersByGroupId(@Param("groupId") Long groupId);

@@ -22,4 +22,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     // Đếm số giao dịch theo loại (INCOME/EXPENSE)
     long countByType(String type);
+    
 }

@@ -46,6 +46,15 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
+    @Override
+public long countAllUsers() {
+    return userRepository.count(); // Không có điều kiện lọc nào!
+}
+
+@Override
+public long countAllNormalUsers() {
+    return userRepository.countByRole(User.Role.USER);
+}
 
     @Override
     public Optional<User> updateUser(Long id, User userDetails) {

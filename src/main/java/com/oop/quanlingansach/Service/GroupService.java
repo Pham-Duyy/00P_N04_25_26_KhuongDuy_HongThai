@@ -83,6 +83,7 @@ public interface GroupService {
      */
     List<Group> findGroupsByMemberId(Long userId);
 
+    long countAllGroups();
     /**
      * Xóa thành viên khỏi nhóm.
      */

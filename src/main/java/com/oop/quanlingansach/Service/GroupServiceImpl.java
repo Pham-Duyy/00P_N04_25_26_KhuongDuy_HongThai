@@ -88,6 +88,11 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.deleteById(groupId);
     }
 
+@Override
+public long countAllGroups() {
+    return groupRepository.count();
+}
+
     @Override
     public List<User> getGroupMembers(Long groupId) {
         Group group = groupRepository.findById(groupId).orElse(null);

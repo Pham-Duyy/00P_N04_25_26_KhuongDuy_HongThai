@@ -64,15 +64,7 @@ public String adminDashboard(Model model, HttpSession session) {
     }
 
     // Báo cáo thống kê
-    @GetMapping("/reports")
-    public String viewReports(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != User.Role.ADMIN) {
-            return "redirect:/login";
-        }
-        model.addAttribute("user", user);
-        return "admin/reports";
-    }
+    
 
     // Thông báo
     @GetMapping("/notifications")
