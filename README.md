@@ -1,5 +1,5 @@
 # 💰 Fund Manager – Ứng Dụng Quản Lý Ngân Sách Nhóm  
-### 📚 Mã lớp: 00P_N04_25_26_KhuongDuy_HongThai  
+### Group 09
 
 ---
 
