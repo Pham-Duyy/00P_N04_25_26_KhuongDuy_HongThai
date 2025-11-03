@@ -50,7 +50,7 @@ public class Transaction {
     private User targetUser;
 
     // Liên kết tới các participant (thành viên tham gia giao dịch)
-    @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TransactionParticipant> participants;
 
     public User getTargetUser() {

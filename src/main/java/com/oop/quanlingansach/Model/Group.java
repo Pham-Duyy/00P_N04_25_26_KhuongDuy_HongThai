@@ -47,7 +47,7 @@ public class Group {
     @Column(name = "target_amount")
     private BigDecimal targetAmount = BigDecimal.ZERO;
 
-    // Danh sách thành viên nhóm
+    // Danh sách thành viên nhóm (chỉ xóa liên kết, không xóa user)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "group_members",
@@ -55,6 +55,17 @@ public class Group {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> members = new ArrayList<>();
+
+    // Lời mời tham gia nhóm - xóa nhóm sẽ xóa luôn lời mời liên quan
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GroupInvite> invites = new ArrayList<>();
+    
+@OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+private List<Member> membersDetail = new ArrayList<>();
+
+    // Giao dịch của nhóm - xóa nhóm sẽ xóa luôn giao dịch liên quan
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions = new ArrayList<>();
 
     // Constructors
     public Group() {}
@@ -111,6 +122,12 @@ public class Group {
 
     public List<User> getMembers() { return members; }
     public void setMembers(List<User> members) { this.members = members; }
+
+    public List<GroupInvite> getInvites() { return invites; }
+    public void setInvites(List<GroupInvite> invites) { this.invites = invites; }
+
+    public List<Transaction> getTransactions() { return transactions; }
+    public void setTransactions(List<Transaction> transactions) { this.transactions = transactions; }
 
     // Business Methods
     public BigDecimal getCurrentBalance() {
