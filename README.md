@@ -51,6 +51,9 @@
 
 ## 6.Cấu trúc thư mục dự án
 
+## 📁 Cấu trúc thư mục dự án
+
+```bash
 project-root/
 │
 ├─ src/
@@ -59,7 +62,6 @@ project-root/
 │  │  │  └─ com/oop/quanlyngansach/
 │  │  │     ├─ controller/
 │  │  │     │   ├─ AdminController.java
-│  │  │     │   ├─ AdminTransactionController.java
 │  │  │     │   ├─ AuthController.java
 │  │  │     │   ├─ GroupAdminController.java
 │  │  │     │   ├─ GroupUserController.java
@@ -99,52 +101,42 @@ project-root/
 │  │  │     └─ Main.java
 │  │  │
 │  │  └─ resources/
-│  │     ├─ static/
-│  │     │   └─ img/
-│  │     │       └─ anh QR.jpg
-│  │     │
+│  │     ├─ static/img/
+│  │     │   └─ anh QR.jpg
 │  │     └─ templates/
 │  │         ├─ admin/
 │  │         │   ├─ auth/
 │  │         │   │   ├─ login.html
 │  │         │   │   └─ register.html
-│  │         │   │
 │  │         │   ├─ finance/
 │  │         │   │   ├─ transaction-detail.html
 │  │         │   │   └─ transactions.html
-│  │         │   │
 │  │         │   ├─ groups/
 │  │         │   │   ├─ group-create.html
 │  │         │   │   └─ group-detail.html
-│  │         │   │
 │  │         │   └─ reports/
-│  │         │       ├─ contributions.html
 │  │         │       ├─ dashboard.html
 │  │         │       ├─ index.html
-│  │         │       └─ users.html
-│  │         │
+│  │         │       ├─ users.html
+│  │         │       └─ contributions.html
 │  │         └─ user/
 │  │             ├─ finance/
 │  │             │   └─ transactions.html
-│  │             │
 │  │             ├─ groups/
 │  │             │   ├─ group-detail.html
 │  │             │   ├─ invites.html
 │  │             │   └─ my-groups.html
-│  │             │
 │  │             └─ personal-finance/
 │  │                 ├─ dashboard.html
 │  │                 └─ index.html
 │  │
-│  └─ test/
-│      └─ java/
-│          └─ com/oop/quanlyngansach/
-│              ├─ AdminControllerTest.java
-│              ├─ AuthControllerTest.java
-│              ├─ DemoApplicationTests.java
-│              ├─ GroupAdminControllerTest.java
-│              ├─ GroupUserControllerTest.java
-│              └─ UserControllerTest.java
+│  └─ test/java/com/oop/quanlyngansach/
+│      ├─ AdminControllerTest.java
+│      ├─ AuthControllerTest.java
+│      ├─ DemoApplicationTests.java
+│      ├─ GroupAdminControllerTest.java
+│      ├─ GroupUserControllerTest.java
+│      └─ UserControllerTest.java
 │
 ├─ .gitignore
 ├─ .gitattributes
@@ -152,12 +144,11 @@ project-root/
 ├─ mvnw.cmd
 └─ pom.xml
 
-
 ---
 
 ## 7.Mô tả các chức năng chính 
 
-Quản lý nhóm
+#Quản lý nhóm
 
 Tạo nhóm, đặt tên và mô tả.
 
@@ -165,7 +156,7 @@ Xóa nhóm (chỉ admin có quyền).
 
 Xem danh sách nhóm đã tham gia.
 
-Quản lý giao dịch
+#Quản lý giao dịch
 
 Thêm, sửa, xóa, xem chi tiết giao dịch.
 
@@ -173,7 +164,7 @@ Tự động tính tổng chi, thu của từng nhóm.
 
 Hiển thị biểu đồ chi tiêu theo loại.
 
-Mời và quản lý thành viên
+#Mời và quản lý thành viên
 
 Gửi lời mời qua GroupInvite.
 
@@ -181,7 +172,7 @@ Thành viên có thể chấp nhận hoặc từ chối lời mời.
 
 Admin có thể xóa thành viên khỏi nhóm.
 
-Báo cáo tài chính
+#Báo cáo tài chính
 
 Thống kê chi tiêu theo thành viên, loại giao dịch và thời gian.
 Thành viên đóng góp bao nhiêu 
