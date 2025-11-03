@@ -147,7 +147,9 @@ project-root/
 └─ pom.xml
 ```
 
-#7️⃣ Mô tả các chức năng chính
+---
+
+## 7️⃣ Mô tả các chức năng chính
 📂 Quản lý nhóm
 
 Tạo nhóm, đặt tên và mô tả.
