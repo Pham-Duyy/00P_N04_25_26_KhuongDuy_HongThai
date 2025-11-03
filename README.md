@@ -18,12 +18,13 @@ Hệ thống giúp ghi nhận, phân loại và thống kê các giao dịch thu
 
 ---
 
-## 👨‍💻 Thành viên nhóm
+## 👨‍💻 Thành Viên Nhóm
 
-| Họ và tên | Vai trò | Tỉ lệ đóng góp |
-|------------|----------|----------------|
-| **Phạm Khương Duy** | Trưởng nhóm – Backend, Database, Kiểm thử | 65% |
-| **Dương Hồng Thái** | Frontend, UI/UX, Báo cáo, Demo | 35% |
+| Họ và tên | MSV | Vai trò |
+|------------|------|----------|
+| **Phạm Khương Duy** | 23010743 | Trưởng nhóm – Backend, Database, Kiểm thử |
+| **Dương Hồng Thái** | 23010326 | Frontend, UI/UX, Báo cáo, Demo |
+
 
 ## ⚙️ Công nghệ sử dụng
 
@@ -56,28 +57,164 @@ Hệ thống có phân tầng rõ ràng:
 
 ## 🔑 Các chức năng chính
 
-### 👤 Quản lý người dùng
-- Đăng ký, đăng nhập, đổi mật khẩu.  
-- Phân quyền **Admin** và **User**.  
-- Cập nhật thông tin cá nhân, ảnh đại diện.
+### 👤 1. Quản Lý Người Dùng (User Management)
 
-### 👥 Quản lý nhóm
-- Tạo nhóm mới, chỉnh sửa, xóa nhóm.  
-- Gửi lời mời tham gia nhóm qua mã hoặc email.  
-- Quản lý danh sách thành viên, vai trò, số lượng.  
-- Theo dõi tổng quan quỹ nhóm và báo cáo.
+**Mô tả:**  
+Chức năng cho phép người dùng đăng ký, đăng nhập và quản lý thông tin cá nhân.  
+Hệ thống phân quyền rõ ràng giữa **Admin** và **User**, đảm bảo an toàn và kiểm soát truy cập hiệu quả.
 
-### 💰 Quản lý giao dịch
-- Thêm, sửa, xóa giao dịch thu – chi.  
-- Gắn danh mục (`Category`) cho giao dịch.  
-- Duyệt hoặc từ chối giao dịch (theo quyền Admin).  
-- Tự động cập nhật **tổng thu, tổng chi, số dư**.  
-- Gửi thông báo đến các thành viên khi có thay đổi.
+**Thuộc tính chính (Entity: `User`)**
+| Thuộc tính | Kiểu dữ liệu | Mô tả |
+|-------------|---------------|-------|
+| `id` | Long | Định danh duy nhất cho người dùng |
+| `name` | String | Họ tên hiển thị |
+| `email` | String | Email dùng để đăng nhập hoặc nhận thông báo |
+| `username` | String | Tên đăng nhập duy nhất |
+| `password` | String | Mật khẩu đã được mã hóa (BCrypt) |
+| `role` | Enum | Vai trò người dùng: `ADMIN` hoặc `USER` |
 
-### 📊 Báo cáo & thống kê
-- Biểu đồ trực quan (Line / Bar / Pie).  
-- Báo cáo thu chi theo nhóm, thời gian, thành viên.  
-- Lọc dữ liệu và xuất báo cáo tổng hợp.  
+**Chi tiết chức năng**
+- 🔹 Đăng ký tài khoản: nhập thông tin cơ bản, kiểm tra trùng lặp email/username, mã hóa mật khẩu và lưu.  
+- 🔹 Đăng nhập: xác thực thông tin người dùng, phân quyền truy cập.  
+- 🔹 Cập nhật hồ sơ cá nhân: thay đổi tên, ảnh, email hoặc mật khẩu.  
+- 🔹 Đổi mật khẩu có xác thực mật khẩu cũ.  
+- 🔹 Quản lý phiên đăng nhập (token session, logout).  
+
+---
+
+### 👥 2. Quản Lý Nhóm (Group Management)
+
+**Mô tả:**  
+Chức năng cho phép người dùng tạo, chỉnh sửa, xóa nhóm; mời thành viên và quản lý các hoạt động trong nhóm.
+
+**Thuộc tính chính (Entity: `Group`)**
+| Thuộc tính | Kiểu dữ liệu | Mô tả |
+|-------------|---------------|-------|
+| `id` | Long | Định danh nhóm |
+| `name` | String | Tên nhóm |
+| `description` | String | Mô tả ngắn gọn về nhóm |
+| `joinCode` | String | Mã tham gia duy nhất (6 ký tự) |
+| `createdDate` | Date | Ngày tạo nhóm |
+| `isActive` | Boolean | Trạng thái hoạt động |
+| `createdBy` | String | Người tạo nhóm |
+| `maxMembers` | Int | Số lượng thành viên tối đa |
+
+**Chi tiết chức năng**
+- 🔹 Tạo nhóm mới với tên, mô tả, loại nhóm (Public/Private).  
+- 🔹 Gửi lời mời tham gia nhóm qua email hoặc mã joinCode.  
+- 🔹 Phân quyền thành viên trong nhóm (Admin, Member).  
+- 🔹 Theo dõi số lượng thành viên, số dư quỹ, hoạt động thu chi.  
+- 🔹 Xóa nhóm (toàn bộ lời mời và dữ liệu liên quan cũng bị xóa).  
+
+---
+
+### 💰 3. Quản Lý Thu – Chi (Transaction Management)
+
+**Mô tả:**  
+Quản lý toàn bộ giao dịch tài chính trong nhóm, bao gồm thu nhập, chi tiêu và thống kê quỹ.
+
+**Thuộc tính chính (Entity: `Transaction`)**
+| Thuộc tính | Kiểu dữ liệu | Mô tả |
+|-------------|---------------|-------|
+| `id` | Long | Định danh giao dịch |
+| `amount` | Double | Số tiền thu hoặc chi |
+| `description` | String | Nội dung giao dịch |
+| `type` | Enum | Loại giao dịch: `INCOME` hoặc `EXPENSE` |
+| `date` | Date | Ngày tạo hoặc thực hiện giao dịch |
+| `approved` | Boolean | Trạng thái phê duyệt |
+| `category` | Category | Danh mục chi tiêu |
+| `payer` | User | Người tạo giao dịch |
+| `group` | Group | Nhóm liên kết giao dịch |
+
+**Chi tiết chức năng**
+- 🔹 **Create:** Tạo giao dịch mới (thu/chi) cho nhóm, tự động cập nhật số dư.  
+- 🔹 **Read:** Hiển thị danh sách giao dịch, cho phép tìm kiếm, lọc theo loại và thời gian.  
+- 🔹 **Update:** Chỉnh sửa nội dung hoặc số tiền giao dịch.  
+- 🔹 **Delete:** Xóa giao dịch, hệ thống cập nhật lại thống kê quỹ.  
+- 🔹 **Phê duyệt (Approve):** Admin xác nhận giao dịch hợp lệ trước khi cập nhật vào quỹ.  
+
+---
+
+### 🏷️ 4. Quản Lý Danh Mục (Category Management)
+
+**Mô tả:**  
+Phân loại các giao dịch thành các nhóm danh mục để dễ thống kê và báo cáo.
+
+**Thuộc tính chính (Entity: `Category`)**
+| Thuộc tính | Kiểu dữ liệu | Mô tả |
+|-------------|---------------|-------|
+| `id` | Long | Định danh danh mục |
+| `name` | String | Tên danh mục |
+| `description` | String | Mô tả ngắn gọn |
+| `type` | Enum | Loại: `INCOME` hoặc `EXPENSE` |
+
+**Chi tiết chức năng**
+- 🔹 Tạo danh mục thu nhập hoặc chi tiêu mới.  
+- 🔹 Sửa tên hoặc mô tả danh mục.  
+- 🔹 Gắn danh mục vào từng giao dịch.  
+- 🔹 Kiểm tra ràng buộc: không cho xóa danh mục nếu đang có giao dịch sử dụng.  
+
+---
+
+### 📊 5. Báo Cáo & Thống Kê (Reports & Analytics)
+
+**Mô tả:**  
+Tổng hợp và hiển thị báo cáo tài chính chi tiết theo nhóm, người dùng, loại giao dịch và thời gian.
+
+**Thuộc tính dữ liệu hiển thị**
+| Thuộc tính | Mô tả |
+|-------------|-------|
+| `totalIncome` | Tổng thu nhập của nhóm |
+| `totalExpense` | Tổng chi tiêu của nhóm |
+| `balance` | Số dư hiện tại |
+| `transactionsByCategory` | Danh sách giao dịch được phân loại |
+| `transactionsByDate` | Giao dịch theo ngày hoặc tháng |
+
+**Chi tiết chức năng**
+- 🔹 Biểu đồ trực quan (Line, Bar, Pie) thể hiện thu – chi.  
+- 🔹 Bộ lọc theo **nhóm**, **thời gian**, **thành viên**, **loại giao dịch**.  
+- 🔹 Xuất báo cáo thống kê ra định dạng PDF hoặc Excel (định hướng phát triển).  
+- 🔹 Hiển thị thông báo cảnh báo khi chi tiêu vượt mức thu nhập.  
+
+---
+
+### 📧 6. Lời Mời & Thông Báo (Invitations & Notifications)
+
+**Mô tả:**  
+Quản lý quy trình mời thành viên mới vào nhóm và thông báo các sự kiện quan trọng.
+
+**Thuộc tính chính (Entity: `Invitation`, `Notification`)**
+| Thuộc tính | Kiểu dữ liệu | Mô tả |
+|-------------|---------------|-------|
+| `id` | Long | Định danh lời mời/thông báo |
+| `email` | String | Email người được mời |
+| `group` | Group | Nhóm gửi lời mời |
+| `status` | Enum | Trạng thái: `PENDING`, `ACCEPTED`, `DECLINED` |
+| `createdDate` | Date | Ngày gửi lời mời/thông báo |
+
+**Chi tiết chức năng**
+- 🔹 Gửi lời mời qua email hoặc mã nhóm (Join Code).  
+- 🔹 Người nhận chấp nhận hoặc từ chối lời mời.  
+- 🔹 Gửi thông báo khi có giao dịch mới, thay đổi thành viên hoặc phê duyệt giao dịch.  
+- 🔹 (Định hướng) Hỗ trợ **real-time notification** bằng WebSocket/Firebase.  
+
+---
+
+### 🧪 7. Kiểm Thử, Bảo Mật & Xử Lý Lỗi
+
+**Mô tả:**  
+Đảm bảo hệ thống hoạt động ổn định, dữ liệu an toàn và xử lý lỗi hiệu quả.
+
+**Chi tiết chức năng**
+- 🔹 Kiểm thử logic nghiệp vụ bằng **JUnit**, **MockMVC**.  
+- 🔹 Ghi log hoạt động và lỗi trong hệ thống.  
+- 🔹 Kiểm tra dữ liệu đầu vào (front-end & back-end validation).  
+- 🔹 Phân quyền truy cập bằng **Spring Security**.  
+- 🔹 Xử lý lỗi kết nối cơ sở dữ liệu, rollback giao dịch khi thất bại.  
+
+---
+
+📘 *Tất cả các chức năng trên đều được tổ chức theo nguyên lý SOLID, đảm bảo khả năng mở rộng, dễ bảo trì và nâng cấp hệ thống trong tương lai.*
 
 ---
 
