@@ -23,7 +23,7 @@
 ---
 
 ##  3.Kiến trúc hệ thống
-Ứng dụng được thiết kế theo mô hình *MVC (Model – View – Controller)* giúp tách biệt logic xử lý, giao diện và dữ liệu.
+    Ứng dụng được thiết kế theo mô hình *MVC (Model – View – Controller)* giúp tách biệt logic xử lý, giao diện và dữ liệu.
 ---
 
 ##  4.Thành Viên Nhóm
@@ -143,9 +143,8 @@ project-root/
 ├─ mvnw
 ├─ mvnw.cmd
 └─ pom.xml
-
----
-
+'''
+**
 ## 7.Mô tả các chức năng chính 
 
 #Quản lý nhóm
@@ -236,3 +235,4 @@ Phát triển ứng dụng Mobile (Flutter/React Native).
 Ứng dụng AI để dự báo chi tiêu và tối ưu ngân sách.
 
 Cải tiến UI/UX, bổ sung Dashboard thông minh.
+**
