@@ -91,10 +91,6 @@ public class TransactionParticipant {
     // Trạng thái đóng góp (hiển thị cho giao diện)
     @Transient
     public String getPaidStatus() {
-        if (paid) {
-            return "Đã đóng";
-        } else {
-            return "Chưa đóng";
-        }
+        return paid ? "Đã đóng" : "Chưa đóng";
     }
 }

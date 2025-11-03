@@ -12,13 +12,13 @@ public class GroupInvite {
     private Long id;
 
     // Lời mời thuộc nhóm nào
-    @ManyToOne
-    @JoinColumn(name = "group_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
     // Lời mời gửi cho user nào
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // Trạng thái: PENDING, ACCEPTED, DECLINED
@@ -26,6 +26,7 @@ public class GroupInvite {
     private String status;
 
     // Thời gian gửi lời mời
+    @Column(name = "sent_at", nullable = false)
     private LocalDateTime sentAt;
 
     public GroupInvite() {
@@ -65,7 +66,6 @@ public class GroupInvite {
     public LocalDateTime getSentAt() {
         return sentAt;
     }
-    
 
     public void setSentAt(LocalDateTime sentAt) {
         this.sentAt = sentAt;
