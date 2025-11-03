@@ -1,13 +1,13 @@
 # 00P_N04_25_26_KhuongDuy_HongThai
 # 💰 Fund Manager – Ứng Dụng Quản Lý Ngân Sách Nhóm
 
-##  Giới thiệu
+## 1.Giới thiệu
 *Fund Manager* là ứng dụng web giúp người dùng quản lý thu chi nhóm một cách minh bạch, tiện lợi và hiệu quả.  
 Ứng dụng cho phép tạo nhóm, gửi lời mời, ghi nhận giao dịch, thống kê chi tiêu, và theo dõi quỹ nhóm theo thời gian thực.
 
 ---
 
-## Tính năng chính
+## 2.Tính năng chính
 
 ###  Dành cho Admin
 - Tạo và quản lý nhóm, gửi lời mời thành viên.  
@@ -22,25 +22,20 @@
 
 ---
 
-##  Kiến trúc hệ thống
+##  3.Kiến trúc hệ thống
 Ứng dụng được thiết kế theo mô hình *MVC (Model – View – Controller)* giúp tách biệt logic xử lý, giao diện và dữ liệu.
 ---
 
-##  Thành Viên Nhóm
+##  4.Thành Viên Nhóm
 
 | Họ và tên | MSV | Vai trò |
 |------------|------|----------|
 | *Phạm Khương Duy* | 23010743 | Trưởng nhóm – Frontend, Backend, Database, Kiểm thử |
 | *Dương Hồng Thái* | 23010326 | Kiểm thử, UI/UX, Báo cáo, Demo |
 
-
-- *Model:* Lưu trữ dữ liệu người dùng, nhóm, giao dịch.  
-- *Controller:* Xử lý yêu cầu và điều phối luồng nghiệp vụ.  
-- *View:* Giao diện HTML hiển thị bằng Thymeleaf + Bootstrap.  
-
 ---
 
-## Công nghệ sử dụng
+##5. Công nghệ sử dụng
 
 | Công nghệ / Công cụ | Vai trò |
 |----------------------|---------|
@@ -54,7 +49,7 @@
 
 ---
 
-##  Cấu trúc thư mục dự án
+## 6.Cấu trúc thư mục dự án
 
 project-root/
 │
@@ -160,18 +155,9 @@ project-root/
 
 ---
 
-## Các chức năng CRUD chính
+## 7.Mô tả các chức năng chính 
 
-| Đối tượng | Create | Read | Update | Delete |
-|------------|---------|-------|---------|---------|
-| *User* | Đăng ký người dùng mới | Xem thông tin cá nhân | Cập nhật hồ sơ | Vô hiệu hoặc xóa tài khoản |
-| *Group* | Tạo nhóm, thêm thành viên | Xem danh sách nhóm | Chỉnh sửa thông tin nhóm | Xóa nhóm |
-| *Transaction* | Tạo giao dịch thu/chi | Xem chi tiết, thống kê | Cập nhật giao dịch | Xóa giao dịch |
-| *Member* | Gửi yêu cầu tham gia | Duyệt hoặc từ chối lời mời | Cập nhật trạng thái | Rời nhóm |
-
-## Mô tả các chức năng chính 
-
-# Quản lý nhóm
+Quản lý nhóm
 
 Tạo nhóm, đặt tên và mô tả.
 
@@ -179,7 +165,7 @@ Xóa nhóm (chỉ admin có quyền).
 
 Xem danh sách nhóm đã tham gia.
 
-# Quản lý giao dịch
+Quản lý giao dịch
 
 Thêm, sửa, xóa, xem chi tiết giao dịch.
 
@@ -187,7 +173,7 @@ Tự động tính tổng chi, thu của từng nhóm.
 
 Hiển thị biểu đồ chi tiêu theo loại.
 
-# Mời và quản lý thành viên
+Mời và quản lý thành viên
 
 Gửi lời mời qua GroupInvite.
 
@@ -195,7 +181,7 @@ Thành viên có thể chấp nhận hoặc từ chối lời mời.
 
 Admin có thể xóa thành viên khỏi nhóm.
 
-# Báo cáo tài chính
+Báo cáo tài chính
 
 Thống kê chi tiêu theo thành viên, loại giao dịch và thời gian.
 Thành viên đóng góp bao nhiêu 
@@ -231,7 +217,6 @@ User, Group, Member, Transaction, TransactionParticipant
 
 
 ---
-
 
 ## Cách chạy dự án
 1️⃣ Clone repository
