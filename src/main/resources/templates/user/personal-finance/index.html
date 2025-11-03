@@ -243,28 +243,33 @@
                                 <th scope="col">Ngày đóng</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr th:each="contribution, iterStat : ${contributions}">
-                                <td th:text="${iterStat.count}">1</td>
-                                <td>
-                                    <i class="fas fa-users me-1 text-primary"></i>
-                                    <span th:text="${contribution.transaction.group.name}">Tên nhóm</span>
-                                </td>
-                                <td th:text="${contribution.transaction.name}">Tên giao dịch</td>
-                                <td>
-                                    <strong class="text-success" th:text="${#numbers.formatDecimal(contribution.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</strong>
-                                </td>
-                                <td>
-                                    <span th:if="${contribution.paid}" class="badge badge-paid">
-                                        <i class="fas fa-check me-1"></i>Đã đóng
-                                    </span>
-                                    <span th:unless="${contribution.paid}" class="badge badge-pending">
-                                        <i class="fas fa-clock me-1"></i>Chờ xác nhận
-                                    </span>
-                                </td>
-                                <td th:text="${contribution.paidDate != null ? #temporals.format(contribution.paidDate, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
-                            </tr>
-                        </tbody>
+                        <!-- ...existing code... -->
+<tbody>
+    <tr th:each="contribution, iterStat : ${contributions}">
+        <td th:text="${iterStat.count}">1</td>
+        <td>
+            <i class="fas fa-users me-1 text-primary"></i>
+            <span th:text="${contribution.transaction.group != null ? contribution.transaction.group.name : 'N/A'}">Tên nhóm</span>
+        </td>
+        <td th:text="${contribution.transaction != null ? contribution.transaction.name : 'N/A'}">Tên giao dịch</td>
+        <td>
+            <strong class="text-success"
+                th:text="${#numbers.formatDecimal(contribution.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</strong>
+        </td>
+        <td>
+            <span th:if="${contribution.paid}" class="badge badge-paid">
+                <i class="fas fa-check me-1"></i>
+                <span th:text="${contribution.paidStatus}">Đã đóng</span>
+            </span>
+            <span th:unless="${contribution.paid}" class="badge badge-pending">
+                <i class="fas fa-clock me-1"></i>
+                <span th:text="${contribution.paidStatus}">Chờ xác nhận</span>
+            </span>
+        </td>
+        <td th:text="${contribution.paidDate != null ? #temporals.format(contribution.paidDate, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+    </tr>
+</tbody>
+<!-- ...existing code... -->
                     </table>
                 </div>
             </div>

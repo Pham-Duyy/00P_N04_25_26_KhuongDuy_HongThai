@@ -23,31 +23,40 @@ public class PersonalFinanceController {
     private GroupService groupService;
 
     @GetMapping("/personal-finance")
-    public String personalFinance(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
-        // Lấy danh sách đóng góp đã thanh toán
-        List<TransactionParticipant> contributions = transactionService.findPaidContributionsByUserId(user.getId());
-        BigDecimal totalAmount = contributions.stream()
-                .map(TransactionParticipant::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Tổng số lần đóng góp
-        int totalContributions = contributions.size();
-
-        // Tổng số nhóm đã tham gia
-        int joinedGroups = groupService.findGroupsByMemberId(user.getId()).size();
-
-        model.addAttribute("user", user);
-        model.addAttribute("contributions", contributions);
-        model.addAttribute("totalAmount", totalAmount);
-        model.addAttribute("totalContributions", totalContributions);
-        model.addAttribute("joinedGroups", joinedGroups);
-
-        // Trả về đúng đường dẫn giao diện bạn đã tạo
-        return "user/personal-finance/index";
+public String personalFinance(HttpSession session, Model model) {
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        return "redirect:/login";
     }
+
+    // Lấy tất cả đóng góp (cả đã đóng và chưa đóng)
+    List<TransactionParticipant> contributions = transactionService.findAllContributionsByUserId(user.getId());
+
+    // Tổng số lần đóng góp (tất cả)
+    int totalContributions = contributions.size();
+
+    // Tổng số tiền đã đóng (chỉ tính những đóng góp đã thanh toán)
+    BigDecimal totalAmount = contributions.stream()
+            .filter(TransactionParticipant::isPaid)
+            .map(TransactionParticipant::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    // Tổng số tiền phải đóng (tổng amount của tất cả contributions)
+    BigDecimal totalRequiredAmount = contributions.stream()
+            .map(TransactionParticipant::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    // Tổng số nhóm đã tham gia
+    int joinedGroups = groupService.findGroupsByMemberId(user.getId()).size();
+
+    model.addAttribute("user", user);
+    model.addAttribute("contributions", contributions);
+    model.addAttribute("totalAmount", totalAmount);
+    model.addAttribute("totalRequiredAmount", totalRequiredAmount);
+    model.addAttribute("totalContributions", totalContributions);
+    model.addAttribute("joinedGroups", joinedGroups);
+
+    // Trả về đúng đường dẫn giao diện bạn đã tạo
+    return "user/personal-finance/index";
+}
 }

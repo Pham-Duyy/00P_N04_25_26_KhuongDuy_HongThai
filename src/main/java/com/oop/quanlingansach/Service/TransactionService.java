@@ -42,4 +42,7 @@ public interface TransactionService {
 
     // Lấy danh sách đóng góp đã thanh toán của user
     List<TransactionParticipant> findPaidContributionsByUserId(Long userId);
+
+    // Lấy tất cả đóng góp (cả đã đóng và chưa đóng) của user
+    List<TransactionParticipant> findAllContributionsByUserId(Long userId);
 }

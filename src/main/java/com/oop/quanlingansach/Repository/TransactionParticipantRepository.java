@@ -18,6 +18,8 @@ public interface TransactionParticipantRepository extends JpaRepository<Transact
     // Lấy participant theo transactionId và userId
     @Query("SELECT tp FROM TransactionParticipant tp WHERE tp.transaction.id = :transactionId AND tp.user.id = :userId")
     TransactionParticipant findByTransactionIdAndUserId(Long transactionId, Long userId);
+    
+    List<TransactionParticipant> findByUserId(Long userId);
 
     // Lấy tất cả đóng góp đã thanh toán của user
     List<TransactionParticipant> findByUserIdAndPaidTrue(Long userId);

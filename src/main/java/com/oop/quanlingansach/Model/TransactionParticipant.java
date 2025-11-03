@@ -87,4 +87,14 @@ public class TransactionParticipant {
     public void setPaidDate(LocalDateTime paidDate) {
         this.paidDate = paidDate;
     }
+
+    // Trạng thái đóng góp (hiển thị cho giao diện)
+    @Transient
+    public String getPaidStatus() {
+        if (paid) {
+            return "Đã đóng";
+        } else {
+            return "Chưa đóng";
+        }
+    }
 }

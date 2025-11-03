@@ -78,7 +78,12 @@ public class TransactionServiceImpl implements TransactionService {
     // Lấy danh sách đóng góp đã thanh toán của user
     @Override
     public List<TransactionParticipant> findPaidContributionsByUserId(Long userId) {
-        // Giả sử TransactionParticipantRepository có phương thức này
         return transactionParticipantRepository.findByUserIdAndPaidTrue(userId);
+    }
+
+    // Lấy tất cả đóng góp (cả đã đóng và chưa đóng) của user
+    @Override
+    public List<TransactionParticipant> findAllContributionsByUserId(Long userId) {
+        return transactionParticipantRepository.findByUserId(userId);
     }
 }

@@ -131,6 +131,17 @@ public class Transaction {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    // Thêm getter/setter cho "name" để tương thích Thymeleaf
+    @Transient
+    public String getName() {
+        return this.title;
+    }
+
+    @Transient
+    public void setName(String name) {
+        this.title = name;
+    }
+
     // Business Methods
     public boolean isIncome() {
         return "INCOME".equalsIgnoreCase(this.type);
