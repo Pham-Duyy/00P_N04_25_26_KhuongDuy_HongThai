@@ -89,7 +89,7 @@ project-root/
 ### 🎯 Use Case Diagram
 Mô tả các tương tác chính giữa **User**, **Admin**, và **Hệ thống**.
 
-![Use Case Diagram](assets/image-1.png)
+
 
 ---
 
@@ -97,7 +97,8 @@ Mô tả các tương tác chính giữa **User**, **Admin**, và **Hệ thống
 Mô tả mối quan hệ giữa các lớp chính trong hệ thống:  
 `User`, `Group`, `Member`, `Transaction`, `TransactionParticipant`
 
-![Class Diagram](assets/image-2.png)
+![Class Diagram] <img width="1207" height="1073" alt="Screenshot 2025-11-03 151603" src="https://github.com/user-attachments/assets/4d1740e9-a535-4807-8f67-1e656202f369" />
+
 
 ---
 
