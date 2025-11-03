@@ -75,7 +75,11 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    // Bổ sung theo yêu cầu: lấy User theo username
+    @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
     @Override
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);

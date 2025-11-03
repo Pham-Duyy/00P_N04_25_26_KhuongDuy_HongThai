@@ -13,7 +13,6 @@ public interface UserService {
     Optional<User> getUserById(Long id);
     Optional<User> updateUser(Long id, User userDetails);
     boolean changePassword(Long id, String oldPassword, String newPassword);
-
-    // Thêm phương thức này để lấy User theo username
+    Optional<User> findById(Long id); // Đã chuẩn, giữ lại
     Optional<User> findByUsername(String username);
 }

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Thu Chi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 16px 16px 0 0 !important;
+        }
+        .table thead th {
+            background: #495057;
+            color: white;
+        }
+        .transaction-income {
+            border-left: 4px solid #28a745;
+        }
+        .transaction-expense {
+            border-left: 4px solid #dc3545;
+        }
+        .amount-income {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .amount-expense {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .qr-payment-info {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-white mb-0">
+                <i class="fas fa-chart-line me-2"></i>Quản lý Thu Chi
+            </h2>
+            <p class="text-white-50 mb-0">Quản lý các giao dịch thu chi của nhóm</p>
+        </div>
+        <div>
+            <a href="/admin/dashboard" class="btn btn-outline-light me-2">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#createTransactionModal">
+                <i class="fas fa-plus"></i> Tạo giao dịch mới
+            </button>
+        </div>
+    </div>
+
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-arrow-up fa-2x text-success mb-2"></i>
+                    <h5>Tổng Thu</h5>
+                    <h3 class="text-success" th:text="${totalIncome != null ? #numbers.formatDecimal(totalIncome, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-arrow-down fa-2x text-danger mb-2"></i>
+                    <h5>Tổng Chi</h5>
+                    <h3 class="text-danger" th:text="${totalExpense != null ? #numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-balance-scale fa-2x text-info mb-2"></i>
+                    <h5>Số dư</h5>
+                    <h3 class="text-info" th:text="${balance != null ? #numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-list fa-2x text-primary mb-2"></i>
+                    <h5>Tổng giao dịch</h5>
+                    <h3 class="text-primary" th:text="${transactions != null ? transactions.size() : 0}"></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông báo -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Danh sách giao dịch -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Danh sách giao dịch
+                <span class="badge bg-light text-dark ms-2" th:text="${transactions != null ? transactions.size() : 0}"></span>
+            </h5>
+            <div>
+                <select class="form-select form-select-sm" id="filterType">
+                    <option value="">Tất cả</option>
+                    <option value="INCOME">Thu</option>
+                    <option value="EXPENSE">Chi</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div th:if="${transactions == null or #lists.isEmpty(transactions)}" class="text-center text-muted py-4">
+                <i class="fas fa-receipt fa-3x mb-3 text-muted"></i>
+                <p class="mb-0">Chưa có giao dịch nào</p>
+            </div>
+            
+            <div th:if="${transactions != null and !#lists.isEmpty(transactions)}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tiêu đề</th>
+                            <th>Nhóm</th>
+                            <th>Loại</th>
+                            <th>Số tiền</th>
+                            <th>Người tạo</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="transaction, idx : ${transactions}" 
+                            th:class="${transaction.type == 'INCOME' ? 'transaction-income' : 'transaction-expense'}">
+                            <td th:text="${idx.index + 1}"></td>
+                            <td>
+                                <div>
+                                    <strong th:text="${transaction.title}"></strong>
+                                    <div class="text-muted small" th:if="${transaction.description}" 
+                                         th:text="${#strings.abbreviate(transaction.description, 50)}"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary" th:text="${transaction.group.name}"></span>
+                            </td>
+                            <td>
+                                <span th:if="${transaction.type == 'INCOME'}" class="badge bg-success">
+                                    <i class="fas fa-arrow-up"></i> Thu
+                                </span>
+                                <span th:if="${transaction.type == 'EXPENSE'}" class="badge bg-danger">
+                                    <i class="fas fa-arrow-down"></i> Chi
+                                </span>
+                            </td>
+                            <td>
+                                <span th:class="${transaction.type == 'INCOME' ? 'amount-income' : 'amount-expense'}"
+                                      th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 30px; height: 30px; font-size: 12px;">
+                                        <span th:text="${#strings.substring(transaction.createdBy.fullName ?: transaction.createdBy.username, 0, 1).toUpperCase()}"></span>
+                                    </div>
+                                    <span th:text="${transaction.createdBy.fullName ?: transaction.createdBy.username}"></span>
+                                </div>
+                            </td>
+                            <td th:text="${#temporals.format(transaction.createdDate, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td>
+                                <span th:if="${transaction.status == 'ACTIVE'}" class="badge bg-success">
+                                    <i class="fas fa-check-circle"></i> Hoạt động
+                                </span>
+                                <span th:if="${transaction.status == 'COMPLETED'}" class="badge bg-info">
+                                    <i class="fas fa-flag-checkered"></i> Hoàn thành
+                                </span>
+                                <span th:if="${transaction.status == 'CANCELLED'}" class="badge bg-secondary">
+                                    <i class="fas fa-times-circle"></i> Đã hủy
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a th:href="@{/admin/finance/transactions/{id}/detail(id=${transaction.id})}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-warning"
+                                            data-bs-toggle="modal" data-bs-target="#editTransactionModal"
+                                            th:attr="onclick=|editTransaction('${transaction.id}')|">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            th:attr="onclick=|deleteTransaction('${transaction.id}', '${transaction.title}')|">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal tạo giao dịch mới -->
+<div class="modal fade" id="createTransactionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <form th:action="@{/admin/finance/transactions/create}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus"></i> Tạo giao dịch mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="groupId" class="form-label">Chọn nhóm *</label>
+                                    <select class="form-select" id="groupId" name="groupId" required>
+                                        <option value="">-- Chọn nhóm --</option>
+                                        <option th:each="group : ${groups}" th:value="${group.id}" th:text="${group.name}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="type" class="form-label">Loại giao dịch *</label>
+                                    <select class="form-select" id="type" name="type" required>
+                                        <option value="">-- Chọn loại --</option>
+                                        <option value="INCOME">Thu (yêu cầu đóng tiền)</option>
+                                        <option value="EXPENSE">Chi (thông báo)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="title" class="form-label">Tiêu đề *</label>
+                                    <input type="text" class="form-control" id="title" name="title" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="amount" class="form-label">Số tiền (VNĐ) *</label>
+                                    <input type="number" class="form-control" id="amount" name="amount" min="1000" step="1000" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3" id="targetUserDiv" style="display: none;">
+                                <label for="targetUserId" class="form-label">Chọn thành viên cần đóng tiền</label>
+                                <select class="form-select" id="targetUserId" name="targetUserId" multiple>
+                                    <option value="ALL">-- Tất cả thành viên --</option>
+                                </select>
+                                <small class="form-text text-muted">Chọn nhiều thành viên hoặc chọn "Tất cả thành viên" để gửi cho tất cả</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="dueDate" class="form-label">Hạn thực hiện</label>
+                                <input type="datetime-local" class="form-control" id="dueDate" name="dueDate">
+                                <small class="form-text text-muted">Để trống nếu không có hạn</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Thông tin chuyển khoản -->
+                        <div class="col-md-4">
+                            <div class="qr-payment-info text-center">
+                                <h6 class="fw-bold mb-3">💳 THÔNG TIN CHUYỂN KHOẢN</h6>
+                                <img src="/img/anh QR.jpg" alt="QR Techcombank" 
+                                     style="width:180px;height:180px;border-radius:8px;border:1px solid #eee;" 
+                                     class="mb-3">
+                                <div class="text-start">
+                                    <div class="mb-2"><strong>🏛️ Ngân hàng:</strong> Techcombank</div>
+                                    <div class="mb-2"><strong>📧 STK:</strong> 9966504911</div>
+                                    <div class="mb-2"><strong>👤 Chủ TK:</strong> PHAM KHUONG DUY</div>
+                                </div>
+                                <small class="text-muted">Quét mã QR hoặc chuyển khoản theo thông tin trên</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Tạo giao dịch
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chỉnh sửa giao dịch -->
+<div class="modal fade" id="editTransactionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <form id="editTransactionForm" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> Chỉnh sửa giao dịch
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="editTransactionContent">
+                    <!-- Nội dung sẽ được load bằng JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Xử lý khi chọn loại giao dịch
+    document.getElementById('type').addEventListener('change', function() {
+        const targetUserDiv = document.getElementById('targetUserDiv');
+        if (this.value === 'INCOME') {
+            targetUserDiv.style.display = 'block';
+            loadGroupMembers();
+        } else {
+            targetUserDiv.style.display = 'none';
+            document.getElementById('targetUserId').innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+        }
+    });
+
+    // Xử lý khi chọn nhóm
+    document.getElementById('groupId').addEventListener('change', function() {
+        if (document.getElementById('type').value === 'INCOME') {
+            loadGroupMembers();
+        } else {
+            document.getElementById('targetUserId').innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+        }
+    });
+
+    // Load thành viên nhóm khi chọn nhóm và loại thu
+    function loadGroupMembers() {
+        const groupId = document.getElementById('groupId').value;
+        const targetUserSelect = document.getElementById('targetUserId');
+        
+        if (!groupId) {
+            targetUserSelect.innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+            return;
+        }
+
+        fetch(`/admin/finance/transactions/group/${groupId}/members`)
+            .then(response => response.json())
+            .then(members => {
+                targetUserSelect.innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+                members.forEach(member => {
+                    targetUserSelect.innerHTML += `<option value="${member.id}">${member.fullName || member.username}</option>`;
+                });
+            })
+            .catch(error => {
+                targetUserSelect.innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+                console.error('Error loading members:', error);
+            });
+    }
+
+    // Lọc giao dịch theo loại
+    document.getElementById('filterType').addEventListener('change', function() {
+        const filterValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            if (!filterValue) {
+                row.style.display = '';
+            } else {
+                const typeCell = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                row.style.display = typeCell.includes(filterValue.replace('income', 'thu').replace('expense', 'chi')) ? '' : 'none';
+            }
+        });
+    });
+
+    // Chỉnh sửa giao dịch - load form giống form tạo
+    function editTransaction(transactionId) {
+        fetch(`/admin/finance/transactions/${transactionId}/edit-form`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('editTransactionContent').innerHTML = html;
+                document.getElementById('editTransactionForm').action = `/admin/finance/transactions/${transactionId}/update`;
+                // Khởi tạo lại event listeners cho form edit
+                initEditFormEvents();
+            })
+            .catch(error => {
+                document.getElementById('editTransactionContent').innerHTML = '<div class="alert alert-danger">Không tải được form chỉnh sửa!</div>';
+                console.error('Error loading transaction edit form:', error);
+            });
+    }
+
+    // Khởi tạo events cho form edit (tương tự form create)
+    function initEditFormEvents() {
+        const editTypeSelect = document.getElementById('editType');
+        const editGroupSelect = document.getElementById('editGroupId');
+        const editTargetUserDiv = document.getElementById('editTargetUserDiv');
+        const editTargetUserSelect = document.getElementById('editTargetUserId');
+
+        if (editTypeSelect) {
+            editTypeSelect.addEventListener('change', function() {
+                if (this.value === 'INCOME') {
+                    editTargetUserDiv.style.display = 'block';
+                    loadEditGroupMembers();
+                } else {
+                    editTargetUserDiv.style.display = 'none';
+                }
+            });
+        }
+
+        if (editGroupSelect) {
+            editGroupSelect.addEventListener('change', function() {
+                if (editTypeSelect.value === 'INCOME') {
+                    loadEditGroupMembers();
+                }
+            });
+        }
+    }
+
+    // Load members cho form edit
+    function loadEditGroupMembers() {
+        const groupId = document.getElementById('editGroupId').value;
+        const targetUserSelect = document.getElementById('editTargetUserId');
+        
+        if (!groupId) {
+            targetUserSelect.innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+            return;
+        }
+
+        fetch(`/admin/finance/transactions/group/${groupId}/members`)
+            .then(response => response.json())
+            .then(members => {
+                const currentSelected = Array.from(targetUserSelect.selectedOptions).map(o => o.value);
+                targetUserSelect.innerHTML = '<option value="ALL">-- Tất cả thành viên --</option>';
+                members.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.text = member.fullName || member.username;
+                    if (currentSelected.includes(member.id.toString())) {
+                        option.selected = true;
+                    }
+                    targetUserSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading members for edit:', error);
+            });
+    }
+
+    // Xóa giao dịch
+    function deleteTransaction(transactionId, title) {
+        if (confirm(`Bạn chắc chắn muốn xóa giao dịch "${title}"?`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/finance/transactions/${transactionId}/delete`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+</body>
+</html>

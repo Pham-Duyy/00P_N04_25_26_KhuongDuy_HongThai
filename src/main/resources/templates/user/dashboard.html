@@ -244,15 +244,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/groups">
-                            <i class="fas fa-users me-1"></i>Nhóm
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/transactions">
-                            <i class="fas fa-exchange-alt me-1"></i>Giao dịch
-                        </a>
-                    </li>
+    <a class="nav-link" href="/user/groups/invites">
+        <i class="fas fa-users me-1"></i>Nhóm
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/user/finance/transactions">
+        <i class="fas fa-exchange-alt me-1"></i>Giao dịch
+    </a>
+</li>
                     <li class="nav-item">
                         <a class="nav-link" href="/personal-finance">
                             <i class="fas fa-chart-line me-1"></i>Thu chi
@@ -322,14 +322,14 @@
 </div>
             
             <div class="dashboard-card transactions">
-                <i class="fas fa-exchange-alt icon"></i>
-                <h3>Giao dịch</h3>
-                <p>Quản lý và theo dõi tất cả các giao dịch thu chi. Phân loại, ghi chú và thống kê chi tiết.</p>
-                <a th:href="@{/user/transactions}" class="btn-custom btn-transactions">
-                    <i class="fas fa-chart-bar"></i>
-                    Xem giao dịch
-                </a>
-            </div>
+    <i class="fas fa-exchange-alt icon"></i>
+    <h3>Giao dịch</h3>
+    <p>Quản lý và theo dõi tất cả các giao dịch thu chi. Phân loại, ghi chú và thống kê chi tiết.</p>
+    <a th:href="@{/user/finance/transactions}" class="btn-custom btn-transactions">
+        <i class="fas fa-chart-bar"></i>
+        Xem giao dịch
+    </a>
+</div>
             
             <div class="dashboard-card finance">
                 <i class="fas fa-chart-line icon"></i>

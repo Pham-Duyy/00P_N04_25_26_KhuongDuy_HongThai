@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -84,7 +85,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<User> getGroupMembers(Long groupId) {
         Group group = groupRepository.findById(groupId).orElse(null);
-        return group != null ? group.getMembers() : List.of();
+        return group != null ? group.getMembers() : new ArrayList<>();
     }
 
     @Override
@@ -100,7 +101,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<String> getMemberConfirmStatus(Long groupId) {
         // TODO: Trả về trạng thái xác nhận của từng thành viên
-        return List.of();
+        return new ArrayList<>();
     }
 
     @Override
