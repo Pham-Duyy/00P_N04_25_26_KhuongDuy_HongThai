@@ -65,46 +65,6 @@
         </div>
     </div>
 
-    <!-- Thống kê tổng quan -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-arrow-up fa-2x text-success mb-2"></i>
-                    <h5>Tổng Thu</h5>
-                    <h3 class="text-success" th:text="${totalIncome != null ? #numbers.formatDecimal(totalIncome, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}"></h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-arrow-down fa-2x text-danger mb-2"></i>
-                    <h5>Tổng Chi</h5>
-                    <h3 class="text-danger" th:text="${totalExpense != null ? #numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}"></h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-balance-scale fa-2x text-info mb-2"></i>
-                    <h5>Số dư</h5>
-                    <h3 class="text-info" th:text="${balance != null ? #numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}"></h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-list fa-2x text-primary mb-2"></i>
-                    <h5>Tổng giao dịch</h5>
-                    <h3 class="text-primary" th:text="${transactions != null ? transactions.size() : 0}"></h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Thông báo -->
     <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle me-2"></i>

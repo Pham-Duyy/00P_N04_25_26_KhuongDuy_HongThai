@@ -127,12 +127,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="info-item">
-                        <strong>Số tiền hiện tại:</strong>
-                        <span class="text-success fw-bold fs-5">
-                            <span th:text="${#numbers.formatDecimal(group.fundAmount ?: 0, 0, 'COMMA', 0, 'POINT')}"></span> VNĐ
-                        </span>
-                    </div>
+                    
                     <div class="info-item" th:if="${group.targetAmount != null and group.targetAmount > 0}">
                         <strong>Mục tiêu quỹ:</strong>
                         <span class="text-info fw-bold">
