@@ -145,7 +145,7 @@ project-root/
 ├─ mvnw
 ├─ mvnw.cmd
 └─ pom.xml
-'''
+```
 
 #7️⃣ Mô tả các chức năng chính
 📂 Quản lý nhóm
