@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Báo cáo đóng góp - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .dashboard-card { border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .filter-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 25px; }
+        .table-container { background: #fff; border-radius: 10px; padding: 25px; }
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; }
+        .status-paid { background-color: #d4edda; color: #155724; }
+        .status-unpaid { background-color: #f8d7da; color: #721c24; }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .amount-text { font-weight: 600; color: #0d6efd; }
+    </style>
+</head>
+<body>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0"><i class="fas fa-hand-holding-usd me-2 text-warning"></i>Báo cáo đóng góp thành viên</h1>
+            <div>
+                <a href="/admin/reports" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại báo cáo
+                </a>
+                <a href="/admin" class="btn btn-primary ms-2">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="filter-card dashboard-card">
+        <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Bộ lọc</h5>
+        <form method="get" th:action="@{/admin/reports/contributions}">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="groupSelect" class="form-label">Lọc theo nhóm:</label>
+                    <select id="groupSelect" name="groupId" class="form-select">
+                        <option value="">-- Tất cả nhóm --</option>
+                        <option th:each="group : ${groups}" 
+                                th:value="${group.id}" 
+                                th:text="${group.name}"
+                                th:selected="${selectedGroupId != null and selectedGroupId == group.id}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-search me-2"></i>Lọc kết quả
+                    </button>
+                </div>
+                <div class="col-md-5 text-end">
+                    <span class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Tổng cộng: <strong th:text="${contributionStatistics != null ? #lists.size(contributionStatistics) : 0}">0</strong> bản ghi
+                    </span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bảng dữ liệu -->
+    <div class="table-container dashboard-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Danh sách đóng góp</h5>
+            <div class="text-muted">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Cập nhật: <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+        </div>
+
+        <!-- Kiểm tra có dữ liệu không -->
+        <div th:if="${contributionStatistics == null or #lists.isEmpty(contributionStatistics)}" class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Không có dữ liệu đóng góp</h5>
+            <p class="text-muted">Chưa có thành viên nào thực hiện đóng góp trong hệ thống.</p>
+        </div>
+
+        <!-- Bảng dữ liệu -->
+        <div th:if="${contributionStatistics != null and !#lists.isEmpty(contributionStatistics)}" class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-warning">
+                    <tr>
+                        <th><i class="fas fa-hashtag me-1"></i>STT</th>
+                        <th><i class="fas fa-user me-1"></i>Thành viên</th>
+                        <th><i class="fas fa-users me-1"></i>Nhóm</th>
+                        <th><i class="fas fa-exchange-alt me-1"></i>Giao dịch</th>
+                        <th><i class="fas fa-money-bill-wave me-1"></i>Số tiền</th>
+                        <th><i class="fas fa-info-circle me-1"></i>Trạng thái</th>
+                        <th><i class="fas fa-calendar me-1"></i>Ngày tạo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="stat, iterStat : ${contributionStatistics}">
+                        <td th:text="${iterStat.index + 1}">1</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <strong th:text="${stat['userName']}">Tên người dùng</strong>
+                                    <br><small class="text-muted" th:text="${stat['userEmail']}">email@example.com</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark" th:text="${stat['groupName']}">Tên nhóm</span>
+                        </td>
+                        <td>
+                            <div>
+                                <strong th:text="${stat['transactionDescription']}">Mô tả giao dịch</strong>
+                                <br><small class="text-muted">
+                                    Loại: <span th:text="${stat['transactionType']}">INCOME/EXPENSE</span>
+                                </small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="amount-text" th:text="${#numbers.formatCurrency(stat['amount'])}">$100.00</span>
+                        </td>
+                        <td>
+                            <span th:class="${'status-badge ' + (stat['status'] == 'PAID' ? 'status-paid' : (stat['status'] == 'UNPAID' ? 'status-unpaid' : 'status-pending'))}"
+                                  th:text="${stat['status'] == 'PAID' ? 'Đã thanh toán' : (stat['status'] == 'UNPAID' ? 'Chưa thanh toán' : 'Đang xử lý')}">
+                                Trạng thái
+                            </span>
+                        </td>
+                        <td th:text="${stat['createdDate'] != null ? #temporals.format(stat['createdDate'], 'dd/MM/yyyy') : 'N/A'}">01/01/2023</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Thống kê tóm tắt -->
+        <div th:if="${contributionStatistics != null and !#lists.isEmpty(contributionStatistics)}" class="row mt-4 pt-3 border-top">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h6 class="text-success">Đã thanh toán</h6>
+                    <span class="h5" th:text="${#lists.size(contributionStatistics.?[['status'] == 'PAID'])}">0</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h6 class="text-danger">Chưa thanh toán</h6>
+                    <span class="h5" th:text="${#lists.size(contributionStatistics.?[['status'] == 'UNPAID'])}">0</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h6 class="text-warning">Đang xử lý</h6>
+                    <span class="h5" th:text="${#lists.size(contributionStatistics.?[['status'] == 'PENDING'])}">0</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h6 class="text-primary">Tổng tiền</h6>
+                    <span class="h5 amount-text"
+                          th:text="${#numbers.formatCurrency(totalContributionAmount)}">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+.avatar-sm { width: 35px; height: 35px; font-size: 14px; }
+</style>
+</body>
+</html>

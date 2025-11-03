@@ -11,7 +11,6 @@
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -20,19 +19,16 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
-        
         .glass-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
         }
-        
         .gradient-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 20px 20px 0 0 !important;
             padding: 1.5rem;
         }
-        
         .info-card {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 15px;
@@ -41,11 +37,9 @@
             text-align: center;
             transition: transform 0.3s ease;
         }
-        
         .info-card:hover {
             transform: scale(1.05);
         }
-        
         .member-avatar {
             width: 50px;
             height: 50px;
@@ -60,26 +54,22 @@
             margin-right: 15px;
             transition: all 0.3s ease;
         }
-        
         .member-avatar:hover {
             transform: scale(1.1);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        
         .fund-progress {
             height: 30px;
             border-radius: 15px;
             background: rgba(255, 255, 255, 0.2);
             overflow: hidden;
         }
-        
         .fund-progress .progress-bar {
             background: linear-gradient(90deg, #56ab2f, #a8e6cf);
             border-radius: 15px;
             position: relative;
             overflow: hidden;
         }
-        
         .fund-progress .progress-bar::before {
             content: '';
             position: absolute;
@@ -90,12 +80,10 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             animation: shimmer 2s infinite;
         }
-        
         @keyframes shimmer {
             0% { left: -100%; }
             100% { left: 100%; }
         }
-        
         .member-card {
             background: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
@@ -104,29 +92,24 @@
             border-left: 4px solid #667eea;
             transition: all 0.3s ease;
         }
-        
         .member-card:hover {
             background: rgba(255, 255, 255, 1);
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        
         .badge-custom {
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-weight: 600;
         }
-        
         .badge-admin {
             background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
             color: white;
         }
-        
         .badge-member {
             background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
             color: #333;
         }
-        
         .btn-custom {
             border-radius: 25px;
             padding: 0.75rem 2rem;
@@ -134,34 +117,28 @@
             transition: all 0.3s ease;
             border: none;
         }
-        
         .btn-primary-custom {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-        
         .btn-primary-custom:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
-        
         .btn-success-custom {
             background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
             color: white;
         }
-        
         .btn-danger-custom {
             background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
             color: white;
         }
-        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
-        
         .floating-header {
             position: sticky;
             top: 20px;
@@ -215,18 +192,23 @@
         </div>
         <div class="info-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
             <i class="fas fa-wallet fa-3x mb-3"></i>
-            <h3 class="fw-bold" th:text="${#numbers.formatDecimal(group.fundAmount ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></h3>
+            <h3 class="fw-bold">
+                <span th:text="${#numbers.formatDecimal(currentFund ?: 0, 0, 'COMMA', 0, 'POINT')}"></span> VNĐ
+            </h3>
             <p class="mb-0">Quỹ hiện tại</p>
         </div>
         <div class="info-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-            <i class="fas fa-flag fa-3x mb-3"></i>
-            <h3 class="fw-bold" th:text="${group.type ?: 'N/A'}"></h3>
-            <p class="mb-0">Loại nhóm</p>
+            <i class="fas fa-bullseye fa-3x mb-3"></i>
+            <h3 class="fw-bold" th:text="${#numbers.formatDecimal(targetAmount ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></h3>
+            <p class="mb-0">Mục tiêu quỹ</p>
         </div>
         <div class="info-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-            <i th:class="${group.active ? 'fas fa-check-circle' : 'fas fa-pause-circle'} + ' fa-3x mb-3'"></i>
-            <h3 class="fw-bold" th:text="${group.active ? 'Hoạt động' : 'Đã đóng'}"></h3>
-            <p class="mb-0">Trạng thái</p>
+            <i class="fas fa-percentage fa-3x mb-3"></i>
+            <h3 class="fw-bold">
+                <span th:with="percent=${targetAmount != null && targetAmount > 0 ? (currentFund * 100.0 / targetAmount) : 0}"
+                      th:text="${#numbers.formatDecimal(percent, 0, 'COMMA', 1, 'POINT')} + '%'"></span>
+            </h3>
+            <p class="mb-0">Tiến độ đạt mục tiêu</p>
         </div>
     </div>
 
@@ -246,41 +228,38 @@
                         </h6>
                         <p class="fs-5 fw-semibold mb-0" th:text="${group.name}"></p>
                     </div>
-                    
                     <div class="mb-4">
                         <h6 class="text-primary fw-bold">
                             <i class="fas fa-align-left me-2"></i>Mô tả
                         </h6>
                         <p class="text-muted" th:text="${group.description ?: 'Chưa có mô tả'}"></p>
                     </div>
-                    
                     <div class="mb-4" th:if="${group.createdDate}">
                         <h6 class="text-primary fw-bold">
                             <i class="fas fa-calendar-alt me-2"></i>Ngày tạo
                         </h6>
                         <p class="mb-0" th:text="${#temporals.format(group.createdDate, 'dd/MM/yyyy HH:mm')}"></p>
                     </div>
-
-                    <div class="mb-4" th:if="${group.targetAmount != null and group.targetAmount > 0}">
+                    <div class="mb-4" th:if="${targetAmount != null and targetAmount > 0}">
                         <h6 class="text-primary fw-bold">
                             <i class="fas fa-bullseye me-2"></i>Mục tiêu quỹ
                         </h6>
                         <p class="text-info fw-bold fs-5">
-                            <span th:text="${#numbers.formatDecimal(group.targetAmount, 0, 'COMMA', 0, 'POINT')}"></span> VNĐ
+                            <span th:text="${#numbers.formatDecimal(targetAmount, 0, 'COMMA', 0, 'POINT')}"></span> VNĐ
                         </p>
                         <div class="progress fund-progress">
-                            <div class="progress-bar" role="progressbar" 
-                                 th:style="'width: ' + ${(group.fundAmount ?: 0) * 100 / group.targetAmount} + '%'"
-                                 th:attr="aria-valuenow=${(group.fundAmount ?: 0) * 100 / group.targetAmount}"
+                            <div class="progress-bar" role="progressbar"
+                                 th:with="percent=${targetAmount > 0 ? (currentFund * 100.0 / targetAmount) : 0}"
+                                 th:style="'width: ' + percent + '%'"
+                                 th:attr="aria-valuenow=${percent}"
                                  aria-valuemin="0" aria-valuemax="100">
-                                <span class="fw-bold" th:text="${#numbers.formatDecimal((group.fundAmount ?: 0) * 100 / group.targetAmount, 0, 'COMMA', 1, 'POINT')} + '%'"></span>
+                                <span class="fw-bold" th:text="${#numbers.formatDecimal(percent, 0, 'COMMA', 1, 'POINT')} + '%'"></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- Admin và vai trò -->
         <div class="col-lg-6 mb-4">
             <div class="glass-card h-100">
@@ -309,7 +288,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="mb-4">
                         <h6 class="text-primary fw-bold">
                             <i class="fas fa-user-check me-2"></i>Vai trò của bạn
@@ -323,13 +301,12 @@
                             <strong>Bạn là thành viên của nhóm này</strong>
                         </div>
                     </div>
-
                     <!-- Hành động -->
                     <div th:if="${currentUser.id != group.adminId}">
                         <h6 class="text-primary fw-bold mb-3">
                             <i class="fas fa-cogs me-2"></i>Hành động
                         </h6>
-                        <form th:action="@{'/user/groups/' + ${group.id} + '/leave'}" method="post" 
+                        <form th:action="@{'/user/groups/' + ${group.id} + '/leave'}" method="post"
                               th:attr="onsubmit='return confirm(\'Bạn chắc chắn muốn rời khỏi nhóm?\');'">
                             <button type="submit" class="btn btn-custom btn-danger-custom">
                                 <i class="fas fa-sign-out-alt"></i> Rời khỏi nhóm
@@ -340,7 +317,6 @@
             </div>
         </div>
     </div>
-
     <!-- Danh sách thành viên -->
     <div class="glass-card">
         <div class="gradient-header">
@@ -354,7 +330,6 @@
                 <i class="fas fa-users fa-4x text-muted mb-3"></i>
                 <h5 class="text-muted">Nhóm chưa có thành viên nào</h5>
             </div>
-            
             <div th:if="${group.members != null and !#lists.isEmpty(group.members)}">
                 <div class="row">
                     <div class="col-md-6 col-lg-4 mb-3" th:each="member : ${group.members}">
@@ -383,7 +358,6 @@
             </div>
         </div>
     </div>
-
     <!-- Hướng dẫn sử dụng -->
     <div class="glass-card mt-4">
         <div class="gradient-header">
@@ -447,7 +421,6 @@
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Thu Chi - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .navbar {
+            background: rgba(44, 62, 80, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border: none;
+        }
+
+        .card-header-custom h3 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .stats-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            margin: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
+        }
+
+        .stat-item.target::before { background: var(--info-color); }
+        .stat-item.contributed::before { background: var(--success-color); }
+        .stat-item.expense::before { background: var(--danger-color); }
+        .stat-item.current::before { background: var(--warning-color); }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-number.target { color: var(--info-color); }
+        .stat-number.contributed { color: var(--success-color); }
+        .stat-number.expense { color: var(--danger-color); }
+        .stat-number.current { color: var(--warning-color); }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .history-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .table thead th {
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .badge-type {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .badge-income {
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+            color: white;
+        }
+
+        .badge-expense {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            color: white;
+        }
+
+        .badge-paid {
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+            color: white;
+        }
+
+        .btn-filter {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-filter:hover {
+            background: linear-gradient(135deg, #2980b9, var(--secondary-color));
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .stat-number {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin">
+                <i class="fas fa-shield-alt me-2"></i>
+                Admin Dashboard
+            </a>
+            <div class="ms-auto">
+                <a href="/admin/reports" class="btn btn-back">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại báo cáo
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Main Card -->
+        <div class="main-card fade-in">
+            <!-- Header -->
+            <div class="card-header-custom">
+                <h3>
+                    <i class="fas fa-chart-line me-3"></i>
+                    Báo cáo Thu Chi Theo Nhóm
+                </h3>
+                <p class="mb-0 opacity-75">Xem chi tiết thu chi, quỹ và lịch sử giao dịch của từng nhóm</p>
+            </div>
+
+            <div class="p-4">
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <form method="get" action="/admin/reports/expenses">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <label for="groupId" class="form-label fw-bold">
+                                    <i class="fas fa-users me-2"></i>Chọn nhóm
+                                </label>
+                                <select name="groupId" id="groupId" class="form-select">
+                                    <option value="">-- Chọn nhóm để xem báo cáo --</option>
+                                    <option th:each="group : ${groups}" 
+                                            th:value="${group.id}" 
+                                            th:text="${group.name}"
+                                            th:selected="${group.id == selectedGroupId}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-filter w-100">
+                                    <i class="fas fa-search me-2"></i>Xem báo cáo
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Stats Summary (chỉ hiển thị khi đã chọn nhóm) -->
+                <div th:if="${group != null}" class="stats-summary">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-item target">
+                                <div class="stat-number target">
+                                    <span th:text="${targetAmount != null ? #numbers.formatDecimal(targetAmount, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </div>
+                                <div class="stat-label">Mục tiêu quỹ (VNĐ)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item contributed">
+                                <div class="stat-number contributed">
+                                    <span th:text="${totalContributed != null ? #numbers.formatDecimal(totalContributed, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </div>
+                                <div class="stat-label">Đã đóng góp (VNĐ)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item expense">
+                                <div class="stat-number expense">
+                                    <span th:text="${totalExpense != null ? #numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </div>
+                                <div class="stat-label">Đã chi (VNĐ)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item current">
+                                <div class="stat-number current">
+                                    <span th:text="${currentFund != null ? #numbers.formatDecimal(currentFund, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </div>
+                                <div class="stat-label">Quỹ hiện tại (VNĐ)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mt-4" th:if="${targetAmount != null and targetAmount > 0}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">Tiến độ đạt mục tiêu:</span>
+                            <span class="badge bg-primary" th:text="${#numbers.formatDecimal((currentFund != null and currentFund > 0 ? currentFund / targetAmount * 100 : 0), 1, 'POINT', 1, 'POINT')} + '%'">0%</span>
+                        </div>
+                        <div class="progress" style="height: 12px; border-radius: 10px;">
+                            <div class="progress-bar" 
+                                 role="progressbar" 
+                                 th:style="'width: ' + ${#numbers.formatDecimal((currentFund != null and currentFund > 0 ? (currentFund / targetAmount * 100 > 100 ? 100 : currentFund / targetAmount * 100) : 0), 0, 'POINT', 0, 'POINT')} + '%'"
+                                 th:classappend="${currentFund != null and targetAmount != null and currentFund >= targetAmount} ? 'bg-success' : 'bg-warning'"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lịch sử Chi (chỉ hiển thị khi đã chọn nhóm) -->
+                <div th:if="${group != null}" class="history-table">
+                    <div class="table-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            Lịch sử Chi tiêu
+                        </h5>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="30%">Tên giao dịch</th>
+                                    <th width="15%">Số tiền</th>
+                                    <th width="25%">Mô tả</th>
+                                    <th width="15%">Ngày tạo</th>
+                                    <th width="10%">Loại</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="expense, idx : ${expenseHistory}" class="align-middle">
+                                    <td>
+                                        <span class="fw-bold text-muted" th:text="${idx.index + 1}"></span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold" th:text="${expense.title}"></div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted" th:text="${expense.description != null ? expense.description : 'Không có mô tả'}"></span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted" th:text="${#temporals.format(expense.createdDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-type badge-expense">
+                                            <i class="fas fa-arrow-down me-1"></i>Chi
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(expenseHistory)}">
+                                    <td colspan="6" class="no-data">
+                                        <i class="fas fa-inbox"></i>
+                                        <div>Chưa có giao dịch chi nào</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Lịch sử Đóng góp (chỉ hiển thị khi đã chọn nhóm) -->
+                <div th:if="${group != null}" class="history-table">
+                    <div class="table-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-hand-holding-usd me-2"></i>
+                            Lịch sử Đóng góp (Đã xác nhận)
+                        </h5>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">Thành viên</th>
+                                    <th width="25%">Giao dịch</th>
+                                    <th width="15%">Số tiền</th>
+                                    <th width="15%">Ngày xác nhận</th>
+                                    <th width="15%">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="contribution, idx : ${contributionHistory}" class="align-middle">
+                                    <td>
+                                        <span class="fw-bold text-muted" th:text="${idx.index + 1}"></span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                 style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                                <span th:text="${contribution.user.fullName != null ? #strings.substring(contribution.user.fullName, 0, 1).toUpperCase() : #strings.substring(contribution.user.username, 0, 1).toUpperCase()}"></span>
+                                            </div>
+                                            <span class="fw-bold" th:text="${contribution.user.fullName != null ? contribution.user.fullName : contribution.user.username}"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-primary" th:text="${contribution.transaction.title}"></div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success" th:text="${#numbers.formatDecimal(contribution.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                    </td>
+                                    <td>
+                                        <span class="text-success" th:text="${#temporals.format(contribution.paidDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-type badge-paid">
+                                            <i class="fas fa-check-circle me-1"></i>Đã thanh toán
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(contributionHistory)}">
+                                    <td colspan="6" class="no-data">
+                                        <i class="fas fa-users-slash"></i>
+                                        <div>Chưa có đóng góp nào được xác nhận</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Message khi chưa chọn nhóm -->
+                <div th:if="${group == null}" class="no-data">
+                    <i class="fas fa-chart-bar fa-4x mb-3"></i>
+                    <h4>Chọn nhóm để xem báo cáo chi tiết</h4>
+                    <p class="text-muted">Vui lòng chọn một nhóm từ dropdown ở trên để xem thông tin thu chi, quỹ và lịch sử giao dịch.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation cho các số thống kê
+        document.addEventListener('DOMContentLoaded', function() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const textContent = stat.textContent || stat.innerText;
+                const finalValue = parseInt(textContent.replace(/[,.]/g, '')) || 0;
+                let currentValue = 0;
+                const increment = finalValue / 50;
+                
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        stat.textContent = finalValue.toLocaleString('vi-VN');
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(currentValue).toLocaleString('vi-VN');
+                    }
+                }, 30);
+            });
+        });
+    </script>
+</body>
+</html>

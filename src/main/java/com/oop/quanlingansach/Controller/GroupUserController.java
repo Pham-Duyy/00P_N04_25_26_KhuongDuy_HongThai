@@ -3,6 +3,8 @@ package com.oop.quanlingansach.Controller;
 import com.oop.quanlingansach.Model.Group;
 import com.oop.quanlingansach.Model.User;
 import com.oop.quanlingansach.Service.GroupService;
+import com.oop.quanlingansach.Service.TransactionParticipantService;
+import com.oop.quanlingansach.Service.TransactionService;
 import com.oop.quanlingansach.Service.UserService;
 import com.oop.quanlingansach.Service.GroupInviteService;
 import com.oop.quanlingansach.Model.GroupInvite;
@@ -12,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
-
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 @Controller
@@ -24,6 +28,13 @@ public class GroupUserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private TransactionService transactionService;
+
+
+@Autowired
+    private TransactionParticipantService transactionParticipantService;
+
 
     @Autowired
     private GroupInviteService groupInviteService;
@@ -60,7 +71,7 @@ public class GroupUserController {
     }
 
     // Hiển thị danh sách nhóm mà user đã tham gia (trả về trang my-groups)
-    @GetMapping
+@GetMapping
     public String listMyGroups(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
@@ -79,10 +90,28 @@ public class GroupUserController {
                 }
             }
         }
+
+        // Tính quỹ hiện tại cho từng nhóm (giống báo cáo admin)
+        Map<Long, Map<String, BigDecimal>> groupFunds = new HashMap<>();
+        if (myGroups != null) {
+            for (Group g : myGroups) {
+                if (g != null) {
+                    BigDecimal totalContributed = transactionParticipantService.getTotalPaidAmountByGroup(g.getId());
+                    BigDecimal totalExpense = transactionService.getTotalExpenseByGroup(g.getId());
+                    Map<String, BigDecimal> fundInfo = new HashMap<>();
+                    fundInfo.put("totalContributed", totalContributed != null ? totalContributed : BigDecimal.ZERO);
+                    fundInfo.put("totalExpense", totalExpense != null ? totalExpense : BigDecimal.ZERO);
+                    groupFunds.put(g.getId(), fundInfo);
+                }
+            }
+        }
+
         model.addAttribute("groups", myGroups);
         model.addAttribute("currentUser", user);
         model.addAttribute("adminCount", adminCount);
         model.addAttribute("memberCount", memberCount);
+        model.addAttribute("groupFunds", groupFunds); // truyền cho view
+
         return "user/groups/my-groups";
     }
 
@@ -104,9 +133,20 @@ public String viewJoinedGroup(@PathVariable Long groupId, HttpSession session, M
         redirectAttributes.addFlashAttribute("error", "Bạn không phải thành viên nhóm này!");
         return "redirect:/user/groups";
     }
+
+    // Tính toán quỹ hiện tại và mục tiêu quỹ
+    BigDecimal totalContributed = transactionParticipantService.getTotalPaidAmountByGroup(group.getId());
+    BigDecimal totalExpense = transactionService.getTotalExpenseByGroup(group.getId());
+    BigDecimal currentFund = totalContributed != null ? totalContributed : BigDecimal.ZERO;
+    if (totalExpense != null) currentFund = currentFund.subtract(totalExpense);
+    BigDecimal targetAmount = group.getTargetAmount();
+
     model.addAttribute("group", group);
     model.addAttribute("currentUser", user);
-    model.addAttribute("members", group.getMembers()); // Truyền danh sách thành viên cho view
+    model.addAttribute("members", group.getMembers());
+    model.addAttribute("currentFund", currentFund);
+    model.addAttribute("targetAmount", targetAmount);
+
     return "user/groups/group-detail";
 }
 

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -25,6 +26,11 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public List<Group> findGroupsByMember(Long userId) {
+        return groupRepository.findByMembersId(userId);
+    }
+
+    @Override
+    public List<Group> findGroupsByMemberId(Long userId) {
         return groupRepository.findByMembersId(userId);
     }
 
@@ -82,9 +88,14 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public long countAllGroups() {
+        return groupRepository.count();
+    }
+
+    @Override
     public List<User> getGroupMembers(Long groupId) {
         Group group = groupRepository.findById(groupId).orElse(null);
-        return group != null ? group.getMembers() : List.of();
+        return group != null ? group.getMembers() : new ArrayList<>();
     }
 
     @Override
@@ -100,7 +111,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<String> getMemberConfirmStatus(Long groupId) {
         // TODO: Trả về trạng thái xác nhận của từng thành viên
-        return List.of();
+        return new ArrayList<>();
     }
 
     @Override
@@ -110,5 +121,11 @@ public class GroupServiceImpl implements GroupService {
             group.getMembers().removeIf(user -> user.getId().equals(userId));
             groupRepository.save(group);
         }
+    }
+
+    // === BỔ SUNG: Cho phép cập nhật quỹ nhóm (dùng cho giao dịch chi/thu) ===
+    @Override
+    public void saveGroup(Group group) {
+        groupRepository.save(group);
     }
 }

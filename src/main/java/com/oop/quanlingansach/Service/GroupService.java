@@ -12,7 +12,7 @@ public interface GroupService {
      * Lấy tất cả nhóm.
      */
     List<Group> findAll();
-
+void saveGroup(Group group);
     /**
      * Tìm kiếm nhóm theo tên.
      */
@@ -74,10 +74,16 @@ public interface GroupService {
     List<String> getMemberConfirmStatus(Long groupId);
 
     /**
-     * Lấy danh sách nhóm mà user đã tham gia.
+     * Lấy danh sách nhóm mà user đã tham gia (tương thích cho controller).
      */
     List<Group> findGroupsByMember(Long userId);
 
+    /**
+     * Lấy danh sách nhóm mà user đã tham gia (tên rõ ràng, dùng cho controller mới).
+     */
+    List<Group> findGroupsByMemberId(Long userId);
+
+    long countAllGroups();
     /**
      * Xóa thành viên khỏi nhóm.
      */

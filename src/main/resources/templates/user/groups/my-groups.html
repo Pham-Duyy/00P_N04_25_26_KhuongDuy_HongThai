@@ -2,257 +2,523 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách nhóm của tôi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
         body {
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            margin: 0;
         }
-        .card {
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
         }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card-header {
-            background: linear-gradient(45deg, #3498db, #2980b9);
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            border-radius: 16px 16px 0 0 !important;
+            padding: 2rem;
+            position: relative;
         }
-        .badge {
-            font-size: 0.9em;
+
+        .header-section h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
         }
-        .table thead th {
-            background: #34495e;
-            color: white;
+
+        .header-section .subtitle {
+            margin-top: 0.5rem;
+            opacity: 0.8;
+            font-size: 0.95rem;
         }
-        .btn-danger:hover {
-            background: #c0392b;
-            border-color: #c0392b;
-        }
-        .group-stats {
-            background: #f8f9fa;
+
+        .btn-custom {
             border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-home {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-invites {
+            background: linear-gradient(135deg, var(--warning-color), #f7dc6f);
+            color: white;
+        }
+
+        .btn-invites:hover {
+            background: linear-gradient(135deg, #e67e22, var(--warning-color));
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stats-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-card h4 {
+            font-weight: 800;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .table-custom {
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
             padding: 1rem;
+            border: none;
+        }
+
+        .table-custom tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .table-custom tbody tr:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .table-custom tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .badge-custom {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, var(--warning-color), #f7dc6f);
+            color: white;
+        }
+
+        .badge-member {
+            background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+            color: white;
+        }
+
+        .badge-active {
+            background: linear-gradient(135deg, var(--success-color), #58d68d);
+            color: white;
+        }
+
+        .badge-inactive {
+            background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+            color: white;
+        }
+
+        .btn-action {
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-detail {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            border: none;
+            color: white;
+        }
+
+        .btn-detail:hover {
+            background: linear-gradient(135deg, #2980b9, var(--secondary-color));
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-leave {
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-leave:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .fund-amount {
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .fund-positive {
+            color: var(--success-color);
+        }
+
+        .fund-negative {
+            color: var(--danger-color);
+        }
+
+        .fund-zero {
+            color: #6c757d;
+        }
+
+        .alert-custom {
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+            border-left: 4px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .guide-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .guide-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-section {
+                padding: 1.5rem;
+            }
+            .header-section h2 {
+                font-size: 1.5rem;
+            }
+            .stats-card h4 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container mt-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-primary mb-0">
-                <i class="fas fa-users me-2"></i>Danh sách nhóm của tôi
-            </h2>
-            <p class="text-muted mb-0">Quản lý các nhóm ngân sách bạn đã tham gia</p>
-        </div>
-        <div>
-            <a href="/user/groups/invites" class="btn btn-outline-warning me-2">
-                <i class="fas fa-envelope"></i> Lời mời nhóm
-            </a>
-            <a href="/user/dashboard" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
-        </div>
-    </div>
-
-    <!-- Thông báo -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
-        <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <!-- Thống kê tổng quan -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                    <h4 class="fw-bold text-primary" th:text="${groups?.size() ?: 0}"></h4>
-                    <p class="text-muted mb-0">Tổng số nhóm</p>
+    <div class="container">
+        <div class="main-container fade-in">
+            <!-- Header -->
+            <div class="header-section">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h2>
+                            <i class="fas fa-users me-2"></i>
+                            Danh sách nhóm của tôi
+                        </h2>
+                        <p class="subtitle mb-0">Quản lý các nhóm ngân sách bạn đã tham gia</p>
+                    </div>
+                    <div class="d-flex gap-2 mt-3 mt-md-0">
+                        <a href="/user/groups/invites" class="btn btn-custom btn-invites">
+                            <i class="fas fa-envelope me-2"></i>Lời mời nhóm
+                        </a>
+                        <a href="/user/dashboard" class="btn btn-custom btn-home">
+                            <i class="fas fa-home me-2"></i>Trang chủ
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-    <!-- ... -->
-<div class="col-md-4">
-    <div class="card text-center">
-        <div class="card-body">
-            <i class="fas fa-crown fa-2x text-warning mb-2"></i>
-            <h4 class="fw-bold text-warning" th:text="${adminCount}">0</h4>
-            <p class="text-muted mb-0">Nhóm quản lý</p>
-        </div>
-    </div>
-</div>
-<div class="col-md-4">
-    <div class="card text-center">
-        <div class="card-body">
-            <i class="fas fa-user-friends fa-2x text-success mb-2"></i>
-            <h4 class="fw-bold text-success" th:text="${memberCount}">0</h4>
-            <p class="text-muted mb-0">Nhóm tham gia</p>
-        </div>
-    </div>
-</div>
-<!-- ... -->
-    </div>
 
-    <!-- Danh sách nhóm -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">
-                <i class="fas fa-list me-2"></i>Danh sách nhóm
-                <span class="badge bg-light text-dark ms-2" th:text="${groups?.size() ?: 0}"></span>
-            </h5>
-        </div>
-        <div class="card-body">
-            <div th:if="${groups == null or #lists.isEmpty(groups)}" class="text-center py-5">
-                <i class="fas fa-users fa-4x text-muted mb-3"></i>
-                <h5 class="text-muted">Bạn chưa tham gia nhóm nào</h5>
-                <p class="text-muted">Hãy kiểm tra lời mời tham gia nhóm của bạn</p>
-                <a href="/user/groups/invites" class="btn btn-primary">
-                    <i class="fas fa-envelope"></i> Xem lời mời
-                </a>
-            </div>
-
-            <div th:if="${groups != null and !#lists.isEmpty(groups)}" class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Tên nhóm</th>
-                            <th>Loại</th>
-                            <th>Vai trò</th>
-                            <th>Số thành viên</th>
-                            <th>Quỹ hiện tại</th>
-                            <th>Trạng thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="group, idx : ${groups}" th:if="${group != null}">
-                            <td th:text="${idx.index + 1}"></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                         style="width: 35px; height: 35px; font-size: 14px;">
-                                        <span th:text="${#strings.substring(group.name ?: 'N', 0, 1).toUpperCase()}"></span>
-                                    </div>
-                                    <div>
-                                        <span class="fw-semibold text-primary" th:text="${group.name ?: 'Tên nhóm không có'}"></span>
-                                        <small class="d-block text-muted" th:text="${group.description ?: 'Chưa có mô tả'}"></small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge bg-info" th:text="${group.type ?: 'N/A'}"></span>
-                            </td>
-                            <td>
-                                <span th:if="${group.adminId != null and group.adminId == currentUser.id}" class="badge bg-warning">
-                                    <i class="fas fa-crown"></i> Admin
-                                </span>
-                                <span th:if="${group.adminId == null or group.adminId != currentUser.id}" class="badge bg-secondary">
-                                    <i class="fas fa-user"></i> Thành viên
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary" th:text="${group.members?.size() ?: 0}"></span>
-                            </td>
-                            <td>
-                                <span class="text-success fw-bold">
-                                    <span th:text="${#numbers.formatDecimal(group.fundAmount ?: 0, 0, 'COMMA', 0, 'POINT')}"></span> VNĐ
-                                </span>
-                            </td>
-                            <td>
-                                <span th:if="${group.active == true}" class="badge bg-success">
-                                    <i class="fas fa-check-circle"></i> Hoạt động
-                                </span>
-                                <span th:if="${group.active == false}" class="badge bg-secondary">
-                                    <i class="fas fa-pause-circle"></i> Đã đóng
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group-vertical btn-group-sm" role="group">
-                                    <!-- Nút xem chi tiết -->
-<a th:href="@{'/user/groups/' + ${group.id}}" class="btn btn-info btn-sm mb-1">
-    <i class="fas fa-eye"></i> Xem chi tiết
-</a>
-                                    
-                                    <!-- Nút rời khỏi nhóm (chỉ hiện với thành viên, không phải admin) -->
-                                    <div th:if="${group.adminId == null or group.adminId != currentUser.id}">
-                                        <form th:action="@{'/user/groups/' + ${group.id} + '/leave'}" method="post" 
-                                              th:attr="onsubmit='return confirm(\'Bạn chắc chắn muốn rời khỏi nhóm ' + ${group.name} + '?\');'">
-                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                <i class="fas fa-sign-out-alt"></i> Rời nhóm
-                                            </button>
-                                        </form>
-                                    </div>
-                                    
-                                    <!-- Thông báo cho admin -->
-                                    <div th:if="${group.adminId != null and group.adminId == currentUser.id}">
-                                        <small class="text-muted d-block mt-1">
-                                            <i class="fas fa-shield-alt"></i> Bạn là admin
-                                        </small>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Thông tin hướng dẫn -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>Hướng dẫn sử dụng
-                    </h6>
+            <div class="p-4">
+                <!-- Thông báo -->
+                <div th:if="${success}" class="alert alert-success alert-custom">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${success}"></span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-primary">
-                                <i class="fas fa-crown"></i> Với vai trò Admin:
-                            </h6>
-                            <ul class="small text-muted">
-                                <li>Bạn có thể xem chi tiết và quản lý nhóm</li>
-                                <li>Thêm/xóa thành viên khỏi nhóm</li>
-                                <li>Chỉnh sửa thông tin nhóm</li>
-                                <li>Admin không thể rời khỏi nhóm</li>
-                            </ul>
+                <div th:if="${error}" class="alert alert-danger alert-custom">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <!-- Thống kê tổng quan -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stats-card text-center">
+                            <i class="fas fa-users icon text-primary"></i>
+                            <h4 class="text-primary" th:text="${groups?.size() ?: 0}">0</h4>
+                            <p class="text-muted mb-0">Tổng số nhóm</p>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-success">
-                                <i class="fas fa-user"></i> Với vai trò Thành viên:
-                            </h6>
-                            <ul class="small text-muted">
-                                <li>Bạn có thể xem thông tin nhóm</li>
-                                <li>Tham gia các hoạt động của nhóm</li>
-                                <li>Rời khỏi nhóm bất kỳ lúc nào</li>
-                                <li>Không thể xóa thành viên khác</li>
-                            </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card text-center">
+                            <i class="fas fa-crown icon text-warning"></i>
+                            <h4 class="text-warning" th:text="${adminCount ?: 0}">0</h4>
+                            <p class="text-muted mb-0">Nhóm quản lý</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card text-center">
+                            <i class="fas fa-user-friends icon text-success"></i>
+                            <h4 class="text-success" th:text="${memberCount ?: 0}">0</h4>
+                            <p class="text-muted mb-0">Nhóm tham gia</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách nhóm -->
+                <div class="main-card">
+                    <div class="card-header-custom">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Danh sách nhóm
+                            <span class="badge bg-light text-dark ms-2" th:text="${groups?.size() ?: 0}">0</span>
+                        </h5>
+                    </div>
+
+                    <div th:if="${groups == null or #lists.isEmpty(groups)}" class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h5>Bạn chưa tham gia nhóm nào</h5>
+                        <p class="text-muted">Hãy kiểm tra lời mời tham gia nhóm của bạn</p>
+                        <a href="/user/groups/invites" class="btn btn-primary">
+                            <i class="fas fa-envelope me-2"></i>Xem lời mời
+                        </a>
+                    </div>
+
+                    <div th:if="${groups != null and !#lists.isEmpty(groups)}" class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">Tên nhóm</th>
+                                    <th width="10%">Loại</th>
+                                    <th width="10%">Vai trò</th>
+                                    <th width="8%">Thành viên</th>
+                                    <th width="15%">Quỹ hiện tại</th>
+                                    <th width="10%">Trạng thái</th>
+                                    <th width="17%">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="group, idx : ${groups}" th:if="${group != null}">
+                                    <td>
+                                        <span class="fw-bold text-muted" th:text="${idx.index + 1}"></span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-primary text-white me-2">
+                                                <span th:text="${#strings.substring(group.name ?: 'N', 0, 1).toUpperCase()}"></span>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-primary" th:text="${group.name ?: 'Tên nhóm không có'}"></div>
+                                                <small class="text-muted" th:text="${group.description ?: 'Chưa có mô tả'}"></small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info" th:text="${group.type ?: 'N/A'}"></span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${group.adminId != null and group.adminId == currentUser.id}" class="badge badge-custom badge-admin">
+                                            <i class="fas fa-crown me-1"></i>Admin
+                                        </span>
+                                        <span th:if="${group.adminId == null or group.adminId != currentUser.id}" class="badge badge-custom badge-member">
+                                            <i class="fas fa-user me-1"></i>Thành viên
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary" th:text="${group.members?.size() ?: 0}"></span>
+                                    </td>
+                                    <td>
+                                        <!-- Logic tính quỹ hiện tại: Tổng đóng góp - Tổng chi -->
+                                        <span th:with="
+                                            totalContributed=${groupFunds != null and groupFunds[group.id] != null ? groupFunds[group.id]['totalContributed'] : 0},
+                                            totalExpense=${groupFunds != null and groupFunds[group.id] != null ? groupFunds[group.id]['totalExpense'] : 0},
+                                            currentFund=${totalContributed - totalExpense}"
+                                            class="fund-amount"
+                                            th:classappend="${currentFund > 0} ? 'fund-positive' : (${currentFund < 0} ? 'fund-negative' : 'fund-zero')">
+                                            <span th:text="${#numbers.formatDecimal(currentFund, 0, 'COMMA', 0, 'POINT')}">0</span> VNĐ
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${group.active == true}" class="badge badge-custom badge-active">
+                                            <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                        </span>
+                                        <span th:if="${group.active == false}" class="badge badge-custom badge-inactive">
+                                            <i class="fas fa-pause-circle me-1"></i>Đã đóng
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <!-- Nút xem chi tiết -->
+                                            <a th:href="@{'/user/groups/' + ${group.id}}" class="btn btn-action btn-detail">
+                                                <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                            </a>
+                                            
+                                            <!-- Nút rời khỏi nhóm (chỉ hiện với thành viên, không phải admin) -->
+                                            <div th:if="${group.adminId == null or group.adminId != currentUser.id}">
+                                                <form th:action="@{'/user/groups/' + ${group.id} + '/leave'}" method="post" 
+                                                      th:attr="onsubmit='return confirm(\'Bạn chắc chắn muốn rời khỏi nhóm ' + ${group.name} + '?\');'">
+                                                    <button type="submit" class="btn btn-action btn-leave">
+                                                        <i class="fas fa-sign-out-alt me-1"></i>Rời nhóm
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            
+                                            <!-- Thông báo cho admin -->
+                                            <div th:if="${group.adminId != null and group.adminId == currentUser.id}">
+                                                <small class="text-muted text-center d-block mt-1">
+                                                    <i class="fas fa-shield-alt me-1"></i>Bạn là admin
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Thông tin hướng dẫn -->
+                <div class="guide-card">
+                    <div class="guide-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Hướng dẫn sử dụng
+                        </h6>
+                    </div>
+                    <div class="p-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">
+                                    <i class="fas fa-crown"></i> Với vai trò Admin:
+                                </h6>
+                                <ul class="small text-muted">
+                                    <li>Bạn có thể xem chi tiết và quản lý nhóm</li>
+                                    <li>Thêm/xóa thành viên khỏi nhóm</li>
+                                    <li>Chỉnh sửa thông tin nhóm</li>
+                                    <li>Admin không thể rời khỏi nhóm</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-success">
+                                    <i class="fas fa-user"></i> Với vai trò Thành viên:
+                                </h6>
+                                <ul class="small text-muted">
+                                    <li>Bạn có thể xem thông tin nhóm</li>
+                                    <li>Tham gia các hoạt động của nhóm</li>
+                                    <li>Rời khỏi nhóm bất kỳ lúc nào</li>
+                                    <li>Không thể xóa thành viên khác</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
