@@ -314,4 +314,19 @@ Vòng lặp hoạt động khép kín giữa:
 
 ---
 
-
+## Diagram
+- Sơ đồ Use Case
+(image.png)
+- Sơ đồ Class Diagram
+(image-1.png)
+- Sơ đồ Sequence Diagram
+- CRUD cho user
+(image-2.png)
+-  CRUD cho GroupAdmin
+(image-3.png)
+ - CRUD cho AdminTransaction
+ (image-4.png)
+ - CRUD cho Approve Transaction
+(image-5.png)
+- Sơ đồ thuật toán chức năng chính 
+(image-6.png)
