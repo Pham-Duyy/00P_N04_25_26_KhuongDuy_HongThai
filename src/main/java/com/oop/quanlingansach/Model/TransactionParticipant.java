@@ -1,6 +1,7 @@
 package com.oop.quanlingansach.Model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,6 +22,10 @@ public class TransactionParticipant {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // Số tiền đóng góp
+    @Column(nullable = false)
+    private BigDecimal amount = BigDecimal.ZERO;
+
     // Đã đóng tiền hay chưa
     @Column(nullable = false)
     private boolean paid = false;
@@ -31,9 +36,10 @@ public class TransactionParticipant {
     // Constructors
     public TransactionParticipant() {}
 
-    public TransactionParticipant(Transaction transaction, User user) {
+    public TransactionParticipant(Transaction transaction, User user, BigDecimal amount) {
         this.transaction = transaction;
         this.user = user;
+        this.amount = amount;
         this.paid = false;
     }
 
@@ -56,6 +62,14 @@ public class TransactionParticipant {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 
     public boolean isPaid() {

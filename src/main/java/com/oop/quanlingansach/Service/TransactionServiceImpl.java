@@ -1,7 +1,9 @@
 package com.oop.quanlingansach.Service;
 
 import com.oop.quanlingansach.Model.Transaction;
+import com.oop.quanlingansach.Model.TransactionParticipant;
 import com.oop.quanlingansach.Repository.TransactionRepository;
+import com.oop.quanlingansach.Repository.TransactionParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private TransactionParticipantRepository transactionParticipantRepository;
 
     @Override
     public List<Transaction> findAll() {
@@ -60,15 +65,20 @@ public class TransactionServiceImpl implements TransactionService {
         // Tùy vào thiết kế bảng dữ liệu của bạn
     }
 
-    // Đếm tổng số giao dịch
     @Override
     public long countAll() {
         return transactionRepository.count();
     }
 
-    // Đếm số giao dịch theo loại (INCOME/EXPENSE)
     @Override
     public long countByType(String type) {
         return transactionRepository.countByType(type);
+    }
+
+    // Lấy danh sách đóng góp đã thanh toán của user
+    @Override
+    public List<TransactionParticipant> findPaidContributionsByUserId(Long userId) {
+        // Giả sử TransactionParticipantRepository có phương thức này
+        return transactionParticipantRepository.findByUserIdAndPaidTrue(userId);
     }
 }

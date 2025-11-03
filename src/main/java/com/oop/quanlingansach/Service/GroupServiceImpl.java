@@ -29,6 +29,12 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.findByMembersId(userId);
     }
 
+    // Bổ sung: Tên rõ ràng cho controller mới
+    @Override
+    public List<Group> findGroupsByMemberId(Long userId) {
+        return groupRepository.findByMembersId(userId);
+    }
+
     @Override
     public List<Group> searchByName(String keyword) {
         return groupRepository.findByNameContainingIgnoreCase(keyword);

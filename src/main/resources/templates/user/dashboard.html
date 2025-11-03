@@ -291,24 +291,22 @@
         </div>
 
         <!-- Stats Row -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Nhóm tham gia</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">128</div>
-                <div class="stat-label">Giao dịch tháng này</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">2.5M</div>
-                <div class="stat-label">Tổng thu nhập</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">1.8M</div>
-                <div class="stat-label">Tổng chi tiêu</div>
-            </div>
-        </div>
+        <!-- ...existing code... -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-number" th:text="${joinedGroups}">0</div>
+        <div class="stat-label">Nhóm tham gia</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" th:text="${totalContributions}">0</div>
+        <div class="stat-label">Giao dịch đã đóng góp</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" th:text="${#numbers.formatDecimal(totalPaidAmount, 0, 'COMMA', 0, 'POINT')}">0</div>
+        <div class="stat-label">Tổng tiền đã đóng (VNĐ)</div>
+    </div>
+</div>
+<!-- ...existing code... -->
 
         <!-- Dashboard Cards -->
         <div class="dashboard-card groups">

@@ -74,9 +74,14 @@ public interface GroupService {
     List<String> getMemberConfirmStatus(Long groupId);
 
     /**
-     * Lấy danh sách nhóm mà user đã tham gia.
+     * Lấy danh sách nhóm mà user đã tham gia (tương thích cho controller).
      */
     List<Group> findGroupsByMember(Long userId);
+
+    /**
+     * Lấy danh sách nhóm mà user đã tham gia (tên rõ ràng, dùng cho controller mới).
+     */
+    List<Group> findGroupsByMemberId(Long userId);
 
     /**
      * Xóa thành viên khỏi nhóm.

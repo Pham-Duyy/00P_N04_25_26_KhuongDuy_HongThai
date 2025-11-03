@@ -1,6 +1,7 @@
 package com.oop.quanlingansach.Service;
 
 import com.oop.quanlingansach.Model.Transaction;
+import com.oop.quanlingansach.Model.TransactionParticipant;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,4 +39,7 @@ public interface TransactionService {
 
     // Đếm số giao dịch theo loại (INCOME/EXPENSE)
     long countByType(String type);
+
+    // Lấy danh sách đóng góp đã thanh toán của user
+    List<TransactionParticipant> findPaidContributionsByUserId(Long userId);
 }
